@@ -1,0 +1,109 @@
+src,dst,count
+#COVID19,*positive,37895
+*positive,*trump,183387
+*positive,*pandemic,25158
+*positive,*important,25077
+*positive,*healthy,25075
+*positive,*people,10898
+#COVID19,*pandemic,29208
+*pandemic,*important,25783
+*pandemic,*positive,25134
+*pandemic,*healthy,25079
+*pandemic,*life,22934
+*pandemic,*trump,21554
+*pandemic,*people,12074
+*pandemic,*america,11727
+#COVID19,*healthy,23014
+*healthy,*trump,30922
+*healthy,*important,25098
+*healthy,*pandemic,25079
+*healthy,*positive,25075
+*healthy,*people,1084
+#COVID19,*trump,17244
+*trump,*people,240450
+*trump,*positive,183468
+#COVID19,*important,16894
+*important,*pandemic,25777
+*important,*healthy,25098
+*important,*positive,25079
+*important,*life,8147
+*important,*people,6006
+*important,*trump,4726
+#COVID19,*hospital,13328
+*hospital,*trump,23526
+*hospital,*thoughts,12447
+*hospital,*vote,12421
+#COVID19,*thoughts,12484
+*thoughts,*hospital,12447
+*thoughts,*live…,12404
+*thoughts,*vote,12393
+*thoughts,*pandemic,8178
+#COVID19,*vote,12482
+*vote,*people,29445
+*vote,*trump,21728
+*vote,*hospital,12421
+*vote,*live…,12416
+*vote,*thoughts,12393
+#COVID19,*prayers,12397
+*prayers,*thoughts,13405
+*prayers,*live…,12380
+#COVID19,*live…,12381
+*live…,*hospital,12404
+*live…,*thoughts,12404
+*live…,*prayers,12380
+#COVID19,*america,11687
+*america,*people,344399
+*america,*trump,50023
+*america,*pandemic,11735
+*america,"*trump administration",11335
+*america,*hospital,7441
+#COVID19,"*trump administration",11318
+"*trump administration",*america,11335
+"*trump administration",*pandemic,11301
+"*trump administration",*trump,2180
+#COVID19,*people,10626
+*people,*trump,240456
+*people,*life,59415
+#COVID19,*life,9600
+*life,*people,41546
+*life,*pandemic,22907
+#COVID19,"*loved ones",9557
+"*loved ones",*tough.…,9122
+"*loved ones",*people,1400
+"*loved ones",*trump,515
+#COVID19,*tough.…,9122
+*tough.…,"*loved ones",9122
+*tough.…,*important,1
+#COVID19,*baby,8977
+*baby,*life,10156
+#COVID19,"*semporna sabah",8916
+"*semporna sabah",*life,8916
+"*semporna sabah",*baby,8916
+#COVID19,*dexamethasone,8700
+*dexamethasone,*effect,9324
+*dexamethasone,*mortality,9096
+*dexamethasone,*fac…,7932
+*dexamethasone,*📍dangers,7572
+*dexamethasone,*trump,5477
+*dexamethasone,*thoughts,2721
+#COVID19,*mortality,8220
+*mortality,*effect,9157
+*mortality,*dexamethasone,9096
+*mortality,*📍dangers,7896
+*mortality,*fac…,7572
+*mortality,*people,12
+#COVID19,*effect,7891
+*effect,*dexamethasone,9324
+*effect,*mortality,8797
+*effect,*fac…,7896
+*effect,*📍dangers,7896
+#COVID19,*📍dangers,7860
+*📍dangers,*dexamethasone,7896
+*📍dangers,*mortality,7824
+*📍dangers,*effect,7788
+*📍dangers,*fac…,7572
+#COVID19,*fac…,7764
+*fac…,*mortality,7896
+*fac…,*📍dangers,7860
+*fac…,*dexamethasone,7824
+*fac…,*effect,7572
