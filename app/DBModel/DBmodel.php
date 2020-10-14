@@ -25,7 +25,7 @@ use Cassandra;
 use Illuminate\Database\Events\StatementPrepared;
 use mysqli;
 use Session;
-
+use App\Http\Controllers\ConfigureSmat as Config;
 /**
  * This is the Database Model of the system for the Database queries
  * The user credentials are retrived from the osint_conf.ini file
@@ -40,16 +40,18 @@ class DBmodel extends Model
     public function establish_db_connection($type_arg)
     {
         // $osint_DB = parse_ini_file("/var/www/osint_conf.ini"); // The Database Configuration file
-        $userId = env('CASSANDRA_UNAME');
-        $pwd =  env('CASSANDRA_PASS');
-        $cassandra_nodes = env('CASSANDRA_NODES');
-        $keyspace =  env('KEYSPACE');
-      
-        // $userId = 'guest';
-        // $pwd = 'easyP@$$';
-        // $keyspace = 'processed_keyspace3';
-        // // $cassandra_nodes = '172.16.117.201, 172.16.117.202, 172.16.117.204';
-        // $cassandra_nodes = '10.0.0.11, 10.0.0.12, 10.0.0.13, 10.0.0.14';
+        // $userId = env('CASSANDRA_UNAME');
+        // $pwd =  env('CASSANDRA_PASS');
+        // $cassandra_nodes = env('CASSANDRA_NODES');
+        // $keyspace =  env('KEYSPACE');
+
+        $configObj = new Config;
+        $configData = $configObj->getConfig(1);
+        $userId = $configData['dbUser'] ;
+        $pwd =  $configData['dbPass'];
+        $cassandra_nodes = $configData['dbNodes'];
+        $keyspace =  $configData['dbKeyspace'];
+
         //100000000000000
         $cluster = Cassandra::cluster()->withRoundRobinLoadBalancingPolicy()->withContactPoints($cassandra_nodes)->withDefaultConsistency(Cassandra::CONSISTENCY_LOCAL_ONE)->withDefaultPageSize(100000000000000)->withCredentials($userId, $pwd)->withPort(9042)->withPersistentSessions(true)->withConnectTimeout(900)->build();
         $session   = $cluster->connect($keyspace);

@@ -298,13 +298,12 @@ export const node_highlighting = async(input) =>{
 }
 
 export const shortestpaths = async (url,data,NAType) =>{
+    message_displayer("CALCULATING SHORTEST PATHS","info");
     let response = await fetch(url,{
         method : 'post',
         headers: HeadersForApi,
         body : JSON.stringify(data),
     });
-
-    console.log("Shortest Path Response",response);
 
     let output = await response.json();
     return output;
@@ -329,7 +328,8 @@ export const render_shortestpath_graph = (input, src_id, dst_id) => {
         })
         .fail(function(res) {
             console.log(res);
-            console.log("error");
+            message_displayer("AN UNEXPECTED ERROR OCCUR WHILE PROCESSING YOUR REQUEST. REFRESH YOUR BROWSER AND TRY AGAIN","error");
+            return;
         })
     }
 
@@ -338,12 +338,9 @@ export const render_shortestpath_graph = (input, src_id, dst_id) => {
         console.log("Printing Update SP",res["paths"]);
         $('.analysis_summary_div').empty();
 
-        if(res.length > 1){
-            for(var per=0;per<res.length;per++){
-                for(var i=0; i<res[per]["paths"].length;i++){
-                    $('.analysis_summary_div').append('<tr><td>'+(i+1)+'</td><td>'+res[per]["paths"]+'</td></tr>');
-                }
-                per++;
+        if(res["paths"].length > 1){
+            for(var per=0;per<res["paths"].length;per++){
+                    $('.analysis_summary_div').append('<tr><td>'+(per+1)+'</td><td>'+res["paths"][per]+'</td></tr>');
             }
             $('.analysis_summary_div').append('</table>');
         }else{
@@ -610,13 +607,14 @@ export const union = async (url,data,NAType) => {
     return output;
 }
 
-export const render_union_graph = async (input) => {
+export const render_union_graph = async (input,input_arr_net_type) => {
     let dir_name = getmystoragedir();
     let data = {
         input: input,
         option: "union",
         inputnetid: input,
-        dir_name : dir_name
+        dir_name : dir_name,
+        input_arr_net_type : input_arr_net_type
     }
     let response = await fetch('na/union_data_formator',{
         method : 'post',
@@ -646,6 +644,7 @@ export const render_graph_union = (res) => {
     var querynodeinfo = res["querynode"];
     var major_array = res["major"];
     var opr_type = res["operation"];
+    var networkTypes = res["networktype"];
 
     $(".nos_of_nodes").empty();
     $(".nos_of_nodes").text(nodes_arr.length);
@@ -658,12 +657,12 @@ export const render_graph_union = (res) => {
     let querydictfilename = getquerydictfilename();
 
     $('.analysis_summary_div').empty();
-    $('.analysis_summary_div').append('<table> <tr><th>Network Name</th><th>Network Size</th><th>Color Code</th></tr>');
+    $('.analysis_summary_div').append('<table> <tr><th>Network Name</th><th>Network Size</th><th>Network Type</th><th>Color Code</th></tr>');
     for(var i=0; i<querynodeinfo.length;i++){
         let color_code = querynodeinfo[i]["color"];
         let count = i + 1;
         let size_of_each_network = major_array[i].length - 2;
-        $('.analysis_summary_div').append('<tr><td>'+ querydictfilename[selectedGraphs[i]] +'</td><td>'+size_of_each_network+'</td><td style="background-color:'+querynodeinfo[i]["color"]+';width:100%"></td></tr>');
+        $('.analysis_summary_div').append('<tr><td>'+ querydictfilename[selectedGraphs[i]] +'</td><td>'+size_of_each_network+'</td><td>'+networkTypes[i]+'</td><td style="background-color:'+querynodeinfo[i]["color"]+';width:100%"></td></tr>');
     }
     $('.analysis_summary_div').append('</table>');
 
@@ -831,6 +830,8 @@ export const writedelete = (unique_id) => {
     })
     .fail(function(res) {
         console.log(res);
+        message_displayer("AN UNEXPECTED ERROR OCCUR WHILE PROCESSING YOUR REQUEST. REFRESH YOUR BROWSER AND TRY AGAIN","error");
+        return; 
     })
 
 }

@@ -35,9 +35,10 @@ class LocationMap extends Controller
             }
         }
         return json_encode($final_result);
-
     }
 
+
+    
     public function get_current_date_time()
     {
         $interval = $_GET['interval'];

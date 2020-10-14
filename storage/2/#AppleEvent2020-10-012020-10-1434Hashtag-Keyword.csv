@@ -1,0 +1,116 @@
+src,dst,count
+#AppleEvent,*retweet,23324
+*retweet,"*cool animation",53280
+*retweet,*tweet,12234
+#AppleEvent,"*cool animation",7999
+"*cool animation",*retweet,53560
+"*cool animation",*tweet,28
+"*cool animation",*twitter,20
+"*cool animation","*like button",2
+"*cool animation",*button,1
+"*cool animation",*guys,1
+#AppleEvent,*today,3653
+#AppleEvent,*iphone,3102
+*iphone,*apple,8904
+*iphone,*phone,3933
+*iphone,"*released today right apple",1210
+#AppleEvent,*animation,1422
+*animation,*today,1480
+*animation,*your…,1257
+*animation,*retweet,152
+*animation,*twitter,31
+#AppleEvent,*your…,937
+*your…,*today,1591
+*your…,*animation,1257
+#AppleEvent,*tweets,890
+*tweets,*twitter,45972
+#AppleEvent,*guys,742
+*guys,*tweet,26262
+#AppleEvent,*tweet,587
+*tweet,*twitter,28012
+*tweet,*guys,26426
+*tweet,*retweet,12234
+*tweet,*today,11015
+#AppleEvent,*spamming,544
+*spamming,*tweets,2424
+*spamming,*today,828
+*spamming,*event,816
+*spamming,*guys,748
+*spamming,*tweet,61
+*spamming,*phone,4
+#AppleEvent,*event,457
+*event,*today,1159
+*event,*guys,821
+*event,*spamming,748
+#AppleEvent,"*like button",455
+"*like button",*tweet,30
+"*like button",*magic,28
+"*like button",*retweet,18
+"*like button",*today,9
+"*like button",*animation,8
+#AppleEvent,*nigerians,379
+*nigerians,*today,4005
+#AppleEvent,*apple,225
+*apple,*iphone,9858
+*apple,*phone,3651
+*apple,*retweet,379
+*apple,*iphones,363
+*apple,*event,332
+#AppleEvent,*button,218
+*button,*tweet,417
+*button,*today,346
+*button,*nigerians,340
+*button,*watch,243
+*button,*ready,243
+*button,*tweets,182
+#AppleEvent,*world,179
+*world,*today,8683
+#AppleEvent,*comment,169
+*comment,*retweet,1663
+#AppleEvent,*landing,126
+*landing,*phone,175
+*landing,*nigeri…,153
+*landing,*trouble,132
+#AppleEvent,"*released today right apple",124
+"*released today right apple",*iphone,1210
+#AppleEvent,*magic,112
+*magic,*ready,599
+*magic,*retweet,162
+#AppleEvent,*nigeri…,105
+*nigeri…,*landing,173
+*nigeri…,*phone,152
+*nigeri…,*trouble,110
+#AppleEvent,*twitter,93
+*twitter,*tweets,45936
+*twitter,*tweet,27919
+#AppleEvent,"*aware police",92
+"*aware police","*sars menace apple",205
+#AppleEvent,"*sars menace apple",90
+"*sars menace apple","*aware police",7
+#AppleEvent,*browser&slash;force,86
+*browser&slash;force,*twitter,95
+*browser&slash;force,*today,1
+*browser&slash;force,*animation,1
+#AppleEvent,*device,76
+*device,*iphone,1072
+#AppleEvent,*iphones,75
+*iphones,*nigerians,552
+*iphones,*apple,390
+*iphones,*iphone,353
+*iphones,*today,50
+*iphones,*button,14
+*iphones,*ready,13
+*iphones,*device,11
+#AppleEvent,*phone,72
+*phone,*iphone,3825
+*phone,*apple,3484
+#AppleEvent,"*high note",70
+"*high note",*apple,67
+#AppleEvent,*trend,66
+*trend,*today,7624
+*trend,*tweet,4071
+#AppleEvent,*trouble,63
+*trouble,*phone,1032
+#AppleEvent,*watch,63
+#AppleEvent,"*apple october event",60
+#AppleEvent,*ready,58

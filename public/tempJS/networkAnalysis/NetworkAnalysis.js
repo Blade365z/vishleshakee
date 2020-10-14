@@ -17,11 +17,15 @@ let totalNetworkatInstance = 0;
 let searchRecords = [];
 var cardIDdictionary = {};
 var queryDictionaryFilename = {};
+var queryDictionaryNetworkName = {};
 var currentNetworkEngine = 'networkx', currentlyShowing;
 var community_algo_option = "Async Fluidic";
 
 var SourceNode;
 var DestinationNode;
+
+var wellformedquery; 
+
 
 var currentviewingnetwork;
 var anyNetworkViewedYet = false;
@@ -39,21 +43,25 @@ if (localStorage.getItem('smat.me')) {
 }
 
 jQuery(function () {
-
-    // $(".card-body").hide();
-    // $("#net-smat-tabs").hide();
-    // $("#net-analysis-summary").hide();
-
     if(incoming){
         //TODO::Redirection 
         var networkType;        
         if(!(uniqueIDReceived == "null")){
             console.log(uniqueIDReceived);
-
-            totalQueries = totalQueries + 1;
-            totalNetworkatInstance = totalNetworkatInstance + 1;
-
-            generateCards(totalQueries, incoming, fromDateReceived, toDateReceived, 50, relationReceived, currentNetworkEngine, uniqueIDReceived, 'naCards',"normal");    
+            console.log("Maria CXH");
+            
+            if(incoming.charAt(0) == "$"){
+                getUserDetailsNA(incoming).then(response => {
+                incoming = response.author;
+                totalQueries = totalQueries + 1;
+                totalNetworkatInstance = totalNetworkatInstance + 1;
+                generateCards(totalQueries, incoming, fromDateReceived, toDateReceived, 50, relationReceived, currentNetworkEngine, uniqueIDReceived, 'naCards',"normal");        
+            });
+            }else{
+                totalQueries = totalQueries + 1;
+                totalNetworkatInstance = totalNetworkatInstance + 1;
+                generateCards(totalQueries, incoming, fromDateReceived, toDateReceived, 50, relationReceived, currentNetworkEngine, uniqueIDReceived, 'naCards',"normal");        
+            }
         }else{
             if(incoming.charAt(0) == "$"){
                 networkType = relationReceived;
@@ -109,35 +117,65 @@ jQuery(function () {
         args = args.split(/[|]/).filter(Boolean);
 
         if(args[4] == "ShortestPath"){
+            if(currentViewTAB != "spTab"){
+                message_displayer("SELECT THE NETWORK AND SHIFT TO SHORTEST PATH TAB","error");
+                return;
+            }
             render_shortestpath_graph(args[6],args[7],args[8]);
+            message_displayer("DISPLAYING RESULTS FOR SHORTEST PATHS","success");
         }else if(args[4] == "communities"){
+            if(currentViewTAB != "commTab"){
+                message_displayer("SELECT THE NETWORK AND SHIFT TO COMMUNITY DETECTION TAB","error");
+                return;
+            }
             render_community_graph1(args[6]).then(response => {
                 render_graph_community(response,"networkDivid");
+                message_displayer("DISPLAYING RESULTS FOR COMMUNITY DETECTION","success");
             });
         }else if(args[4] == "union"){
+            if(currentViewTAB != "unionTabNA"){
+                message_displayer("SELECT THE NETWORK AND SHIFT TO UNION TAB","error");
+                return;
+            }
             let files = args[6].split("__");
             render_union_graph(files).then(response => {
                 render_graph_union(response);
+                message_displayer("DISPLAYING RESULTS FOR UNION OPERATION","success");
             });
         }else if(args[4] == "intersection"){
+            if(currentViewTAB != "interSecTabNA"){
+                message_displayer("SELECT THE NETWORK AND SHIFT TO INTERSECTION TAB","error");
+                return;
+            }
             let files = args[6].split("__");
             render_intersection_diff_graph(files, "intersection").then(response => {
                 render_intersection_difference(response, "intersection_displayer", "intersection");
+                message_displayer("DISPLAYING RESULTS FOR INTERSECTION OPERATION","success");
             });
         }else if(args[4] == "difference"){
+            if(currentViewTAB != "diffTabNA"){
+                message_displayer("SELECT THE NETWORK AND SHIFT TO DIFFERENCE TAB","error");
+                return;
+            }
             let files = args[6].split("__");
             //let finalArray = files.reverse();
             render_intersection_diff_graph(files, "difference").then(response => {
                 render_intersection_difference(response, "difference_displayer", "difference");
+                message_displayer("DISPLAYING RESULTS FOR DIFFERENCE OPERATION","success");
             });
         }else if(args[4] == "linkprediction"){
+            if(currentViewTAB != "lpTabNA"){
+                message_displayer("SELECT THE NETWORK AND SHIFT TO LINK PREDICTION TAB","error");
+                return;
+            }
             console.log(args);
             render_linkprediction_graph(args[6],args[7]).then(response => {
                 update_view_graph_for_link_prediction(response,args[7],args[9]);
+                message_displayer("DISPLAYING RESULTS FOR LINK PREDICTION","success");
             })
         }else{
             if(currentViewTAB != "centralityTab"){
-                message_displayer("SELECT THE NETWORK AND SHIFT TO CENTRALITY SECTION","error");
+                message_displayer("SELECT THE NETWORK AND SHIFT TO CENTRALITY TAB","error");
                 return;
             }
             render_centrality_graph(args[6], args[2], args[5]).then(response => {
@@ -147,6 +185,7 @@ jQuery(function () {
                     $('#tableBody').append('<tr><td>' + response["nodes"][i]["label"] + '</td><td>' + response["nodes"][i]["size"] + '</td></tr>');
                 }
                 draw_graph(response, "networkDivid");
+                message_displayer("DISPLAYING RESULTS FOR CENTRALITY","success");
             });
         }
     });
@@ -202,6 +241,11 @@ jQuery(function () {
                     totalQueries -= 1;
                     totalNetworkatInstance = totalNetworkatInstance - 1;
                     message_displayer("DATA UNAVAILABLE FOR THE QUERY IN THE PROVIDED TIME RANGE. CHECK, YOUR INPUTS AND TRY WITH OTHER TIME RANGE","error");
+                    return; 
+                }else if(response.message == "Request timed out"){
+                    totalQueries -= 1;
+                    totalNetworkatInstance = totalNetworkatInstance - 1;
+                    message_displayer("REQUEST TIMED OUT, UNABLE TO PROCESS YOUR REQUEST AT THIS MOMENT. TRY WITH SMALLER RANGE AND LESSER NODE COUNT OR TRY AGAIN LATER.","error");
                     return; 
                 }
                 if(queryTemp.charAt(0) == "*"){
@@ -278,15 +322,18 @@ $("body").on('click', ".authorName",function(){
 $("#unionTabNA").on('click', function(){
     currentOperation = "union";
     $("#binaryopsnetworkselector").show();
+    currentViewTAB = "unionTabNA";
 });
 
 $("#interSecTabNA").on('click',function(){
     currentOperation = "intersection";
     $("#binaryopsnetworkselector").show();
+    currentViewTAB = "interSecTabNA";
 });
 
 $("#diffTabNA").on('click',function(){
     $("#binaryopsnetworkselector").show();
+    currentViewTAB = "diffTabNA";
 });
 
 $("#netTabNA").on('click',function(){
@@ -361,6 +408,13 @@ $('#upload_form').on('submit', function (event) {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     let dir_name = userInfoTemp['id'];
 
+    console.log("NN",n);
+    if(!$("#cardnamefileupload").val()){
+        message_displayer("NAME YOUR NETWORK IN THE INPUT BOX WHILE UPLOADING YOUR FILE","error");
+        $('#myModal_file_upload').modal('toggle');
+        return;  
+    }
+
     n.append("dir_name",dir_name);
     $.ajax({
         url: 'na/fileupload',
@@ -375,12 +429,15 @@ $('#upload_form').on('submit', function (event) {
         success: function(data) {
             totalQueries = totalQueries + 1;
             totalNetworkatInstance = totalNetworkatInstance + 1;
-            generateCards(totalQueries, $("#cardnamefileupload").val(), "fromDateStripped", "toDateStripped", "noOfNodesTemp", "naTypeTemp", "naEngine", unique_id, 'naCards',"fileupload");
+            generateCards(totalQueries, $("#cardnamefileupload").val(), "fromDateStripped", "toDateStripped", "noOfNodesTemp", "Default", "naEngine", unique_id, 'naCards',"fileupload");
+            message_displayer("NETWORK IMPORTED SUCCESSFULLY. CLICK ON THE NETWORK CARD TO VIEW DETAILS","success");
+            return; 
         }
     })
     .fail(function(res) {
-        console.log(res);
-    })
+        message_displayer("AN UNEXPECTED ERROR OCCUR WHILE UPLOADING YOUR NETWORK. CHECK YOUR INPUTS AND TRY AGAIN. THIS MAY HAPPEN BECAUSE OF WRONG FILE FORMAT","error");
+        return;   
+     })
     $('#myModal_file_upload').modal('toggle');
 });
 
@@ -392,6 +449,7 @@ const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTyp
     searchRecords.push(tempArr);
     cardIDdictionary[id] = filename;
     queryDictionaryFilename[filename] = query;
+    queryDictionaryNetworkName[filename] = naTypeTemp;
 
     console.log("Search Dict",searchRecords);
     console.log("cardDict",cardIDdictionary);
@@ -534,7 +592,6 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
                     })
             }
             checkSpartStatusInterval_centrality = setInterval(checkSparkStatus, 5000);
-            message_displayer("CENTRALITY CALCULATED SUCCESSFULLY","success");
         }
     });
 
@@ -644,8 +701,8 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
                     })
             }
             checkSpartStatusInterval_centrality = setInterval(checkSparkStatus, 5000);
-            message_displayer("LINK PREDICTION OPERATION PERFORMED SUCCESSFULLY","success");
-            return;
+            // message_displayer("LINK PREDICTION OPERATION PERFORMED SUCCESSFULLY","success");
+            // return;
         }
     })
 });
@@ -739,8 +796,6 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
                     })
             }
             checkSpartStatusInterval_centrality = setInterval(checkSparkStatus, 5000);
-            message_displayer("SHORTEST PATH OPERATION PERFORMED SUCCESSFULLY","success");
-            return;
         }
     });
 });
@@ -860,7 +915,6 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
                     })
             }
             checkSpartStatusInterval_centrality = setInterval(checkSparkStatus, 5000);
-            message_displayer("COMMUNITY DETECTION PERFORMED SUCCESSFULLY","success");
         }
     })
 });
@@ -871,7 +925,6 @@ $("#union_exec").on('click', function () {
         return;
     }
 
-    let wellformedquery; 
     let selectedGraphs = selected_graph_ids();
 
     for(let i=0; i<selected_graph_ids().length; i++){
@@ -889,8 +942,18 @@ $("#union_exec").on('click', function () {
     var url;
     var data = {};
     var input_arr = selected_graph_ids();
+    var input_arr_net_type = [];
+    for(let c=0;c<input_arr.length;c++){
+        input_arr_net_type.push(queryDictionaryNetworkName[input_arr[c]]);
+    }
+
+    console.log(cardIDdictionary);
+    console.log(queryDictionaryFilename);
+
+
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     let dir_name = userInfoTemp['id'];
+    currentNetworkEngine = "networkx";
     if (currentNetworkEngine == 'networkx') {
         url = 'na/union';
         data = {
@@ -916,7 +979,7 @@ $("#union_exec").on('click', function () {
     }
     union(url, data, currentNetworkEngine).then(response => {
         if (currentNetworkEngine == "networkx") {
-            render_union_graph(data["input"]).then(response => {
+            render_union_graph(data["input"],input_arr_net_type).then(response => {
                 render_graph_union(response);
                 message_displayer("UNION OPERATION PERFORMED SUCCESSFULLY","success");
                 return;
@@ -957,8 +1020,6 @@ $("#union_exec").on('click', function () {
                     })
             }
             checkSpartStatusInterval_centrality = setInterval(checkSparkStatus, 5000);
-            message_displayer("UNION OPERATION PERFORMED SUCCESSFULLY","success");
-            return;
         }
     });
 });
@@ -972,7 +1033,6 @@ $("#intersection_exec").on('click', function (NAType = "networkx") {
     }
 
     
-    let wellformedquery; 
     let selectedGraphs = selected_graph_ids();
 
     for(let i=0; i<selected_graph_ids().length; i++){
@@ -992,7 +1052,8 @@ $("#intersection_exec").on('click', function (NAType = "networkx") {
     var input_arr = selected_graph_ids();
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     let dir_name = userInfoTemp['id'];
-    if (NAType == 'networkx') {
+    currentNetworkEngine = "networkx";
+    if (currentNetworkEngine == 'networkx') {
         url = 'na/intersection';
         data = {
             input: input_arr,
@@ -1057,9 +1118,6 @@ $("#intersection_exec").on('click', function (NAType = "networkx") {
                     })
             }
             checkSpartStatusInterval_centrality = setInterval(checkSparkStatus, 5000);
-
-            message_displayer("INTERSECTION OPERATION PERFORMED SUCCESSFULLY","success");
-            return;
         }
     });
 });
@@ -1087,7 +1145,6 @@ $("#difference_exec").on('click', function (NAType = "networkx") {
         return;
     }
 
-    let wellformedquery; 
     let selectedGraphs = selected_graph_ids();
 
     for(let i=0; i<selected_graph_ids().length; i++){
@@ -1105,14 +1162,24 @@ $("#difference_exec").on('click', function (NAType = "networkx") {
     var url;
     var data = {};
     var input_arr = [];
+
+    if(!$("#difference_sequence").val()){
+        message_displayer("SELECT YOUR NETWORKS AND INPUT NETWORK IDs COMMA SEPARATED. EX. 2,1","error");
+        return;
+    }
+
     let sequence = $("#difference_sequence").val().split(',');
     for (let i = 0; i < sequence.length; i++) {
+        if(!(selected_graph_ids().includes(cardIDdictionary[sequence[i]]))){
+            message_displayer("MISMATCH IN INPUT CARD ID SEQUENCE AND SELECTED NETWORKS","error");
+            return;
+        }
         input_arr.push(cardIDdictionary[sequence[i]]);
     }
 
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     let dir_name = userInfoTemp['id'];
-
+    currentNetworkEngine = "networkx";
     if (currentNetworkEngine == 'networkx') {
         url = 'na/difference';
         data = {
@@ -1180,9 +1247,6 @@ $("#difference_exec").on('click', function (NAType = "networkx") {
                     })
             }
             checkSpartStatusInterval_centrality = setInterval(checkSparkStatus, 5000);
-
-            message_displayer("DIFFERENCE OPERATION PERFORMED SUCCESSFULLY","success");
-            return;
         }
     });
 });
@@ -1196,7 +1260,7 @@ $("#usenetwork").on('click', function () {
         totalQueries = totalQueries + 1;
         totalNetworkatInstance = totalNetworkatInstance + 1;
 
-        generateCards(totalQueries, "Network  after performing union"+ +"", "", "", "", "", "", unique_id, 'naCards',"afterdeletion");
+        generateCards(totalQueries, wellformedquery, "", "", "", "", "", unique_id, 'naCards',"afterdeletion");
 
     }else if(currentOperation == "intersection"){
         writedelete(unique_id);
@@ -1240,6 +1304,7 @@ const transferQueryToStatusTable = (data, operation, algo, sparkID = 123, render
     $('#searchTable').css('display', 'block');
     let algoTitle = algoDict[algo];
     $('#naStatusTable').append('<tr><th scope="row">' + data.id + '</th><td>' + data.query + '</td><td>' + operation + ' (' + algoTitle + ')' + '</td><td>' + data.from + '</td><td>' + data.to + '</td><td  id="' + sparkID + 'Status">Running...</td><td><button class="btn btn-secondary smat-rounded mx-1 showBtn" value="' + data.id + '|' + sparkID + '|' + renderDivID + '"  id="' + sparkID + 'Btn" disabled > Show </button><button class="btn btn-neg mx-1  smat-rounded"> Delete </button></td></tr>');
+    message_displayer("APACHE SPARK : QUERY SUBMITTED SUCCESSFULLY","info");
 }
 
 const makeShowBtnReadyAfterSuccess = (sparkID, filename, mode, algo = null, originalFile) => {
@@ -1251,4 +1316,5 @@ const makeShowBtnReadyAfterSuccess = (sparkID, filename, mode, algo = null, orig
     btnValue = btnValue + '|' + filename + '|' + mode + '|' + algo + '|' + originalFile + '|' + SourceNode + '|' + DestinationNode + '|' + k_value;
     $('#' + sparkID + 'Btn').attr('value', btnValue);
     $('#' + sparkID + 'Status').text('Success');
+    message_displayer("APACHE SPARK : COMPUTATION PERFORMED SUCCESSFULLY. CLICK ON SHOW TO GET THE RESULTS","success");
 }

@@ -1,0 +1,11 @@
+src,dst,count
+#COVID19,*positive,41541
+*positive,*trump,183436
+#COVID19,*pandemic,30776
+#COVID19,*healthy,23021
+*healthy,*trump,31203
+*healthy,*pandemic,25084
+*healthy,*positive,25082
+#COVID19,*trump,20951
+*trump,*positive,183549
+#COVID19,"*reinfection death",20924

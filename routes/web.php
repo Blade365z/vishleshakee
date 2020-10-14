@@ -251,5 +251,10 @@ Route::group(['prefix' => 'track'], function () {
 
 
 Route::group(['prefix' => 'configure'], function () {
-    Route::get('/temp', 'ConfigureSmat@temp');
+    Route::post('/getConfigurations', 'ConfigureSmat@getConfigs');
+    Route::post('/save','ConfigureSmat@insertConfig');
+    Route::post('/saveCrawlerInfo','ConfigureSmat@AddTrackToken');
+    Route::post('/GetAllTrackToken','ConfigureSmat@GetAllTrackToken');
+    Route::put('/updateTrackWordStatus','ConfigureSmat@updateTrackWordStatus');
+    Route::delete('/deletefromCrawlList','ConfigureSmat@DeleteTrackToken');
 });

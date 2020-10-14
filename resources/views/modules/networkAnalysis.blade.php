@@ -203,7 +203,7 @@
                 </div>
             </div>
             <div class="card shadow mt-4">
-            <h4 class="mt-2  text-center font-weight-bold text-dark"> Analysis Summary </h4>
+            <h4 class="mt-2  text-center font-weight-bold text-dark">Summary Information</h4>
                 <div class="card-body " id='naSummary' style="overflow-x:auto;overflow-y:auto"> 
                 <div class="analysis_summary_div" >
                             

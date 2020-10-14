@@ -71,6 +71,9 @@ class networkAnalysisController extends Controller
         if( ($netType == "Hashtag-User") or ($netType == "Hashtag-User")){
             foreach ($co_occur_result as $key => $count) {
                 $edges[] = [$token, $key, (string) $count];
+                echo " ";
+                flush();
+                ob_flush();
             }
         }else{
             foreach ($co_occur_result as $key => $count) {
@@ -85,6 +88,9 @@ class networkAnalysisController extends Controller
                     if (in_array($k, $nodes)) {
                         $edges[] = [$key, $k, (string) $c];
                     }
+                    echo " ";
+                    flush();
+                    ob_flush();
                 }
             }
         }
@@ -597,6 +603,7 @@ class networkAnalysisController extends Controller
         $option = $request->input('option');
         $input_arr = $request->input('input');
         $input_arr_net = $request->input('inputnetid');
+        $input_arr_net_type = $request->input('input_arr_net_type');
 
         $filename = '';
         $input_query_array = array();
@@ -704,6 +711,7 @@ class networkAnalysisController extends Controller
             $final_result["querynode"] = $query_nodes_with_color;
             $final_result["major"] = $major_array;
             $final_result["operation"] = $option;
+            $final_result["networktype"] = $input_arr_net_type;
         }
         echo json_encode($final_result);
     }

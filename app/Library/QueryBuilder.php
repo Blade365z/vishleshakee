@@ -99,8 +99,33 @@ class QueryBuilder{
                 }
             }
         }
+
+
+
+        // to get tweet_id list for location....................................................
+        if($feature_option == 'tweet_location'){
+            $query_class = $this->get_query_class($token);
+            if($range_type == '10sec'){
+                $table_name = 'location_token_co_occur';
+                $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
+                $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ?";                   
+            }else if($range_type == 'hour'){
+                $table_name = 'location_token_co_occur_hour_wise';
+                $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
+                $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ?"; 
+            }else if($range_type == 'day'){
+                $table_name = 'location_token_co_occur_day_wise';
+                $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
+                $where_clause = "created_date = ? AND class=" . $query_class; 
+            }
+            $columns = 'category_class_list, tweetidlist';
+            $prepared_statement = "SELECT ".$columns." FROM ".$table_name." WHERE ".$where_clause;  
+            $final_res[0] = $prepared_statement;
+            $final_res[1] = $input_args;
+        }
+
+
         
-        //1601490319983 (current date advance search)
         // for top_hashtag, top_mention, top_user....................................................
         $feature_option_split = explode("_", $feature_option); //$feature_option = 'top_hashtag'/'top_mention' or 'top_latlng_hashtag'/'top_latlng_mention'
         if(($feature_option_split[0] == 'top') and ($feature_option_split[1] == 'latlng')){  
@@ -151,7 +176,8 @@ class QueryBuilder{
             $prepared_statement = "SELECT ".$columns." FROM ".$table_name." WHERE ".$where_clause;  
             $final_res[0] = $prepared_statement;
             $final_res[1] = $input_args;
-        }
+        }      
+
 
 
         
@@ -168,6 +194,9 @@ class QueryBuilder{
                 $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,replyto_source_id,retweet_source_id,tweet_text,retweet_source_id,media_list,type,category from tweet_info_by_id_test WHERE tid=" . "'" .$token."'";
             }
         }
+
+
+
 
         // for user info....................................................
         if($feature_option == 'user_info'){

@@ -1,5 +1,10 @@
 @extends('parent.app')
 @section('content')
+@include('inc.configModals.addNodeModal')
+@include('inc.configModals.editNode')
+@include('inc.configModals.addKeySpace')
+@include('inc.configModals.addTrackWordsModal')
+@include('inc.configModals.editCrawlListModal')
     <div class="row">
         <div class="col-md-7 offset-md-3">
             <div class="smat-mainHeading ">
@@ -36,28 +41,25 @@
                             aria-labelledby="crawlerConfContent">
                             <div class="d-flex">
                                 <div>
-                                    <button class="btn btn-primary smat-rounded mx-1  " id="addQueryButton"
+                                    <button class="btn btn-primary smat-rounded mx-1  " id="addTrackWordBtn"
                                         onclick="return false"><i class="fa fa-plus" aria-hidden="true"></i></button>
                                 </div>
-                             
+
                                 <div class="form-check mx-3 pt-2">
-                                    <input class="form-check-input" type="radio" id="gridRadios1"
-                                        value="option1" checked>
-                                    <label class="form-check-label" for="gridRadios1">
+                                    <input class="form-check-input crawlListRadio" type="radio" id="hashtagRadioCrawlList" value="track" source="hashtag" checked>
+                                    <label class="form-check-label" for="hashtagRadioCrawlList">
                                         Hashtags
                                     </label>
                                 </div>
                                 <div class="form-check mx-3 pt-2">
-                                    <input class="form-check-input" type="radio" id="gridRadios1"
-                                        value="option1" >
-                                    <label class="form-check-label" for="gridRadios1">
+                                    <input class="form-check-input crawlListRadio " type="radio" id="keywordRadioCrawlList" value="track" source="keyword"  >
+                                    <label class="form-check-label" for="keywordRadioCrawlList">
                                         Keywords
                                     </label>
                                 </div>
                                 <div class="form-check mx-3 pt-2">
-                                    <input class="form-check-input" type="radio" id="gridRadios1"
-                                        value="option1" >
-                                    <label class="form-check-label" for="gridRadios1">
+                                    <input class="form-check-input crawlListRadio" type="radio" id="userRadioCrawlList" value="user" source="user" >
+                                    <label class="form-check-label" for="userRadioCrawlList">
                                         Users
                                     </label>
                                 </div>
@@ -73,68 +75,82 @@
                                             <th scope="col">More</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="crawlerList">
 
-                                        <tr>
-                                            <th scope="row">1</th>
-                                            <td>#AWSservice</td>
-                                            <td>Hashtag</td>
-                                            <td>
-                                                <div class="d-flex">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" id="gridRadios1"
-                                                            value="option1" checked>
-                                                        <label class="form-check-label" for="gridRadios1">
-                                                            Enable
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check mx-3">
-                                                        <input class="form-check-input" type="radio" id="gridRadios2"
-                                                            value="option2">
-                                                        <label class="form-check-label" for="gridRadios2">
-                                                            Disable
-                                                        </label>
-                                                    </div>
-
-                                                </div>
-                                            </td>
-                                            <td>
-
-                                                <button class="btn btn-secondary smat-rounded  btn-sm ">Edit</button><button
-                                                class="btn btn-neg smat-rounded  btn-sm mx-2 ">Delete</button>
-                                            </td>
-                                            </tr>
                                     </tbody>
                                 </table>
 
                             </div>
                         </div>
                         <div class="tab-pane fade  " id="sysEnvContent" role="tabpanel" aria-labelledby="sysEnvContent">
+                            <form id="envConfForm">
                             <div class="row">
-                                    <div class="col-sm-5">
-                                        <div class="form-group">
-                                            <label for="exampleInputEmail1">Email address</label>
-                                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                                          </div>
-                                          <div class="form-group">
-                                            <label for="exampleInputPassword1">Password</label>
-                                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                                          </div>
-                                          <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                            <label class="form-check-label" for="exampleCheck1">Check me out</label>
-                                          </div>
-                                          <button type="submit" class="btn btn-primary">Submit</button>
-                                        </form>
-                                    </div>
-                                   <div class="col-sm-7">
-                                        
-                                    </div>
+                                
+                                <div class="col-sm-5">
 
+                                   
+                                        <p class="mb-1 smat-dash-title text-muted">Application Info</p>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control smat-rounded mt-2" id="appUrlInput"
+                                                 placeholder="App URL">
+                                        </div>
+                                        <p class="mb-1 smat-dash-title text-muted mt-4">Database Credentials</p>
+                                        <div class="form-group">
+
+                                            <input type="text" class="form-control smat-rounded" id="dbUserInput"
+                                                 placeholder="Enter Database User">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control smat-rounded "
+                                                id="dbPassInput" placeholder="Password">
+                                        </div>
+
+                                        <div > 
+                                            <p class="mb-1 smat-dash-title text-muted">Present Keyspaces</p>
+                                            <button class="btn btn-primary btn-sm smat-rounded ml-auto" id="addKeySpaceBtn" onclick="return false">+ Add Keyspace</button>
+                                        </div>
+                                        <div class="mt-2" id="configKeyspaces">
+                                          
+    
+                                        </div>  
+
+
+                                          
+                                 
+                                    
+                                </div>
+                                <div class="col-sm-7">
+                                        <div > 
+                                            <p class="mb-1 smat-dash-title text-muted">Present nodes in the cluster</p>
+                                            <button class="btn btn-primary btn-sm smat-rounded ml-auto" id="addNodeBtn" onclick="return false" >+ Add Node</button>
+                                        </div>
+                                        <div class="mt-2">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                  <tr>
+                                                    <th scope="col">Node</th>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Options</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody id="dbNodesRecord">
+                                              
+                                
+                                                </tbody>
+                                              </table>
+
+
+                                        </div>
+                                          
+                                        <div class="d-flex mt-5">
+                                            <button class="btn btn-primary smat-rounded ml-auto" type="submit"  >Save Changes</button>
+                                            <button  class="btn btn-danger smat-rounded mx-2" onclick="return false" >Reset</button>
+                                                </div>
+                                   
+                                </div>
                             </div>
 
-
+     </form>
                         </div>
                     </div>
 
@@ -144,5 +160,5 @@
         </div>
 
     </div>
-<scipt src="public/tempJS/config/configureSmat.js" type="module"></script>
-@endsection
+    <script type="module" src="public/tempJS/config/configureSmat.js" ></script>
+    @endsection
