@@ -18,27 +18,51 @@ class ConfigureSmat extends Controller
 
     public function insertConfig(Request $request)
     {
-        $request->validate([
-            'appUrl' => 'required',
-            'dbUser' => 'required',
-            'dbPass' => 'required',
-            'dbNodes' => 'required',
-            'dbKeyspace' => 'required',
-        ]);
-        $configObj = new Configure([
-            'appUrl' => $request->get('appUrl'),
-            'dbUser' => $request->get('dbUser'),
-            'dbPass' => $request->get('dbPass'),
-            'dbNodes' => $request->get('dbNodes'),
-            'dbKeyspace' => $request->get('dbKeyspace'),
-        ]);
-        $configObj->save();
-        return response()->json(['data' => 'Submitted Successfully!'], 200);
+        try {
+            $request->validate([
+                'appUrl' => 'required',
+                'dbUser' => 'required',
+                'dbPass' => 'required',
+                'dbNodes' => 'required',
+                'dbKeyspace' => 'required',
+                'dbPort' => 'required',
+            ]);
+            if ($request->input('id')) {
+                $id=$request->input('id');
+                $configObj = Configure::where('id', $id)->update(array(
+                    'appUrl' => $request->get('appUrl'),
+                    'dbUser' => $request->get('dbUser'),
+                    'dbPass' => $request->get('dbPass'),
+                    'dbNodes' => $request->get('dbNodes'),
+                    'dbKeyspace' => $request->get('dbKeyspace'),
+                    'dbPort' => $request->get('dbPort'),
+                ));
+                return response()->json(['data' => 'Updated Successfully!'], 200);
+            } else {
+                $configObj = new Configure([
+                    'appUrl' => $request->get('appUrl'),
+                    'dbUser' => $request->get('dbUser'),
+                    'dbPass' => $request->get('dbPass'),
+                    'dbNodes' => $request->get('dbNodes'),
+                    'dbKeyspace' => $request->get('dbKeyspace'),
+                    'dbPort' => $request->get('dbPort'),
+                ]);
+                $configObj->save();
+                return response()->json(['data' => 'Submitted Successfully!'], 200);
+            }
+
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some Error Occured!'], 404);
+        }
     }
     public function getConfig($id = null)
     {
-        $configObj = Configure::where('id', '=', $id)->firstorFail();
-        return $configObj;
+        try {
+            $configObj = Configure::where('id', '=', $id)->firstorFail();
+            return $configObj;
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some Error Occured!'], 404);
+        }
     }
     public function AddTrackToken(Request $request)
     {
@@ -78,7 +102,7 @@ class ConfigureSmat extends Controller
     public function DeleteTrackToken(Request $request)
     {
         $request->validate([
-            'id' => 'required'
+            'id' => 'required',
         ]);
         $id = $request->input('id');
         $crawlerListObj = CrawlerList::where('id', $id)->delete();
@@ -97,17 +121,17 @@ class ConfigureSmat extends Controller
                 'status' => $status,
             ));
             return response()->json(['data' => 'Status Successfully Updated!'], 200);
-        }else if($request->input('option') == 'trackWord'){
+        } else if ($request->input('option') == 'trackWord') {
             $request->validate([
                 'id' => 'required',
-                'trackWord' => 'required'
+                'trackWord' => 'required',
             ]);
-            $handle=$request->input('handle');
+            $handle = $request->input('handle');
             $id = $request->input('id');
             $trackWord = $request->input('trackWord');
             $crawlerListObj = CrawlerList::where('id', $id)->update(array(
                 'track' => $trackWord,
-                'handle'=>$handle
+                'handle' => $handle,
             ));
             return response()->json(['data' => 'Status Successfully Updated!'], 200);
         }

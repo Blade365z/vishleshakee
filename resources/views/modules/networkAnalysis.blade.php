@@ -328,7 +328,7 @@
                                                         K Possible Shortest Path/Depth
 
                                                     </option> --}}
-                                                    <option value="AllPossibleShortestPath">All Possible Shortest Path</option>
+                                                    <option id="apsp" value="AllPossibleShortestPath">All Possible Shortest Path</option>
                                                 </select>
                                             </div>
                                         
@@ -400,7 +400,7 @@
                             </div>
                             <div class="tab-pane fade text-center" id="diffContentNA" role="tabpanel" aria-labelledby="diffContentNA">
                                 <div class="form-group mx-1">
-                                    <input type="text" class="form-control smat-rounded  naInputs " id="difference_sequence" placeholder="Card sequence comma separated" style="border:0px;">
+                                    <input type="text" class="form-control border smat-rounded  naInputs " id="difference_sequence" placeholder="Card sequence comma separated" style="border:0px;">
                                     <button type="submit" class="btn btn-danger smat-rounded" id="difference_exec">Execute</button>
                                 </div>
                                 <div id="difference_displayer" style="height: 90%"> </div> 
@@ -408,7 +408,7 @@
 
                             <div class="tab-pane fade text-center" id="expansionContentNA" role="tabpanel" aria-labelledby="expansionContentNA">Active Users Tab
                                 <div class="form-group mx-1">
-                                    <input type="text" class="form-control smat-rounded  naInputs " id="node_to_be_expanded" placeholder="Card sequence comma separated" style="border:0px;">
+                                    <input type="text" class="form-control smat-rounded  naInputs " id="node_to_be_expanded" placeholder="Card sequence comma separated, Sample Input: NetworkID, NetworkID" style="border:0px;">
                                     <input type="text" class="form-control smat-rounded  naInputs " id="hops" placeholder="Card sequence comma separated" style="border:0px;">
                                     <button type="submit" class="btn btn-danger smat-rounded" id="expansion_exec">Execute</button>
                                 </div>
@@ -467,7 +467,7 @@
                             {{csrf_field()}}
                             <div class="form-group">
                                 <input type="file" name="select_file" id="select_file" />
-                                <input type="text" class="form-control smat-rounded  naInputs " id="cardnamefileupload" placeholder="Name your file" style="border:0px;">
+                                <input type="text" class="form-control border smat-rounded  naInputs " id="cardnamefileupload" placeholder="Give the network a name, here." style="border:0px;">
                                 <input type="submit" name="upload" id="upload" class="btn btn-primary" value="Upload"> * .csv Only
                             </div>
                         </form>

@@ -78,3 +78,16 @@ export const getRelationType = (query, type) => {
 
     return relationType;
 }
+
+
+export const displayErrorMsg = (div, type, msg = null) => {
+    if (type == 'error') {
+        $('#' + div).html('<div class="alert-danger p-1 text-center smat-rounded smatMsg">Some error occured!</div>');
+    }
+    else {
+        $('#' + div).html('<div class="alert-success p-1 text-center smat-rounded smatMsg">' + msg + '</div>');
+    }
+    setTimeout(() => {
+        $('.smatMsg').remove();
+    }, 3000);
+}

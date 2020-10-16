@@ -703,7 +703,7 @@ class CommonController extends Controller
      *
      * @return json
      */
-    public function get_tweets($to_datetime = null, $from_datetime = null, $token = null, $range_type = null, $filter_type=null, $feature_option=null)
+    public function get_tweets($to_datetime = null, $from_datetime = null, $token = null, $range_type = null, $filter_type=null)
     {
         $index_arr = array();
         if($filter_type)
@@ -714,9 +714,7 @@ class CommonController extends Controller
         $ut_obj = new Ut;
         $final_result = array();
 
-        if(!($feature_option)){
-            $feature_option = 'tweet';
-        }
+        $feature_option = 'tweet';
     
         // $stm_list_10sec = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'tweet');
         if($range_type){

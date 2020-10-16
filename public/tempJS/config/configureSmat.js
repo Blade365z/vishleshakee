@@ -5,29 +5,36 @@ Amitabh Boruah , Mala Das
 */
 
 //imports 
-import { getDatabaseEnvParameters, getCrawlerList, addTrackToDb ,updateStatusToDB ,updateTrackWordInDb ,deletefromCrawlList} from './helper.js';
+import { displayErrorMsg } from '../utilitiesJS/smatExtras.js';
+import { getDatabaseEnvParameters, getCrawlerList, addTrackToDb, updateStatusToDB, updateTrackWordInDb, deletefromCrawlList, saveConfigInfoToDb } from './helper.js';
 
 //globals
-var dbNodes = [], dbUser, dbPass, dbKeyspace, appURL;
+var dbNodes = [], dbUser, dbPass, dbKeyspace, appURL,dbPort,confID=null;
 var changeFlag = 0, totalNodes = 0, lastIDofTrackWords;
 //logic starts here
 jQuery(function () {
     generateCrawlerList('track', 'hashtag');
     getDatabaseEnvParameters().then(response => {
+        if(response['message']){
+            displayErrorMsg('msg-Box','error');
+        }else{
         dbUser = response['dbUser'];
         dbPass = response['dbPass'];
         dbNodes = fromStringCommaSplit(response['dbNodes']);
         totalNodes = dbNodes.length - 1;
         dbKeyspace = fromStringCommaSplit(response['dbKeyspace']);
         appURL = response['appUrl'];
-        updateFormValues(appURL, dbUser, dbPass, dbNodes, dbKeyspace);
+        dbPort=response['dbPort'];
+        confID=response['id'];
+        updateFormValues(appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort);
+        }
     });
-    $('body').on('click','div .crawlListRadio',function(){
-        let type=$(this).attr('value');
-        let option=$(this).attr('source');
-        $('.crawlListRadio').prop('checked',false);
-        $(this).prop('checked',true);
-generateCrawlerList(type,option);
+    $('body').on('click', 'div .crawlListRadio', function () {
+        let type = $(this).attr('value');
+        let option = $(this).attr('source');
+        $('.crawlListRadio').prop('checked', false);
+        $(this).prop('checked', true);
+        generateCrawlerList(type, option);
     });
     $('body').on('click', 'div #addTrackWordBtn', function () {
         $('#addTrackWordsModal').modal('show');
@@ -64,27 +71,32 @@ generateCrawlerList(type,option);
         $('.configModalInput').val('');
         $('.modal').modal('hide');
     });
-    $('body').on('click','div .istrackEnabled',function(){
-        let arg='',source='';
-        
-        if($(this).prop('checked',true)){
-            arg=$(this).attr('value');
+    $('body').on('click', 'div .istrackEnabled', function () {
+        let arg = '', source = '';
+
+        if ($(this).prop('checked', true)) {
+            arg = $(this).attr('value');
             source = $(this).attr('source');
             source = source.split(/[|]/).filter(Boolean);
         }
-        $('.statusRadio-'+source[0]).prop('checked',false);
-        $(this).prop('checked',true);
-        updateStatusToDB(source[0],arg);
+        $('.statusRadio-' + source[0]).prop('checked', false);
+        $(this).prop('checked', true);
+        updateStatusToDB(source[0], arg);
     });
     $('body').on('click', 'div #AddConfirm', function () {
         let nodeIP = $('#nodeIP').val();
         $('#nodeIP').val('');
         totalNodes += 1;
         printNodes(nodeIP, totalNodes, '--')
+        changeFlag = 1;
+        checkifConfigChange();
         $('#addNodeModal').modal('hide');
         dbNodes[totalNodes] = nodeIP;
     });
-
+    $('body').on('input', 'div .dbCredentialsInput', function () {
+        changeFlag = 1;
+        checkifConfigChange();
+    })
     $('body').on('click', 'div .editNodeBtn', function () {
         $('#nodeIP-edit').val(dbNodes[$(this).attr('value')]);
         $('#nodeIP-edit').attr('value', $(this).attr('value'));
@@ -97,6 +109,8 @@ generateCrawlerList(type,option);
         $('#nodeIP-' + $('#nodeIP-edit').attr('value')).text(nodeTemp);
         $('#nodeStatus-' + $('#nodeIP-edit').attr('value')).text('--');
         $('#editNodeModal').modal('hide');
+        changeFlag = 1;
+        checkifConfigChange();
     });
     $('body').on('click', 'div .deleteNodeBtn', function () {
         delete dbNodes[$(this).attr('value')];
@@ -104,10 +118,14 @@ generateCrawlerList(type,option);
         dbNodes = dbNodes.filter(function (el) {
             return el != null;
         });
+        changeFlag = 1;
+        checkifConfigChange();
         console.log('After', dbNodes);
         $(this).parent().parent().remove();
     });
-
+    $('body').on('click', 'div #configEnvSaveBtn', function () {
+        procssToSaveConfParametersToDB();
+    })
     $('#envConfForm').on('submit', function (e) {
         e.preventDefault();
         processFormDataForSaving(appURL, dbUser, dbPass, dbNodes, dbKeyspace);
@@ -115,34 +133,34 @@ generateCrawlerList(type,option);
     $('body').on('click', 'div #addKeySpaceBtn', function () {
         $('#addKeySpaceModal').modal('show');
     });
-    $('body').on('click','div .editCrawlListBtn',function(){
-        let temp =$(this).attr('value');
+    $('body').on('click', 'div .editCrawlListBtn', function () {
+        let temp = $(this).attr('value');
         $('#trackWord-edit').val(temp);
-        $('#trackWord-edit').attr('value',$(this).attr('source'));
-        $('#trackWord-edit').attr('type',$(this).attr('type'));
+        $('#trackWord-edit').attr('value', $(this).attr('source'));
+        $('#trackWord-edit').attr('type', $(this).attr('type'));
         $('#trackWordHandleInput-edit').val('NULL')
-             if($(this).attr('type')=='user'){
-                $('#trackWordHandle-edit').css('display','block');
-                $('#trackWordHandleInput-edit').val($(this).attr('handle'))
-            }else{
-                $('#trackWordHandle-edit').css('display','none');
-            }
+        if ($(this).attr('type') == 'user') {
+            $('#trackWordHandle-edit').css('display', 'block');
+            $('#trackWordHandleInput-edit').val($(this).attr('handle'))
+        } else {
+            $('#trackWordHandle-edit').css('display', 'none');
+        }
         $('#editCrawlList').modal('show');
     });
-    $('body').on('click','div #editTrackWordConfirm',function(){
-            let captured = $('#trackWord-edit').val();
-            let idCaptured  = $('#trackWord-edit').attr('value');
-            let typeTemp = $('#trackWord-edit').attr('type');
-            let handleCaptured =  $('#trackWordHandleInput-edit').val();
-            updateTrackWordInDb(idCaptured,captured,handleCaptured) ;
-            $('#trackWord-'+idCaptured).text(captured);
-            $('#editBtnCrawlList-'+idCaptured).attr('handle',handleCaptured);
-            $('#trackWord-edit').val('');
-            $('#trackWord-edit').attr('value','');
-            $('#editCrawlList').modal('hide');
+    $('body').on('click', 'div #editTrackWordConfirm', function () {
+        let captured = $('#trackWord-edit').val();
+        let idCaptured = $('#trackWord-edit').attr('value');
+        let typeTemp = $('#trackWord-edit').attr('type');
+        let handleCaptured = $('#trackWordHandleInput-edit').val();
+        updateTrackWordInDb(idCaptured, captured, handleCaptured);
+        $('#trackWord-' + idCaptured).text(captured);
+        $('#editBtnCrawlList-' + idCaptured).attr('handle', handleCaptured);
+        $('#trackWord-edit').val('');
+        $('#trackWord-edit').attr('value', '');
+        $('#editCrawlList').modal('hide');
 
     });
-    $('body').on('click','div .deleteCrawlListBtn',function(){
+    $('body').on('click', 'div .deleteCrawlListBtn', function () {
         let idCaptured = $(this).attr('value');
         $(this).parent().parent().remove();
         deletefromCrawlList(idCaptured);
@@ -150,12 +168,13 @@ generateCrawlerList(type,option);
 
 });
 
-const updateFormValues = (appURL, dbUser, dbPass, dbNodes, dbKeyspace) => {
+const updateFormValues = (appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort) => {
     $('#appUrlInput').val(appURL);
     $('#dbUserInput').val(dbUser);
     $('#dbPassInput').val(dbPass);
+    $('#dbPortNo').val(dbPort);
     for (let i = 0; i < dbNodes.length; i++) {
-        printNodes(dbNodes[i], i, 'Active');
+        printNodes(dbNodes[i], i, '--');
     }
     dbKeyspace.forEach(element => {
         printKeySpaces(element)
@@ -205,7 +224,7 @@ const updateIndexesInDOMelements = (currentIndex) => {
 
 }
 
-const addToCrawlerListTable = (id, trackWord, type, status, handle="NULL") => {
+const addToCrawlerListTable = (id, trackWord, type, status, handle = "NULL") => {
     let enabled = '', disabled = '';
     if (status == "1") {
         enabled = 'checked';
@@ -214,8 +233,9 @@ const addToCrawlerListTable = (id, trackWord, type, status, handle="NULL") => {
         enabled = '';
         disabled = 'checked';
     }
-
-    $('#crawlerList').append('<tr id="track-' + id + '"><th scope="row">' + id + '</th><td id="trackWord-' + id + '">' + trackWord + '</td><td id="trackWordType-' + id + '">' + type + '</td><td><div class="d-flex"><div class="form-check"><input class="form-check-input  statusRadio-'+id+' istrackEnabled" type="radio" id="trackEnabled-' + id + '" value="1"  source="' + id + '|' + trackWord + '"  ' + enabled + '><label class="form-check-label" for="trackEnabled-' + id + '">Enable</label></div><div class="form-check mx-3"><input class="form-check-input statusRadio-'+id+' istrackEnabled"  type="radio"  id="trackDisabled-' + id + '" value="0"  source="' + id + '|' + trackWord + '"  ' + disabled + '><label class="form-check-label" for="trackDisabled-' + id + '">Disable</label></div></div></td><td><button class="btn btn-secondary smat-rounded  btn-sm editCrawlListBtn editCrawlbtn " id="editBtnCrawlList-'+id+'"  value="'+trackWord+'"  source="'+id+'"  type="'+type+'" handle="'+handle+'"><span><i class="fa fa-edit mr-1"></i>Edit</span></button><button class="btn btn-neg smat-rounded  btn-sm mx-2 deleteCrawlListBtn"    value="'+id+'"  ><span><i class="fa fa-trash mr-1"></i>Delete</span></button></td></tr>');
+    let handleName = '';
+    type == 'user' ? handleName = handle : handleName;
+    $('#crawlerList').append('<tr id="track-' + id + '"><th scope="row">' + id + '</th><td id="trackWord-' + id + '"><p class="mb-1">' + trackWord + ' </p><p class="m-0 text-muted smat-dash-title pull-text-top"> ' + handleName + '</p></td><td id="trackWordType-' + id + '">' + type + '</td><td><div class="d-flex"><div class="form-check"><input class="form-check-input  statusRadio-' + id + ' istrackEnabled" type="radio" id="trackEnabled-' + id + '" value="1"  source="' + id + '|' + trackWord + '"  ' + enabled + '><label class="form-check-label" for="trackEnabled-' + id + '">Enable</label></div><div class="form-check mx-3"><input class="form-check-input statusRadio-' + id + ' istrackEnabled"  type="radio"  id="trackDisabled-' + id + '" value="0"  source="' + id + '|' + trackWord + '"  ' + disabled + '><label class="form-check-label" for="trackDisabled-' + id + '">Disable</label></div></div></td><td><button class="btn btn-secondary smat-rounded  btn-sm editCrawlListBtn editCrawlbtn " id="editBtnCrawlList-' + id + '"  value="' + trackWord + '"  source="' + id + '"  type="' + type + '" handle="' + handle + '"><span><i class="fa fa-edit mr-1"></i>Edit</span></button><button class="btn btn-neg smat-rounded  btn-sm mx-2 deleteCrawlListBtn"    value="' + id + '"  ><span><i class="fa fa-trash mr-1"></i>Delete</span></button></td></tr>');
 }
 
 const generateCrawlerList = (type, option = null) => {
@@ -227,11 +247,38 @@ const generateCrawlerList = (type, option = null) => {
             }
             if (option == 'hashtag' && !response[i]['track'].includes('#')) {
                 continue;
-            } else if ( (option == 'keyword' || option =='user') && response[i]['track'].includes('#')) {
+            } else if ((option == 'keyword' || option == 'user') && response[i]['track'].includes('#')) {
                 continue;
             }
 
-            addToCrawlerListTable(response[i].id, response[i].track, response[i].type, response[i].status,response[i].handle);
+            addToCrawlerListTable(response[i].id, response[i].track, response[i].type, response[i].status, response[i].handle);
         }
     });
+}
+
+const checkifConfigChange = () => {
+    if (changeFlag == 1) {
+        $('#configEnvSaveBtn').prop('disabled', false);
+        $('.confMsg').html('<div class="alert-warning p-1 text-center smat-rounded">Please click "Save Changes" to apply changes!</div>')
+    }
+}
+
+const procssToSaveConfParametersToDB = () => {
+    if(dbNodes.length<1){
+        alert('Please add a Node');
+    }
+    let appUrlTemp = $('#appUrlInput').val();
+    let dbUserTemp = $('#dbUserInput').val();
+    let dbPassTemp = $('#dbPassInput').val();
+    let dbNodesTemp = fromArrayToString(dbNodes);
+    let dbKeyspaceTemp = fromArrayToString(dbKeyspace);
+    // let dbKeyspaceTemp = $('#dbKeySpace').val();
+    let dbPortTemp = $('#dbPortNo').val();
+    saveConfigInfoToDb(confID,appUrlTemp, dbUserTemp, dbPassTemp, dbNodesTemp, dbKeyspaceTemp, dbPortTemp).then(response => {
+        if(response['message']){
+            displayErrorMsg('msg-Box','error');
+        }else{
+            displayErrorMsg('msg-Box','success',response.data);
+        }
+    })
 }

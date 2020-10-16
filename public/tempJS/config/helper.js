@@ -88,3 +88,24 @@ export const deletefromCrawlList = async (id) =>{
     let data = await response.json();
     return data;
 }
+export const saveConfigInfoToDb = async (id=null,appUrl,dbUser,dbPass,dbNodes,dbKeyspace,dbPort) =>{
+    console.log(dbKeyspace);
+    let dataArgs={};
+    if(id){
+        dataArgs = JSON.stringify({
+            id,appUrl,dbUser,dbPass,dbNodes,dbKeyspace,dbPort
+        });
+    }else{
+        dataArgs = JSON.stringify({
+            appUrl,dbUser,dbPass,dbNodes,dbKeyspace,dbPort
+        });
+    }
+   
+    let response = await fetch('configure/save', {
+        method: 'post',
+        headers: HeadersForApi,
+        body:dataArgs
+    })
+    let data = await response.json();
+    return data;
+}

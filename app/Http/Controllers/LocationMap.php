@@ -16,7 +16,6 @@ class LocationMap extends Controller
     // given tweet id.
     // param: tweet_id list
     // output: tweet information
-
     public function tweet_info($tweetid_list_array)
     {
         $input_args = array();
@@ -38,7 +37,7 @@ class LocationMap extends Controller
     }
 
 
-    
+
     public function get_current_date_time()
     {
         $interval = $_GET['interval'];
@@ -58,7 +57,7 @@ class LocationMap extends Controller
 
         $commonObj = new CommonController;
 
-        $r = $commonObj->get_tweets($to_datetime, $from_datetime, $query, '10sec', 'all');
+        $r = $commonObj->get_tweets($to_datetime, $from_datetime, $query, '10sec', 'all', 'tweet');
 
         $tweetid_list_array = array();
 
@@ -69,6 +68,7 @@ class LocationMap extends Controller
         if ($option == "tweet_id") {
             return $tweetid_list_array;
         } else if ($option == "tweet_info") {
+            // return $commonObj->get_tweets_info($tweetid_list_array);
             return $this->tweet_info($tweetid_list_array);
         }
     }
@@ -134,7 +134,7 @@ class LocationMap extends Controller
             }
             $arrTemp = ["range_type" => $rangeType, "fromTime" => $fromTime, "toTime" => $toTime, "query" => $query, "filter" => $filter];
             $commonObj = new CommonController;
-            $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter);
+            $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter, 'tweet');
             
          
             $tweetid_list_array = array();
@@ -147,6 +147,7 @@ class LocationMap extends Controller
 
             $tweetid_list_array = array_unique($tweetid_list_array);
 
+            // return $commonObj->get_tweets_info($tweetid_list_array);
             return $this->tweet_info($tweetid_list_array);
     }
 
@@ -184,7 +185,7 @@ class LocationMap extends Controller
             $filter = null;
         }
         $commonObj = new CommonController;
-        $data = $commonObj->get_tweets($toTime, $fromTime, $query, '10sec', $filter);
+        $data = $commonObj->get_tweets($toTime, $fromTime, $query, '10sec', $filter, 'tweet');
         // return $data;
         $tweetid_list_array = array();
         // array_push($tweetid_list_array,'1300689867836395526');
@@ -196,6 +197,7 @@ class LocationMap extends Controller
 
         $tweetid_list_array = array_unique($tweetid_list_array);
 
+        // return $commonObj->get_tweets_info($tweetid_list_array);
         return $this->tweet_info($tweetid_list_array);
     }
 

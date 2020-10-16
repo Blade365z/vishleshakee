@@ -98,6 +98,7 @@ jQuery(function () {
             $("#grivan").show();
             $("#btwncen").show();
             $("#evcen").show();
+            $("#apsp").show();
         } else if (selected == "spark") {
             currentNetworkEngine = selected;
             $("#resourceallocation").show();
@@ -106,6 +107,7 @@ jQuery(function () {
             $("#grivan").hide();
             $("#btwncen").hide();
             $("#evcen").hide();
+            $("#apsp").hide();
         }
     });
 
@@ -332,6 +334,7 @@ $("#interSecTabNA").on('click',function(){
 });
 
 $("#diffTabNA").on('click',function(){
+    currentOperation = "difference";
     $("#binaryopsnetworkselector").show();
     currentViewTAB = "diffTabNA";
 });
@@ -367,6 +370,11 @@ $("#centralityTab").on('click', function () {
 });
 
 $("#spTab").on('click', function () {
+    if(currentNetworkEngine=="spark"){
+        $("#apsp").hide();
+    }else{
+        $("#apsp").show();
+    }
     var select_graph = selected_graph_ids();
     if(select_graph.length != 0){
         anyNetworkViewedYet = true;
@@ -456,6 +464,8 @@ const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTyp
 
     if(status == "normal"){
         $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> From: ' + fromDateTemp + ' </p><p class="   smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > To:' + toDateTemp + ' </p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Nodes: ' + noOfNodesTemp + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > Type: ' + naTypeTemp + '</p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Status: Ready</p></div></div></div></div>');
+    }else if((status == "union")||(status == "intersection")||(status == "difference")){
+        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
     }else if(status == "afterdeletion"){
         $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
     }else if(status == "fileupload"){
@@ -626,6 +636,23 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
         });
     }
 
+    if(!$("#link_source_node").val()){
+        message_displayer("SELECT A NODE","error");
+        return;
+    }else if(!$("#nos_links_to_be_predicted").val()){
+        message_displayer("ENTER NUMBER OF LINKS TO BE PREDICTED","error");
+        return;
+    }else if(!algo_option){
+        message_displayer("SELECT A LINK PREDICTION ALGORITHM CHOICE","error");
+        return;
+    }else if((selected_graph_ids().length == 0)){
+        message_displayer("SELECT A NETWORK","error");
+        return;
+    }else if(selected_graph_ids().length > 1){
+        message_displayer("SELECT A SINGLE NETWORK","error");
+        return;
+    }
+
 
     if (currentNetworkEngine == 'networkx') {
         url = 'na/link_prediction';
@@ -737,6 +764,24 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
             draw_graph(response, "networkDivid");
         });
     }
+
+    if(!src){
+        message_displayer("SELECT A SOURCE NODE","error");
+        return;
+    }else if(!dst){
+        message_displayer("SELECT A DESTINATION NODE","error");
+        return;
+    }else if(!algo_option){
+        message_displayer("SELECT A SHORTEST PATH ALGORITHM CHOICE","error");
+        return;
+    }else if((selected_graph_ids().length == 0)){
+        message_displayer("SELECT A NETWORK","error");
+        return;
+    }else if(selected_graph_ids().length > 1){
+        message_displayer("SELECT A SINGLE NETWORK","error");
+        return;
+    }
+
 
     if (currentNetworkEngine == 'networkx') {
         url = 'na/shortestpath';
@@ -853,8 +898,6 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
             draw_graph(response, "networkDivid");
         });
     }
-
-
 
     if (NAType == 'networkx') {
         url = 'na/communitydetection';
@@ -1260,15 +1303,22 @@ $("#usenetwork").on('click', function () {
         totalQueries = totalQueries + 1;
         totalNetworkatInstance = totalNetworkatInstance + 1;
 
-        generateCards(totalQueries, wellformedquery, "", "", "", "", "", unique_id, 'naCards',"afterdeletion");
+        generateCards(totalQueries, wellformedquery, "", "", "", "", "", unique_id, 'naCards',"union");
 
     }else if(currentOperation == "intersection"){
         writedelete(unique_id);
         totalQueries = totalQueries + 1;
         totalNetworkatInstance = totalNetworkatInstance + 1;
 
-        generateCards(totalQueries, "Network  after performing union"+ +"", "", "", "", "", "", unique_id, 'naCards',"afterdeletion");        
-    }else if(currentOperation == "deletion"){
+        generateCards(totalQueries,wellformedquery, "", "", "", "", "", unique_id, 'naCards',"intersection");        
+    }else if(currentOperation == "difference"){
+        writedelete(unique_id);
+        totalQueries = totalQueries + 1;
+        totalNetworkatInstance = totalNetworkatInstance + 1;
+
+        generateCards(totalQueries,wellformedquery, "", "", "", "", "", unique_id, 'naCards',"difference");    
+    }else{
+        currentOperation = "deletion";
         writedelete(unique_id);
         let sentence;
         getDeletedNodes().then(response => {

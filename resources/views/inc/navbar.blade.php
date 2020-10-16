@@ -39,7 +39,7 @@
           <a class="dropdown-item" href="https://www.iitg.ac.in/cseweb/osint/smat/" target="_blank">About us</a>
           @if(Auth::check() && Auth::user()->role ==1)
           <a class="dropdown-item" href="register">Register User</a>
-          <a class="dropdown-item" href="feedbackPortal">See Feedbacks</a>
+          {{-- <a class="dropdown-item" href="feedbackPortal">See Feedbacks</a> --}}
           <a class="dropdown-item" href="configure">Configure</a>
           @endif
           @if (Auth::check())

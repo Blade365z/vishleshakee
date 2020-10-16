@@ -1,10 +1,10 @@
 @extends('parent.app')
 @section('content')
-@include('inc.configModals.addNodeModal')
-@include('inc.configModals.editNode')
-@include('inc.configModals.addKeySpace')
-@include('inc.configModals.addTrackWordsModal')
-@include('inc.configModals.editCrawlListModal')
+    @include('inc.configModals.addNodeModal')
+    @include('inc.configModals.editNode')
+    @include('inc.configModals.addKeySpace')
+    @include('inc.configModals.addTrackWordsModal')
+    @include('inc.configModals.editCrawlListModal')
     <div class="row">
         <div class="col-md-7 offset-md-3">
             <div class="smat-mainHeading ">
@@ -34,7 +34,9 @@
 
                     </div>
                     <div class="tab-content" id="pills-tabContent">
+                        <div class="confMsg mb-2" id="msg-Box">
 
+                        </div>
                         <div class="tab-pane fade   " id="sysStatsConent" role="tabpanel" aria-labelledby="sysStatsConent">
                             sysStatsConent </div>
                         <div class="tab-pane fade   active show " id="crawlerConfContent" role="tabpanel"
@@ -46,19 +48,22 @@
                                 </div>
 
                                 <div class="form-check mx-3 pt-2">
-                                    <input class="form-check-input crawlListRadio" type="radio" id="hashtagRadioCrawlList" value="track" source="hashtag" checked>
+                                    <input class="form-check-input crawlListRadio" type="radio" id="hashtagRadioCrawlList"
+                                        value="track" source="hashtag" checked>
                                     <label class="form-check-label" for="hashtagRadioCrawlList">
                                         Hashtags
                                     </label>
                                 </div>
                                 <div class="form-check mx-3 pt-2">
-                                    <input class="form-check-input crawlListRadio " type="radio" id="keywordRadioCrawlList" value="track" source="keyword"  >
+                                    <input class="form-check-input crawlListRadio " type="radio" id="keywordRadioCrawlList"
+                                        value="track" source="keyword">
                                     <label class="form-check-label" for="keywordRadioCrawlList">
                                         Keywords
                                     </label>
                                 </div>
                                 <div class="form-check mx-3 pt-2">
-                                    <input class="form-check-input crawlListRadio" type="radio" id="userRadioCrawlList" value="user" source="user" >
+                                    <input class="form-check-input crawlListRadio" type="radio" id="userRadioCrawlList"
+                                        value="user" source="user">
                                     <label class="form-check-label" for="userRadioCrawlList">
                                         Users
                                     </label>
@@ -83,74 +88,86 @@
                             </div>
                         </div>
                         <div class="tab-pane fade  " id="sysEnvContent" role="tabpanel" aria-labelledby="sysEnvContent">
-                            <form id="envConfForm">
+
                             <div class="row">
-                                
+
                                 <div class="col-sm-5">
 
-                                   
-                                        <p class="mb-1 smat-dash-title text-muted">Application Info</p>
-                                        <div class="form-group">
-                                            <input type="text" class="form-control smat-rounded mt-2" id="appUrlInput"
-                                                 placeholder="App URL">
-                                        </div>
-                                        <p class="mb-1 smat-dash-title text-muted mt-4">Database Credentials</p>
-                                        <div class="form-group">
+                                    <label class=" m-0 text-muted" for="appUrlInput">Application Info</label>
+                                    <div class="form-group">
 
-                                            <input type="text" class="form-control smat-rounded" id="dbUserInput"
-                                                 placeholder="Enter Database User">
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="password" class="form-control smat-rounded "
-                                                id="dbPassInput" placeholder="Password">
-                                        </div>
+                                        <input type="text" class="form-control smat-rounded  dbCredentialsInput"
+                                            id="appUrlInput" placeholder="App URL">
+                                    </div>
 
-                                        <div > 
-                                            <p class="mb-1 smat-dash-title text-muted">Present Keyspaces</p>
-                                            <button class="btn btn-primary btn-sm smat-rounded ml-auto" id="addKeySpaceBtn" onclick="return false">+ Add Keyspace</button>
-                                        </div>
-                                        <div class="mt-2" id="configKeyspaces">
-                                          
-    
-                                        </div>  
+                                    <div class="form-group">
+                                        <label class=" m-0 text-muted" for="dbUserInput">DB username</label>
+                                        <input type="text" class="form-control dbCredentialsInput smat-rounded"
+                                            id="dbUserInput" placeholder="Enter Database User">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class=" m-0 text-muted" for="dbPassInput">DB Password</label>
+                                        <input type="password" class="form-control  dbCredentialsInput smat-rounded "
+                                            id="dbPassInput" placeholder="Enter Database Password">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class=" m-0 text-muted" for="dbPortNo">DB Port Number</label>
+                                        <input type="password" class="form-control  dbCredentialsInput smat-rounded "
+                                            id="dbPortNo" placeholder="Enter Port Number">
+                                    </div>
+
+                                    <div>
+                                        <p class="mb-1 smat-dash-title text-muted">Present Keyspaces</p>
+                                        <button class="btn btn-primary btn-sm smat-rounded ml-auto" id="addKeySpaceBtn"
+                                            onclick="return false">+ Add Keyspace</button>
+                                    </div>
+                                    <div class="mt-2" id="configKeyspaces">
 
 
-                                          
-                                 
-                                    
+                                    </div>
+
+
+
+
+
                                 </div>
                                 <div class="col-sm-7">
-                                        <div > 
-                                            <p class="mb-1 smat-dash-title text-muted">Present nodes in the cluster</p>
-                                            <button class="btn btn-primary btn-sm smat-rounded ml-auto" id="addNodeBtn" onclick="return false" >+ Add Node</button>
-                                        </div>
-                                        <div class="mt-2">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                  <tr>
+                                    <div>
+                                        <p class="m-0"><label class=" m-0 text-muted" for="addNodeBtn">Present nodes in the
+                                                cluster</label></p>
+
+                                        <button class="btn btn-primary btn-sm smat-rounded ml-auto" id="addNodeBtn"
+                                            onclick="return false">+ Add Node</button>
+                                    </div>
+                                    <div class="mt-2">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
                                                     <th scope="col">Node</th>
                                                     <th scope="col">Status</th>
                                                     <th scope="col">Options</th>
-                                                  </tr>
-                                                </thead>
-                                                <tbody id="dbNodesRecord">
-                                              
-                                
-                                                </tbody>
-                                              </table>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dbNodesRecord">
 
 
-                                        </div>
-                                          
-                                        <div class="d-flex mt-5">
-                                            <button class="btn btn-primary smat-rounded ml-auto" type="submit"  >Save Changes</button>
-                                            <button  class="btn btn-danger smat-rounded mx-2" onclick="return false" >Reset</button>
-                                                </div>
-                                   
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+
+                                    <div class="d-flex mt-5">
+                                        <button class="btn btn-primary smat-rounded ml-auto" type="submit"
+                                            id="configEnvSaveBtn" disabled>Save Changes</button>
+                                        <button class="btn btn-danger smat-rounded mx-2"
+                                            onclick="return false">Reset</button>
+                                    </div>
+
                                 </div>
                             </div>
 
-     </form>
+
                         </div>
                     </div>
 
@@ -160,5 +177,5 @@
         </div>
 
     </div>
-    <script type="module" src="public/tempJS/config/configureSmat.js" ></script>
-    @endsection
+    <script type="module" src="public/tempJS/config/configureSmat.js"></script>
+@endsection

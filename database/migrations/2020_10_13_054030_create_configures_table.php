@@ -20,6 +20,7 @@ class CreateConfiguresTable extends Migration
             $table->string('dbPass');
             $table->string('dbNodes');
             $table->string('dbKeyspace');
+            $table->string('dbPort');
             
         });
     }
