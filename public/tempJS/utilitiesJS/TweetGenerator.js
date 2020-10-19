@@ -19,11 +19,14 @@ export const TweetsGenerator = (data_list, max_per_page, chart_draw_div_id, from
   //per page max (max_per_page)
 
   var tweetDiv = chart_draw_div_id + '_tweets';
+  let parentHeight = $('#'+chart_draw_div_id).height();
 
   var tweet_div_page_selection = chart_draw_div_id + 'page-selection';
   let title = '';
+  let heightOffset = 40;
   if (fromDate && toDate) {
     title = '<small class="  d-flex">Tweets from: ' + fromDate + ' to ' + toDate + ' &nbsp ' + '   </small>';
+    heightOffset=60;
   }
 
   if (filterOptions) {
@@ -55,8 +58,9 @@ export const TweetsGenerator = (data_list, max_per_page, chart_draw_div_id, from
   }
 
   $('#' + chart_draw_div_id).html(title + '<div id="' + tweetDiv + '"> </div><div> <div class="float-center mt-1" id="' + tweet_div_page_selection + '"></div>  </div>')
-
-
+  $('#'+tweetDiv).css('height',parseInt(parentHeight)-heightOffset+'px');
+  $('#'+tweetDiv).css('overflow-y','auto');
+  $('#'+tweetDiv).css('overflow-x','hidden');
   $(tweet_div_page_selection).empty();
   $(tweet_div_page_selection).removeData("twbs-pagination");
   $(tweet_div_page_selection).unbind("page");

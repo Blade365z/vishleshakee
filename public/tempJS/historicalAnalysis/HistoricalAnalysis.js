@@ -180,10 +180,12 @@ jQuery(function () {
     // *********** Show Search History
     $('#showTableBtn').on('click', function () {
         if (statusTableFlag === 0) {
+            $('#showTableBtn span').text(" Hide Search History ");
             $('#searchTable').css('display', 'block');
             statusTableFlag = 1;
         }
         else {
+            $('#showTableBtn span').text(" Show Search History ");
             $('#searchTable').css('display', 'none');
             statusTableFlag = 0;
         }
@@ -209,14 +211,20 @@ jQuery(function () {
 
 
     $('#locationTabHA').on('click', function () {
-        $('#locationContentHA').html('<div id="HA-div-map" style="height:400px;"></div>');
+        $('#locationContentHA').html(`<div id="result-div-map" style="height:400px;"></div>
+                                        <div class="modal_lm">
+                                            <div class="modal-content">
+                                                <span class="close-button">&times;</span>
+                                                <ul id="markersList"></ul>
+                                            </div>
+                                        </div>`);
         let rangeType = getRangeType(fromDate, toDate);
 
         get_tweet_location(query, fromDate, toDate, rangeType, null).then(response => {
-            getCompleteMap('HA-div-map', response);
-            for (var i = 0; i < response.length; i++) {
+            getCompleteMap('result-div-map', response);
+            // for (var i = 0; i < response.length; i++) {
 
-            }
+            // }
         });
 
     });

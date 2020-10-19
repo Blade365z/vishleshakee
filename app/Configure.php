@@ -13,6 +13,7 @@ class Configure extends Model
         'dbPass',
         'dbNodes',
         'dbKeyspace',
-        'dbPort'
+        'dbPort',
+        'sparkEngine'
     ];
 }

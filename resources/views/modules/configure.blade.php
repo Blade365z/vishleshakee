@@ -91,7 +91,7 @@
 
                             <div class="row">
 
-                                <div class="col-sm-5">
+                                <div class="col-sm-4">
 
                                     <label class=" m-0 text-muted" for="appUrlInput">Application Info</label>
                                     <div class="form-group">
@@ -99,7 +99,11 @@
                                         <input type="text" class="form-control smat-rounded  dbCredentialsInput"
                                             id="appUrlInput" placeholder="App URL">
                                     </div>
-
+                                    <div class="form-group">
+                                        <label class=" m-0 text-muted" for="dbPortNo">Spark Engine</label>
+                                        <input type="text" class="form-control  dbCredentialsInput smat-rounded "
+                                            id="sparkIPconf" placeholder="Enter spark engine address">
+                                    </div>
                                     <div class="form-group">
                                         <label class=" m-0 text-muted" for="dbUserInput">DB username</label>
                                         <input type="text" class="form-control dbCredentialsInput smat-rounded"
@@ -112,7 +116,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class=" m-0 text-muted" for="dbPortNo">DB Port Number</label>
-                                        <input type="password" class="form-control  dbCredentialsInput smat-rounded "
+                                        <input type="number" class="form-control  dbCredentialsInput smat-rounded "
                                             id="dbPortNo" placeholder="Enter Port Number">
                                     </div>
 
@@ -121,7 +125,7 @@
                                         <button class="btn btn-primary btn-sm smat-rounded ml-auto" id="addKeySpaceBtn"
                                             onclick="return false">+ Add Keyspace</button>
                                     </div>
-                                    <div class="mt-2" id="configKeyspaces">
+                                    <div class="mt-2 dbCredentialsInput"   id="configKeyspaces">
 
 
                                     </div>
@@ -131,7 +135,9 @@
 
 
                                 </div>
-                                <div class="col-sm-7">
+                                <div class="col-sm-8">
+                               
+
                                     <div>
                                         <p class="m-0"><label class=" m-0 text-muted" for="addNodeBtn">Present nodes in the
                                                 cluster</label></p>
@@ -148,7 +154,7 @@
                                                     <th scope="col">Options</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="dbNodesRecord">
+                                            <tbody class="dbCredentialsInput"  id="dbNodesRecord">
 
 
                                             </tbody>
@@ -160,7 +166,7 @@
                                     <div class="d-flex mt-5">
                                         <button class="btn btn-primary smat-rounded ml-auto" type="submit"
                                             id="configEnvSaveBtn" disabled>Save Changes</button>
-                                        <button class="btn btn-danger smat-rounded mx-2"
+                                        <button class="btn btn-danger smat-rounded mx-2 resetBtn" 
                                             onclick="return false">Reset</button>
                                     </div>
 

@@ -26,6 +26,7 @@ class ConfigureSmat extends Controller
                 'dbNodes' => 'required',
                 'dbKeyspace' => 'required',
                 'dbPort' => 'required',
+                'sparkEngine' => 'required',
             ]);
             if ($request->input('id')) {
                 $id=$request->input('id');
@@ -36,6 +37,7 @@ class ConfigureSmat extends Controller
                     'dbNodes' => $request->get('dbNodes'),
                     'dbKeyspace' => $request->get('dbKeyspace'),
                     'dbPort' => $request->get('dbPort'),
+                    'sparkEngine' => $request->get('sparkEngine'),
                 ));
                 return response()->json(['data' => 'Updated Successfully!'], 200);
             } else {
@@ -46,6 +48,7 @@ class ConfigureSmat extends Controller
                     'dbNodes' => $request->get('dbNodes'),
                     'dbKeyspace' => $request->get('dbKeyspace'),
                     'dbPort' => $request->get('dbPort'),
+                    'sparkEngine' => $request->get('sparkEngine'),
                 ]);
                 $configObj->save();
                 return response()->json(['data' => 'Submitted Successfully!'], 200);

@@ -109,9 +109,9 @@ jQuery(function () {
         get_tweet_location(SearchID, fromDate, toDate, rangeType, null).then(response => {
             console.log(response);
             getCompleteMap('result-div-map', response);
-            for (var i = 0; i < response.length; i++) {
+            // for (var i = 0; i < response.length; i++) {
 
-            }
+            // }
         });
 
     });

@@ -304,10 +304,10 @@ class networkAnalysisController extends Controller
         $final_node_arr = array();
         $edges_temp_arr = array();
 
-        if ($request->input('algo_option') == "pgcen") {
-            $multiplier = 40;
+        if ($request->input('engine') == "networkx") {
+            $multiplier = 300;
         } else {
-            $multiplier = 20;
+            $multiplier = 17;
         }
         // unique edges generation
         $commonController_obj = new CommonController;

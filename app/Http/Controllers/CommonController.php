@@ -35,7 +35,8 @@ class CommonController extends Controller
         $total_sec = 0;
         $total_com_sec = 0;
         $total_non_com_sec = 0;
-        $current_date = $ut_obj->get_current_date_time($option='datetime000');
+        $current_date = $ut_obj->get_current_date_time($option='date');
+        $todate = ($ut_obj->separate_date_time($to_datetime))[0];
         if($range_type == "10sec"){
             $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, $range_type, 'freq');
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
@@ -69,7 +70,7 @@ class CommonController extends Controller
         }else if($range_type == "hour"){
             $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, $range_type, 'freq');
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
-
+            
             foreach ($result_async_from_db as $rows) {
                 $com = 0;
                 $sec = 0;
@@ -98,25 +99,27 @@ class CommonController extends Controller
 
             // if date is current date, thn get the data for current time(2020-09-06 21:48:10) from 10_sec table
             // ...........................remain
-            if($to_datetime == $current_date){                 
+            if($todate == $current_date){         
                 // and current hour(10sec table)
-                $current_datetime_obj = new DateTime();
-                $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:00:00
+                $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                 $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'freq');
+                
                 $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
                 // if crnt time = 2020-09-08 21:44:40, thn next hr = 2020-09-08 22:00:00 but if crnt time = 2020-09-08 23:44:40, thn next hr = 2020-09-09 00:00:00
                 $datetime1 = $ut_obj->get_next_date_hour($to_datetime);
-                
 
                 $com = 0;
                 $sec = 0;
                 $com_sec = 0;
                 $non_com_sec = 0;
                 $ar_sum = 0;
-                foreach ($result_async_from_db as $rows) {               
+                foreach ($result_async_from_db as $rows) {      
+                    // echo 'enter1';         
                     foreach ($rows as $row) {
+                        // echo 'enter2';  
                         // $t = $row['created_date'];
                         // $datetime1 = $ut_obj->get_date_time_from_cass_date_obj($t, "Y-m-d") . ' ' . $row['created_time'];
                         $count_list = $row['count_list']->values();
@@ -173,16 +176,16 @@ class CommonController extends Controller
             }
 
             //if to_date == current_date, query for current hour, and all the past hours of current day.....remain
-            if($to_datetime == $current_date){
+            if($todate == $current_date){
                 // past hours(hour table) ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-08 00:00:00)
                 $result_async_from_db1 = array();
                 $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'hour', 'freq');
                 $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);                    
                 // and current hour(10sec table)
                 $result_async_from_db2 = array(); 
-                $current_datetime_obj = new DateTime();
-                $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                 $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'freq');
                 $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
@@ -254,7 +257,8 @@ class CommonController extends Controller
         $ut_obj = new Ut;
         $final_result = array();
         $temp_arr = array();
-        $current_date = $ut_obj->get_current_date_time($option='datetime000');
+        $current_date = $ut_obj->get_current_date_time($option='date');
+        $todate = ($ut_obj->separate_date_time($to_datetime))[0];
         if ($range_type == "10sec") {
             $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, $range_type, 'sent');
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
@@ -318,11 +322,11 @@ class CommonController extends Controller
 
             // if date is current date, thn get the data for current time(2020-09-06 21:48:10) form 10_sec table
             // ...........................remain
-            if($to_datetime == $current_date){                 
+            if($todate == $current_date){                 
                 // and current hour(10sec table)
-                $current_datetime_obj = new DateTime();
-                $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                 $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'sent');
                 $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
@@ -384,16 +388,16 @@ class CommonController extends Controller
             }
 
             //if to_date == current_date, query for current hour, and all the past hours of current day.....remain
-            if($to_datetime == $current_date){
+            if($todate == $current_date){
                 // past hours(hour table) ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-08 00:00:00)
                 $result_async_from_db1 = array();
                 $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'hour', 'sent');
                 $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);                    
                 // and current hour(10sec table)
                 $result_async_from_db2 = array(); 
-                $current_datetime_obj = new DateTime();
-                $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                 $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'sent');
                 $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
@@ -457,22 +461,23 @@ class CommonController extends Controller
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
         }else{
             $diff = $ut_obj->get_difference_between_two_datetime($to_datetime, $from_datetime, 'day');
-            $current_date = $ut_obj->get_current_date_time($option='datetime000');
+            $current_date = $ut_obj->get_current_date_time($option='date');
+            $todate = ($ut_obj->separate_date_time($to_datetime))[0];
             if($diff == 0){
                 if((($ut_obj->separate_date_time($to_datetime))[1] != '00:00:00') and (($ut_obj->separate_date_time($from_datetime))[1] != '00:00:00')){
                     // 10sec ($to_datetime = 2020-09-08 10:30:10, $from_datetime= 2020-09-08 10:00:10)
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'co_occur', $co_occur_option);
                     $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);                    
-                }else if($to_datetime == $current_date){
+                }else if($todate == $current_date){
                     // past hours(hour table) ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-08 00:00:00)
                     $result_async_from_db1 = array();
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'hour', 'co_occur', $co_occur_option);
                     $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);        
                     // and current hour(10sec table)
                     $result_async_from_db2 = array(); 
-                    $current_datetime_obj = new DateTime();
-                    $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                    $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'co_occur', $co_occur_option);
                     $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
@@ -483,7 +488,7 @@ class CommonController extends Controller
                     $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                 }
             }else if($diff > 0){
-                if($to_datetime == $current_date){
+                if($todate == $current_date){
                     // past days.......................................// ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-06 00:00:00)
                     $result_async_from_db1 = array();
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'day', 'co_occur', $co_occur_option);
@@ -495,9 +500,9 @@ class CommonController extends Controller
                     $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                     // and current hour(10sec table)
                     $result_async_from_db3 = array();
-                    $current_datetime_obj = new DateTime();
-                    $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                    $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'co_occur', $co_occur_option);
                     $result_async_from_db3 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
@@ -579,25 +584,27 @@ class CommonController extends Controller
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);           
         }else{
             $diff = $ut_obj->get_difference_between_two_datetime($to_datetime, $from_datetime, 'day');
-            $current_date = $ut_obj->get_current_date_time($option='datetime000');
+            $current_date = $ut_obj->get_current_date_time($option='date');
+            $todate = ($ut_obj->separate_date_time($to_datetime))[0];
             if($diff == 0){
                 if((($ut_obj->separate_date_time($to_datetime))[1] != '00:00:00') and (($ut_obj->separate_date_time($from_datetime))[1] != '00:00:00')){
                     // 10sec ($to_datetime = 2020-09-08 10:30:10, $from_datetime= 2020-09-08 10:00:10)
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $top_option);
                     $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);                    
-                }else if($to_datetime == $current_date){
+                }else if($todate == $current_date){
                     // past hours(hour table) ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-08 00:00:00)
                     $result_async_from_db1 = array();
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'hour', $top_option);
                     $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                     $result_async_from_db2 = array(); 
                     // and current hour(10sec table)
-                    $current_datetime_obj = new DateTime();
-                    $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                    $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $top_option);
                     $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
-
+                    // echo $to_datetime;
+                    // echo $from_datetime;
                     $result_async_from_db = array_merge($result_async_from_db1, $result_async_from_db2);                    
                 }else{
                     // ($to_datetime = 2020-09-06 00:00:00, $from_datetime= 2020-09-06 00:00:00)
@@ -605,7 +612,7 @@ class CommonController extends Controller
                     $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                 }
             }else if($diff > 0){
-                if($to_datetime == $current_date){
+                if($todate == $current_date){
                     // past days.......................................// ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-06 00:00:00)
                     $result_async_from_db1 = array();
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'day', $top_option);
@@ -617,9 +624,9 @@ class CommonController extends Controller
                     $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                     // and current hour(10sec table)
                     $result_async_from_db3 = array();
-                    $current_datetime_obj = new DateTime();
-                    $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                    $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $top_option);
                     $result_async_from_db3 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
@@ -722,22 +729,23 @@ class CommonController extends Controller
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
         }else{
             $diff = $ut_obj->get_difference_between_two_datetime($to_datetime, $from_datetime, 'day');
-            $current_date = $ut_obj->get_current_date_time($option='datetime000');
+            $current_date = $ut_obj->get_current_date_time($option='date');
+            $todate = ($ut_obj->separate_date_time($to_datetime))[0];
             if($diff == 0){
                 if((($ut_obj->separate_date_time($to_datetime))[1] != '00:00:00') and (($ut_obj->separate_date_time($from_datetime))[1] != '00:00:00')){
                     // 10sec ($to_datetime = 2020-09-08 10:30:10, $from_datetime= 2020-09-08 10:00:10)
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $feature_option);
                     $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);                    
-                }else if($to_datetime == $current_date){
+                }else if($todate == $current_date){
                     // past hours(hour table) ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-08 00:00:00)
                     $result_async_from_db1 = array();
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'hour', $feature_option);
                     $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                     $result_async_from_db2 = array(); 
                     // and current hour(10sec table)
-                    $current_datetime_obj = new DateTime();
-                    $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                    $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $feature_option);
                     $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
@@ -748,7 +756,7 @@ class CommonController extends Controller
                     $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                 }
             }else if($diff > 0){
-                if($to_datetime == $current_date){
+                if($todate == $current_date){
                     // past days.......................................// ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-06 00:00:00)
                     $result_async_from_db1 = array();
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'day', $feature_option);
@@ -760,9 +768,9 @@ class CommonController extends Controller
                     $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                     // and current hour(10sec table)
                     $result_async_from_db3 = array();
-                    $current_datetime_obj = new DateTime();
-                    $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
-                    $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:44:40
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $feature_option);
                     $result_async_from_db3 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 

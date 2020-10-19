@@ -141,7 +141,7 @@ export const generateFrequencyLineChart = (query, data = null, rangeType, div, f
     title.fontSize = 12;
     title.marginBottom = 10;
     var hour_for_title = String(parseInt(getDateInFormat(dataTemp[0]['date'], 'HH')) + 1);
-    title.text = " Per 10sec Distribution For " + getDateInFormat(dataTemp[0]['date'], 'Y-m-d') + ' ' + hour_for_title + ':00:00' + '  (Zoom to Know More)';
+    title.text = " Per 10sec Distribution For " + getDateInFormat(dataTemp[0]['date'], 'Y-m-d') + ' ' + hour_for_title + ':00:00';
 
     chart.data = dataTemp;
     console.log(chart.data);

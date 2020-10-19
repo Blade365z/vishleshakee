@@ -21,7 +21,7 @@ class CreateConfiguresTable extends Migration
             $table->string('dbNodes');
             $table->string('dbKeyspace');
             $table->string('dbPort');
-            
+            $table->string('sparkEngine');
         });
     }
 

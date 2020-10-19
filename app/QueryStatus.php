@@ -12,6 +12,7 @@ class QueryStatus extends Model
         'userID',
         'query',
         'fromDate',
-        'toDate'
+        'toDate',
+        'status'
     ];
 }

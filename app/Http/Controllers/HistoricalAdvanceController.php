@@ -461,14 +461,26 @@ class HistoricalAdvanceController extends Controller
                 if ($value) {
                     // if date is cuurent date
                     if($key == $current_date){
-                        // foreach ($value as $k => $v) {
-                        //     if($v){
-                        //         $sentiment_arr = $v["sentiment"];
-                        //         foreach ($sentiment_arr as $k1 => $v1) {
-                        //             $count += sizeof($v1["tid"]);
-                        //         }
-                        //     }
-                        // }
+                        foreach ($value as $k1 => $v1) {
+                            if($v1){
+                                $category_arr = $v1["category"];
+                                foreach ($category_arr as $k => $v) {
+                                    if(($k == "11") or ($k == "12") or ($k == "13"))
+                                        $com += sizeof($v["tid"]);
+                                    else if(($k == "101") or ($k == "102") or ($k == "103"))
+                                        $sec += sizeof($v["tid"]);
+                                    else if(($k == "111") or ($k == "112") or ($k == "113"))
+                                        $com_sec += sizeof($v["tid"]);
+                                    else if(($k == "1") or ($k == "2") or ($k == "3"))
+                                        $non_com_sec += sizeof($v["tid"]);
+                                    $count += sizeof($v["tid"]);
+                                    $total_com += $com;
+                                    $total_sec += $sec;
+                                    $total_com_sec += $com_sec;
+                                    $total_non_com_sec += $non_com_sec;
+                                }
+                            }
+                        }
                     }
                     else{
                         $category_arr = $value["category"];
@@ -650,18 +662,20 @@ class HistoricalAdvanceController extends Controller
                 if ($value) {
                     // if date is cuurent date
                     if($key == $current_date){
-                        // foreach ($value as $k => $v) {
-                        //     if($v){
-                        //         $sentiment_arr = $v["sentiment"];
-                        //         if (array_key_exists("0", $sentiment_arr))
-                        //             $pos += sizeof($sentiment_arr["0"]["tid"]);
-                        //         if (array_key_exists("1", $sentiment_arr))
-                        //             $neg += sizeof($sentiment_arr["1"]["tid"]);
-                        //         if (array_key_exists("2", $sentiment_arr))
-                        //             $neu += sizeof($sentiment_arr["2"]["tid"]);
-                        //     }
-                        // }
-                        // array_push($temp_arr, array($datetime1, $pos, $neg, $neu));
+                        foreach ($value as $k1 => $v1) {
+                            if($v1){
+                                $category_arr = $v1["category"];
+                                foreach ($category_arr as $k => $v) {
+                                    if(($k == "1") or ($k == "11") or ($k == "101") or ($k == "111"))
+                                        $pos += sizeof($v["tid"]);
+                                    else if(($k == "2") or ($k == "12") or ($k == "102") or ($k == "112"))
+                                        $neg += sizeof($v["tid"]);
+                                    else if(($k == "3") or ($k == "13") or ($k == "103") or ($k == "113"))
+                                        $neu += sizeof($v["tid"]);
+                                }
+                                array_push($temp_arr, array($datetime1, $pos, $neg, $neu));
+                            }
+                        }
                     }else{
                         $category_arr = $value["category"];
                         foreach ($category_arr as $k => $v) {

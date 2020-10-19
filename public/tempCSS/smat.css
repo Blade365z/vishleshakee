@@ -33,8 +33,6 @@
 }
 #tweets-modal-div{
     height:500px;
-    overflow-x:hidden;
-    overflow-y: auto;
 }
 @font-face {
     font-family: Roboto;
@@ -150,7 +148,9 @@ body {
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0) !important;
 }
-
+.dbCredentialsInput:focus{
+    border:1px solid;
+}
 
 .smat-nav-active {
     background-color: rgba(202, 202, 202, 0.082);
@@ -257,9 +257,9 @@ color:white;
 }
     
 #result-div {
-    height: 462px ;
+    height: 100% ;
     overflow-x: hidden !important;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 .pull-text-top {
@@ -515,7 +515,7 @@ select{
 
 .freqDistTweets , .sentiDistTweets{
         height:360px;
-        overflow-y: auto;
+        overflow-y: hidden;
         overflow-x:hidden;
 }
 .freqDistSummary , .sentiDistSummary{
@@ -685,9 +685,9 @@ select{
         font-size: 11px;
     }
     #result-div {
-    height: 395px ;
+    height: 100%  ;
     overflow-x: hidden !important;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 .interval-buttons-public{
     font-size:13px;
@@ -714,9 +714,9 @@ select{
 
 
 #result-div {
-    height: 415px ;
+    height: 100%  ;
     overflow-x: hidden !important;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
     .nav-link {
         font-size: 15px;

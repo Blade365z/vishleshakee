@@ -19,6 +19,7 @@ class QueryStatusTable extends Migration
             $table->string('query');
             $table->string('fromDate');
             $table->string('toDate');
+            $table->string('status');
         });
     }
 

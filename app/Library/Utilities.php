@@ -243,6 +243,18 @@ class Utilities{
             
         return $res;
     }
+
+
+
+    public function get_current_datetime_previous_datetimehour(){
+        $current_datetime_obj = new DateTime();
+        $to_datetime = $current_datetime_obj->format('Y-m-d H:i:s'); //2020-09-08 21:44:40
+        $from_datetime = ($current_datetime_obj->format('Y-m-d H')). ':00:00'; //2020-09-08 21:00:00
+
+        return [$to_datetime, $from_datetime];
+    }
+
+
     
     /**
     * Get diff between two datetime

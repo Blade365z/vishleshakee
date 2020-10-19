@@ -77,8 +77,6 @@ export const linkprediction = async (url,data,NAType) =>{
         body : JSON.stringify(data),
     });
     let output = await response.json();
-    console.log("Data sent for LP",data);
-    console.log("Response got for LP",response);
     return output;
 }
 
@@ -102,12 +100,17 @@ export const render_linkprediction_graph = async (input,src) => {
 
 export const update_view_graph_for_link_prediction = (res,src,k_value) => {
 
-    console.log("LP");
-    console.log(res);
-    console.log(k_value);
     
     var query_index_label;
+
+    if(src.charAt(0) != "#" && src.charAt(0) != "@" && src.charAt(0) != "*" && src.charAt(0) != "$"){
+        src = "*"+src;
+    }
+
     for (var i = 0; (i < res.length); i++) {
+        if(res[i].id.charAt(0) != "#" && res[i].id.charAt(0) != "@" && res[i].id.charAt(0) != "*" && res[i].id.charAt(0) != "$" ){
+            res[i].id = "*"+res[i].id;
+        }
         if (res[i].id == src) {
             query_index_label = i;
             network_global.body.data.nodes._data[res[i].id].color = "brown";
@@ -133,8 +136,13 @@ export const update_view_graph_for_link_prediction = (res,src,k_value) => {
 
 
     let linkcutoff = 0;
+
+
     for (var i = 0;((i < res.length)); i++) {
         if( linkcutoff < k_value){
+            if(res[i].id.charAt(0) == "$"){
+                continue;
+            }
             if (res[i].id != res[query_index_label].id) {
                 ed.push({
                     from: res[query_index_label].id,
@@ -184,9 +192,9 @@ export const centrality = async (url,data,NAType) =>{
     return output;
 }
 
-export const render_centrality_graph = async (input,id_value,algo_option) =>{
+export const render_centrality_graph = async (input,id_value,algo_option,currentNetworkEngine) =>{
     let dir_name = getmystoragedir();
-    let data = {input : input, algo_option : algo_option, dir_name: dir_name};
+    let data = {input : input, algo_option : algo_option, dir_name: dir_name, engine: currentNetworkEngine};
     let response = await fetch('na/centrality_data_formator',{
         method : 'post',
         headers : HeadersForApi,
@@ -335,7 +343,6 @@ export const render_shortestpath_graph = (input, src_id, dst_id) => {
 
     export const update_sp_graph = (res) =>  {
 
-        console.log("Printing Update SP",res["paths"]);
         $('.analysis_summary_div').empty();
 
         if(res["paths"].length > 1){
@@ -825,15 +832,14 @@ export const writedelete = (unique_id) => {
 
         },
         success: function(data) {
-
+            message_displayer("NETWORK SAVED SUCCESSFULLY","success");
         }
     })
     .fail(function(res) {
         console.log(res);
-        message_displayer("AN UNEXPECTED ERROR OCCUR WHILE PROCESSING YOUR REQUEST. REFRESH YOUR BROWSER AND TRY AGAIN","error");
         return; 
     })
-
+    message_displayer("NETWORK SAVED SUCCESSFULLY","success");
 }
 
 export const sparkUpload = (filename_arr) =>{
@@ -899,7 +905,6 @@ export const render_intersection_difference = (res,id_value,option) => {
         var option = res["option"];
         var edges_to_be_used_while_saving = res["edges_to_be_used_while_saving"];  
 
-        console.log(edges_arr);
 
         var filteredEdges = [];
 
@@ -919,11 +924,8 @@ export const render_intersection_difference = (res,id_value,option) => {
         });
 
         global_edges = filteredEdges;
-        console.log("INFO");
-        console.log(info);
 
-        console.log("GLOBAL");
-        console.log(global_edges);
+
         
 
         $(".nos_of_nodes").empty();

@@ -114,7 +114,7 @@
                 <table class="table  table-bordered">
                     <thead>
                         <tr>
-                            <th class="py-1 px-3 text-dark" scope="col">ID</th>
+                            <th class="py-1 px-3 text-dark" scope="col">Network ID</th>
                             <th class="py-1 px-3 text-dark " scope="col">Query</th>
                             <th class="py-1 px-3 text-dark " scope="col">Analysis </th>
                             <th class="py-1 px-3 text-dark " scope="col">From </th>

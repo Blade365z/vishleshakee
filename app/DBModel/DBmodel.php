@@ -51,9 +51,9 @@ class DBmodel extends Model
         $pwd =  $configData['dbPass'];
         $cassandra_nodes = $configData['dbNodes'];
         $keyspace =  $configData['dbKeyspace'];
-
+        $port =  (int)$configData['dbPort'];
         //100000000000000
-        $cluster = Cassandra::cluster()->withRoundRobinLoadBalancingPolicy()->withContactPoints($cassandra_nodes)->withDefaultConsistency(Cassandra::CONSISTENCY_LOCAL_ONE)->withDefaultPageSize(100000000000000)->withCredentials($userId, $pwd)->withPort(9042)->withPersistentSessions(true)->withConnectTimeout(900)->build();
+        $cluster = Cassandra::cluster()->withRoundRobinLoadBalancingPolicy()->withContactPoints($cassandra_nodes)->withDefaultConsistency(Cassandra::CONSISTENCY_LOCAL_ONE)->withDefaultPageSize(100000000000000)->withCredentials($userId, $pwd)->withPort($port)->withPersistentSessions(true)->withConnectTimeout(900)->build();
         $session   = $cluster->connect($keyspace);
         return $session;
     }

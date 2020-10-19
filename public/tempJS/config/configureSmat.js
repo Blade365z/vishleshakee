@@ -9,7 +9,7 @@ import { displayErrorMsg } from '../utilitiesJS/smatExtras.js';
 import { getDatabaseEnvParameters, getCrawlerList, addTrackToDb, updateStatusToDB, updateTrackWordInDb, deletefromCrawlList, saveConfigInfoToDb } from './helper.js';
 
 //globals
-var dbNodes = [], dbUser, dbPass, dbKeyspace, appURL,dbPort,confID=null;
+var dbNodes = [], dbUser, dbPass, dbKeyspace, appURL,dbPort,confID=null,sparkEngine;
 var changeFlag = 0, totalNodes = 0, lastIDofTrackWords;
 //logic starts here
 jQuery(function () {
@@ -26,6 +26,7 @@ jQuery(function () {
         appURL = response['appUrl'];
         dbPort=response['dbPort'];
         confID=response['id'];
+        sparkEngine=response['sparkEngine'];
         updateFormValues(appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort);
         }
     });
@@ -165,6 +166,26 @@ jQuery(function () {
         $(this).parent().parent().remove();
         deletefromCrawlList(idCaptured);
     })
+    $('body').on('click', 'div .resetBtn', function () {
+       $('.dbCredentialsInput').html('');
+        $('#msg-Box').html('');
+        getDatabaseEnvParameters().then(response => {
+            if(response['message']){
+                displayErrorMsg('msg-Box','error');
+            }else{
+            dbUser = response['dbUser'];
+            dbPass = response['dbPass'];
+            dbNodes = fromStringCommaSplit(response['dbNodes']);
+            totalNodes = dbNodes.length - 1;
+            dbKeyspace = fromStringCommaSplit(response['dbKeyspace']);
+            appURL = response['appUrl'];
+            dbPort=response['dbPort'];
+            confID=response['id'];
+            sparkEngine=response['sparkEngine'];
+            updateFormValues(appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort);
+            }
+        });
+    })
 
 });
 
@@ -173,6 +194,7 @@ const updateFormValues = (appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort) =>
     $('#dbUserInput').val(dbUser);
     $('#dbPassInput').val(dbPass);
     $('#dbPortNo').val(dbPort);
+    $('#sparkIPconf').val(sparkEngine);
     for (let i = 0; i < dbNodes.length; i++) {
         printNodes(dbNodes[i], i, '--');
     }
@@ -267,14 +289,15 @@ const procssToSaveConfParametersToDB = () => {
     if(dbNodes.length<1){
         alert('Please add a Node');
     }
-    let appUrlTemp = $('#appUrlInput').val();
-    let dbUserTemp = $('#dbUserInput').val();
-    let dbPassTemp = $('#dbPassInput').val();
-    let dbNodesTemp = fromArrayToString(dbNodes);
-    let dbKeyspaceTemp = fromArrayToString(dbKeyspace);
+    let appUrlTemp = $('#appUrlInput').val().trim();
+    let dbUserTemp = $('#dbUserInput').val().trim();
+    let dbPassTemp = $('#dbPassInput').val().trim();
+    let dbNodesTemp = fromArrayToString(dbNodes).trim();
+    let dbKeyspaceTemp = fromArrayToString(dbKeyspace).trim();
+    let sparkIPTemp = $('#sparkIPconf').val().trim();
     // let dbKeyspaceTemp = $('#dbKeySpace').val();
     let dbPortTemp = $('#dbPortNo').val();
-    saveConfigInfoToDb(confID,appUrlTemp, dbUserTemp, dbPassTemp, dbNodesTemp, dbKeyspaceTemp, dbPortTemp).then(response => {
+    saveConfigInfoToDb(confID,appUrlTemp, dbUserTemp, dbPassTemp, dbNodesTemp, dbKeyspaceTemp, dbPortTemp,sparkIPTemp).then(response => {
         if(response['message']){
             displayErrorMsg('msg-Box','error');
         }else{
