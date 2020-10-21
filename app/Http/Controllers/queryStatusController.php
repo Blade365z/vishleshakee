@@ -42,6 +42,7 @@ class queryStatusController extends Controller
             'fromDate' => 'required',
             'toDate' => 'required',
             'status' => 'required',
+            'module_type' => 'required'
         ]);
         $statusObj = new QueryStatus([
             'queryID' => $request->get('queryID'),
@@ -49,7 +50,8 @@ class queryStatusController extends Controller
             'query' => $request->get('query'),
             'fromDate' => $request->get('fromDate'),
             'toDate' => $request->get('toDate'),
-            'status'=>$request->get('status')
+            'status'=>$request->get('status'),
+            'type'=>$request->get('module_type'),
         ]);
         $statusObj->save();
         return response()->json(['data' => 'Submitted Successfully!'], 200);
@@ -85,14 +87,11 @@ class queryStatusController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update($id, $status)
     {
-        $request->validate([
-            'status' => 'required']);
-        $statusCaptured = $request->input('status');
         $statusObj = QueryStatus::where('queryID', $id)->update(array(
-            'status' => $statusCaptured));
-        return response()->json(['data' => 'Status Successfully Updated!'], 200);
+            'status' => $status));
+        return 1;
     }
 
     /**

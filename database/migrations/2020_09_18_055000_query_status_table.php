@@ -20,8 +20,10 @@ class QueryStatusTable extends Migration
             $table->string('fromDate');
             $table->string('toDate');
             $table->string('status');
+            $table->string('type');
         });
-    }
+    }   
+    
 
     /**
      * Reverse the migrations.

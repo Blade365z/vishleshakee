@@ -56,7 +56,6 @@ export const getDateRange = (startDate, stopDate) => {
 }
 
 export const getRangeType = (from_date, to_date, to_time = null) => {
-    console.log(from_date, to_date, to_time);
     var diff = (Date.parse(to_date) - Date.parse(from_date)) / 86400000;
     var range_type;
     if (diff < 0) {

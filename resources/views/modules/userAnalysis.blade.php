@@ -1,9 +1,9 @@
 @extends('parent.app')
 @section('content')
 
-<link rel="stylesheet" href="public/leaflet/markerCluster/MarkerCluster.css">
-<link rel="stylesheet" href="public/leaflet/leaflet.css">
-<link rel="stylesheet" href="public/leaflet/leaflet_modal.css">
+    <link rel="stylesheet" href="public/leaflet/markerCluster/MarkerCluster.css">
+    <link rel="stylesheet" href="public/leaflet/leaflet.css">
+    <link rel="stylesheet" href="public/leaflet/leaflet_modal.css">
 
     <div class="smat-mainHeading ">
         User Analysis
@@ -22,10 +22,14 @@
 
 
                 <div class="d-flex">
-                    <button class="btn smat-btn  smat-rounded  mx-1 mb-3" id="submit-btn" type="submit"> <span>Search
+                    <button class="btn smat-btn  smat-rounded  mx-1 mb-3" id="submit-btnUserSearch" type="submit">
+                        <span>Search
                             User</span> </button>
                     <button class="btn text-normal smat-rounded  mx-1 mb-3 " onclick="return false;" id="showUAsugg"> <span
                             id="suggestionCurrentStatus">Hide</span> Suggestions </button>
+                    <button class="btn text-normal smat-rounded  mx-1 mb-3 " onclick="return false;" id="statusTableBtnUA"
+                        title="show/hide advanced search history"> <span id="statusTableCurrentStatus">Hide</span> Adv.
+                        searches </button>
                 </div>
                 <!-- <button class="btn  text-normal smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show Search History </span> </button> -->
             </div>
@@ -66,30 +70,77 @@
         </div>
 
     </div>
+    <div class="my-3" id="searchTable" style="display:block; max-height:300px; overflow-y:auto">
+        <div class="card">
+            <div class="card-body">
+                <div>
+                    <p class="m-0 smat-box-title"> Recent Searches</p>
+                </div>
+                <div class="table-responsive ">
+                    <table class="table  table-bordered">
+                        <thead>
+                            <tr>
 
+                                <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                <th class="py-1 px-3 text-dark " scope="col">From </th>
+                                <th class="py-1 px-3 text-dark " scope="col">To </th>
+                                <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                                <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uaStatusTable">
 
-    <div id="UAAnalysisDiv" style="display:none">
+                        </tbody>
+                    </table>
+                    <div id="tableInitialTitle">
+                        <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="UAAnalysisDiv" style="display:block">
 
         <div class="row mt-3">
             <div class="col-md-5">
                 <div id="ua-leftDiv">
-                    <div class="my-3 ">
+                    <div class="my-1 ">
                         <p class="smat-box-title-large m-0">Showing results for <span
                                 class="smat-value font-weight-bold text-normal" id="showingResultsFor"> </span> </p>
                     </div>
-                    <div id="date-divUA">
-                        <form id="uaDateForm">
-                            <div class="d-flex mb-3">
+                    <form id="uaQueryHandleForm">
+                        <div class="d-flex mb-2" id="addAdvQueryDiv">
+
+                            <div class="d-flex" id="queryAdvUA">
+
+                            </div>
+                            <div>
+                                <button class="btn btn-neg smat-rounded mx-1 mt-2 " id="removeField" onclick="return false"
+                                    style="display:none;"> <i class="fa fa-minus" aria-hidden="true"></i></button>
+                            </div>
+                            <div>
+                                <button class="btn btn-primary smat-rounded mx-1 mt-2 " id="addQueryButton"
+                                    onclick="return false"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                            </div>
+                            <div>
+                                <p class="mb-0 mt-3 text-muted" id="addQueryHint"> Click to add more queries </p>
+                            </div>
+
+                        </div>
+                        <div class="mb-3" id="date-divUA">
+
+                            <div class="d-flex mb-0">
                                 <div class="form-group   my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white">
                                     <i class="far fa-calendar-alt mx-2 text-normal " style="margin-top:11px;"></i>
-                                    <input type="text" class="form-control datepicker-here  smat-from" name="fromDate" id="fromDateUA"
-                                        placeholder="From Date" onkeydown="return false;" style="border:0px;"
-                                        autocomplete="OFF" data-language='en' required>
+                                    <input type="text" class="form-control datepicker-here  smat-from" name="fromDate"
+                                        id="fromDateUA" placeholder="From Date" onkeydown="return false;"
+                                        style="border:0px;" autocomplete="OFF" data-language='en' required>
                                 </div>
                                 <div class="form-group  my-0  mr-2 border smat-rounded d-flex px-2 py-1  bg-white">
                                     <i class="far fa-calendar-alt mx-2 text-normal" style="margin-top:11px;"></i>
-                                    <input type="text" class="form-control datepicker-here smat-to " name="toDate" id="toDateUA"
-                                        placeholder="To Date" onkeydown="return false;" style="border:0px;"
+                                    <input type="text" class="form-control datepicker-here smat-to " name="toDate"
+                                        id="toDateUA" placeholder="To Date" onkeydown="return false;" style="border:0px;"
                                         autocomplete="OFF" data-language='en' required>
                                 </div>
 
@@ -97,8 +148,9 @@
                                     style="border-radius:50%;margin-top:5px;"> <span>Go </span> </button>
 
                             </div>
-                        </form>
-                    </div>
+
+                        </div>
+                    </form>
                     <div class="card shadow" id="userInfoDiv">
                         <div class="card-body">
                             <div class="dFlexBut">
@@ -175,8 +227,8 @@
 
                         <div class="tab-content px-5" id="pills-tabContent">
 
-                            <div class="tab-pane fade show active uaTabTopRight px-1" id="hashtagsContentTab" role="tabpanel"
-                                aria-labelledby="hashtagsContentTab">hashtagsContentTab</div>
+                            <div class="tab-pane fade show active uaTabTopRight px-1" id="hashtagsContentTab"
+                                role="tabpanel" aria-labelledby="hashtagsContentTab">hashtagsContentTab</div>
                             <div class="tab-pane fade uaTabTopRight px-1" id="mentionsContentUA" role="tabpanel"
                                 aria-labelledby="mentionsContentUA">Mentions Tab</div>
 
@@ -233,8 +285,8 @@
                         <div class="tab-pane fade show active " id="freqContentUA" role="tabpanel"
                             aria-labelledby="freqContentUA">
                         </div>
-                        <div class="tab-pane fade  " id="sentiContentUA" role="tabpanel"
-                            aria-labelledby="sentiContentUA"> </div>
+                        <div class="tab-pane fade  " id="sentiContentUA" role="tabpanel" aria-labelledby="sentiContentUA">
+                        </div>
 
                         <div class="tab-pane fade  " id="locationContentUA" role="tabpanel"
                             aria-labelledby="locationContentUA"></div>
@@ -250,11 +302,12 @@
         </div>
     </div>
     <script>
-        var incoming =   @json($query ?? '');
-        var fromDateReceived =   @json($from ?? '');
-        var toDateReceived=  @json($to ?? '');
+        var incoming = @json($query ?? '');
+        var fromDateReceived = @json($from ?? '');
+        var toDateReceived = @json($to ?? '');
+
     </script>
-    
+
     <script type="module" src="public/amcharts4/core.js"></script>
     <script type="module" src="public/amcharts4/charts.js"></script>
     <script type="module" src="public/amcharts4/themes/animated.js"></script>

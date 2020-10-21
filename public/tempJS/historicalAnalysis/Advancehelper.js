@@ -36,9 +36,9 @@ export const checkStatus = async (id, unique_name_timestamp) => {
 }
 
 
-export const storeToMySqlAdvanceSearchData = async (userID, queryID, fromDate, toDate, query) => {
+export const storeToMySqlAdvanceSearchData = async (userID, queryID, fromDate, toDate, query, status, module_type) => {
     let dataArgs;
-    dataArgs = JSON.stringify({ userID, queryID, fromDate, toDate,  query });
+    dataArgs = JSON.stringify({ userID, queryID, fromDate, toDate,  query, status, module_type});
     let response = await fetch('status', {
         method: 'post',
         headers: HeadersForApi,

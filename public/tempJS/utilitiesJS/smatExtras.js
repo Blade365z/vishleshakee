@@ -91,3 +91,49 @@ export const displayErrorMsg = (div, type, msg = null) => {
         $('.smatMsg').remove();
     }, 3000);
 }
+
+
+export const indexedDBStoreForSearch = (dbName,objName) => {
+    var db;
+
+    var request = indexedDB.open(dbName, 3);
+    request.onerror = function (event) {
+        console.log("There is some Error in Local DB (Indexed DB)");
+    };
+    request.onsuccess = function (event) {
+        db = event.target.result;
+        db.createObjectStrore(objName);
+        console.log("success: " + db);
+    };
+ 
+   
+}
+export const addSearchToLocalDB = (dbName, ObjName, id, user, queryArg, from, to, statusArg, typeArg) => {
+    const request = window.indexedDB.open(dbName,3);
+    console.log("adding")
+    request.onupgradeneeded = () => {
+        let db = request.result;S
+        let store = db.createObjectStore(ObjName, { keyPath: "userID" });
+
+        store.put({ queryID: id, userID: user, query: queryArg, fromDate: from, toDate: to, status: statusArg, type: typeArg })
+    }
+    request.onsuccess = function (event) {
+        if(request.readyState=="done"){
+            console.log('done');
+        }
+    };
+}
+
+export const readSearchFromLocalDB = (db,Obj,userID)  => {
+    var request = indexedDB.open(db);
+    request.onerror = function (event) {
+        alert("Unable to retrieve daa from database!");
+    };
+
+    request.onsuccess = function (event) {
+        db = event.target.result;
+        db.transaction(Obj).objectStore(Obj).get(userID).onsuccess = function (event) {
+            console.log(event.target.result);
+        };
+    };
+}

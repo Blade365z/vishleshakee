@@ -67,10 +67,13 @@ class HistoricalAdvanceController extends Controller
         //curl -X GET -H "Content-Type: application/json" 172.16.117.202:8998/batches/{80}
 
         $request->validate([
-            'id' => 'required'
+            'id' => 'required',
+            'unique_name_timestamp' => 'required'
         ]);
 
         $id =  $request->input('id');
+        $unique_name_timestamp = $request->input('unique_name_timestamp'); // this is = queryID = filename.json
+
         $curl_result = curl_init();
         curl_setopt($curl_result, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json'
@@ -82,7 +85,17 @@ class HistoricalAdvanceController extends Controller
         $curl_result = curl_exec($curl_result);
         // echo $curl_result;
         $result = json_decode($curl_result, true);
-        return json_encode(array('status' => $result['state'], 'id' => $result['id']));
+        $status = $result['state'];
+        //update status to mysql after success or dead................
+        if(($status = 'success') or ($status = 'dead')){
+            $mysql_query_obj = new queryStatusController;
+            $update_to_mysql = $mysql_query_obj->update($unique_name_timestamp, $status);
+            if(update_to_mysql)
+                return json_encode(array('status' => $status, 'id' => $result['id'], 'updateStatusToMysql' => 'success'));
+            else
+                return json_encode(array('status' => $status, 'id' => $result['id'], 'updateStatusToMysql' => 'error'));
+        }        
+        return json_encode(array('status' => $status, 'id' => $result['id']));
     }
 
 

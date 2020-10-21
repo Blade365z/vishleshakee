@@ -35,7 +35,7 @@
                 <input type="text" class="form-control datepicker-here  smat-to " id="toDateHA" placeholder="To Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
             </div>
             <button class="btn smat-btn  smat-rounded  mx-1" id="submit-btn" type="submit"> <span> Search Result </span> </button>
-            <button class="btn  text-normal smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show Search History </span> </button>
+            <button class="btn  text-normal smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show Adv. searches </span> </button>
             <button class="btn  text-normal smat-rounded  mx-1" id="helpBtnHA" onclick="return false"> <span> Need help? </span> </button>
         </div>
     </form>

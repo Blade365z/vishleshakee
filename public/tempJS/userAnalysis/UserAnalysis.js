@@ -14,7 +14,7 @@ import { getCurrentDate, getRangeType, dateProcessor, getDateInFormat } from '..
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { generateUniqueID } from '../utilitiesJS/uniqueIDGenerator.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
-import { getRelationType, makeSmatReady } from '../utilitiesJS/smatExtras.js'
+import { addSearchToLocalDB, getRelationType, makeSmatReady, readSearchFromLocalDB } from '../utilitiesJS/smatExtras.js'
 import { forwardToNetworkAnalysis, forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.js';
 
 
@@ -22,11 +22,14 @@ import { forwardToNetworkAnalysis, forwardToHistoricalAnalysis } from '../utilit
 var suggestionPopularIDs = ['$18839785', '$1447949844', '$1346439824', '$405427035', '$3171712086', '$1153045459', '$24705126', '$131188226', '$2570829264', '$207809313', '$2584552812', '$336611577', '$841609973687762944', '$4743651972', '$2166444230', '$3314976162', '$627355202', '$295833852', '$97217966', '$478469228', '$2541363451', '$39240673'];
 
 var suggestionPopularNewsHandleIDs = ['$19897138', '$16343974', '$39240673', '$240649814', '$42606652', '$321271735', '$372754427', '$6509832', '$6433472', '$36327407', '$37034483', '$20751449', '$112404600', '$438156528', '$739053070932287488', '$267158021', '$128555221', '$742143', '$759251', '$701725963', '$55186601', '$28785486'];
-var SearchID, fromDate, toDate;   //Global Variable to keep Track of current search
+var SearchID, QueryMain, fromDate, toDate;   //Global Variable to keep Track of current search
 var mentionUniqueID, hashtagsUniqueID, userID;
 var suggShowFLag = 1;
+var mainInputCounter = 0, searchType = 0;
+var searchRecords = [];
 //Logic Implementation 
 jQuery(function () {
+   
     makeSmatReady();
     if (localStorage.getItem('smat.me')) {
         let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
@@ -34,6 +37,7 @@ jQuery(function () {
     } else {
         window.location.href = 'login';
     }
+    readSearchFromLocalDB('smatSearchHistory','UAsearches',userID);
     toDate = getCurrentDate()
     fromDate = dateProcessor(toDate, '-', 3);
     if (incoming) {
@@ -56,11 +60,40 @@ jQuery(function () {
     $('#toDateUA').val(toDate);
 
 
-    $('#uaDateForm').on('submit', function (e) {
+    $('#uaQueryHandleForm').on('submit', function (e) {
+        //logic different in historical analysis :: If required please update in other module
+        //This logic is written on basis of requirement raised by Rahul Yumlembam.
         e.preventDefault();
-        fromDate = $('#fromDateUA').val();
-        toDate = $('#toDateUA').val();
-        initateUserSearch(SearchID);
+        console.log(searchType);
+        if (searchType == 1) {
+            let q = SearchID;
+            fromDate = $('#fromDateUA').val();
+            toDate = $('#toDateUA').val();
+            let operandInput = '&';
+            if (mainInputCounter > 0) {
+                for (let i = 0; i <= mainInputCounter; i++) {
+                    if (i != 0) {
+
+                        let queryInput = $('#queryID' + i).val();
+                        if (i > 1) {
+                            if (document.getElementById('notID' + i).checked) {
+                                queryInput = '!' + queryInput;
+                            }
+                            operandInput = $('#operandID' + i).val();
+                        }
+                        q = q + operandInput + queryInput;
+                    }
+                }
+
+                q = '(' + q + ')';
+            }
+
+            initateUserSearch(q);
+        } else {
+            fromDate = $('#fromDateUA').val();
+            toDate = $('#toDateUA').val();
+            initateUserSearch(SearchID);
+        }
 
     });
 
@@ -87,9 +120,9 @@ jQuery(function () {
     let tweetDivHeight = $('#userInfoDiv').height();
     $('#uaTweetsDiv').css('max-height', tweetDivHeight - 10 + 'px');
 
-    $('body').on('click','div .closeGraph',function(){
+    $('body').on('click', 'div .closeGraph', function () {
         let valueCapt = $(this).attr('value');
-        $('.'+valueCapt).remove();
+        $('.' + valueCapt).remove();
     });
 
     $('#showUAsugg').on('click', function () {
@@ -142,7 +175,49 @@ jQuery(function () {
                 TweetsGenerator(response.data, 6, args[3], args[1], args[2], true, args[4]);
             });
         }
+    });
+
+    //Advanced Qurey logic for UA 
+    $('body').on('click', 'div #addQueryButton', function () {
+        $('#addQueryHint').css('display', 'none');
+        mainInputCounter += 1;
+        if (mainInputCounter > 0) //each input will increase mainInputCounter
+            searchType = 1; //if more than ine input is available, thn it is advance search
+        $('#removeField').css('display', 'block');
+        if (mainInputCounter == 1) {
+            $('#queryAdvUA').append('<div id="fieldID' + mainInputCounter + '" ><div class=" form-group  mb-1 d-flex"><div class=" border smat-rounded px-2 py-1 bg-white w-100 d-flex"  id="input-' + mainInputCounter + '"><input type="text" class="form-control  typeahead  smat-ha-Input " id="queryID' + mainInputCounter + '" placeholder="Query"  autocomplete="OFF"  required></div></div></div>');
+            // !suggestionsGlobal ? suggInputBoxBuffer.push(mainInputCounter) : makeDropDownReady(suggestionsGlobal, 'input-' + mainInputCounter, 'suggestion');
+
+        } else {
+            // not operation enabled
+            $('#queryAdvUA').append('<div id="fieldID' + mainInputCounter + '" ><div class=" form-group  mb-1 d-flex"><div class="" value="' + mainInputCounter + '"><select class=" smat-select btn HA-operand-select mx-2" id="operandID' + mainInputCounter + '" ><option value="&">AND</option><option class="or-option"  value="|">OR</option></select></div><div class=" border smat-rounded px-2 py-1 bg-white w-100 d-flex" id="input-' + mainInputCounter + '" ><input  type="checkbox" value="" name="NOT" id="notID' + mainInputCounter + '" title="NOT" value="option2" style="margin-top:13px;"><input type="text" class="form-control   typeahead smat-ha-Input " id="queryID' + mainInputCounter + '" placeholder="Query"  autocomplete="OFF" required></div></div></div>');
+            // !suggestionsGlobal ? suggInputBoxBuffer.push(mainInputCounter) : makeDropDownReady(suggestionsGlobal, 'input-' + mainInputCounter, 'suggestion');
+
+        }
+        if (mainInputCounter === 3) {
+            $('#addQueryButton').css('display', 'none');
+        }
+    });
+
+    $('body').on('click', 'div #removeField', function () {
+        $('#fieldID' + mainInputCounter).remove();
+        mainInputCounter -= 1;
+        if (mainInputCounter < 1) {
+            $('#removeField').css('display', 'none');
+            searchType = 0;
+            $('#addQueryHint').css('display', 'block');
+        }
+        if ($('#addQueryButton').is(":hidden") && mainInputCounter < 3) {
+            $('#addQueryButton').css('display', 'block');
+        }
+    });
+
+    $('body').on('click', 'div .showBtn', function () {
+        let idCaptured = $(this).attr('value');
+        console.log(searchRecords[idCaptured][0]);
+        initateUserSearch(searchRecords[idCaptured][0]['query'], searchRecords[idCaptured][0]['filename'], searchRecords[idCaptured][0]['from'], searchRecords[idCaptured][0]['to'], searchRecords[idCaptured][0]['mentionUniqueID'], searchRecords[idCaptured][0]['hashtagUniqueID'], searchRecords[idCaptured][0]['searchType'], false);
     })
+
 });
 
 const generateSuggestions = (userIDArray, div, type = null) => {
@@ -165,20 +240,51 @@ const generateSuggestions = (userIDArray, div, type = null) => {
 
 }
 
-const initateUserSearch = (id) => {
-    SearchID = id
-    mentionUniqueID = generateUniqueID();
-    hashtagsUniqueID = generateUniqueID();
-    getUserDetails(SearchID).then(data => makePageReady(data));
-    let rangeType = getRangeType(fromDate, toDate);
-    window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
-    frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false);
+const initateUserSearch = (query, key = null, fromDateArg = null, toDateArg = null, mentionUniqueIDArg = null, hashtagsUniqueIDArg = null, searchTypeArg = null, addToStatusTable = true) => {
+    if (fromDateArg && toDateArg) {
+        fromDate = fromDateArg;
+        toDate = toDateArg;
+        $('#fromDateUA').val(fromDate);
+        $('#toDateUA').val(toDate);
+    }
+    if (mentionUniqueIDArg && hashtagsUniqueIDArg) {
+        mentionUniqueID = mentionUniqueIDArg;
+        hashtagsUniqueID = hashtagsUniqueIDArg;
+    } else {
+        mentionUniqueID = generateUniqueID();
+        hashtagsUniqueID = generateUniqueID();
+    }
+    //One extra checking if Advaced Query or normal search
+    //Two Seach types :: 1(Advanced query) , 0 (Normal query)
+    if (searchTypeArg) {
+        searchType = searchTypeArg;
+    } else {
+        if (query.includes('&') || query.includes('|')) {
+            searchType = 1;
+            QueryMain = query;
+        } else {
+            $('#addQueryHint').css('display', 'block');
+            searchType = 0;
+            SearchID = query;
+        }
+    }
+    if (addToStatusTable) {
+        addQueryToStatusTable(searchType,null, query, fromDate, toDate, null, false, mentionUniqueID, hashtagsUniqueID);
+    }
+    if (searchType === 0) {
+        getUserDetails(SearchID).then(data => makePageReady(data));
+        let rangeType = getRangeType(fromDate, toDate);
+        window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
+        frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false);
 
-    sentimentDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'sentiContentUA', false);
-    //forHashtagsGraph
-    plotDistributionGraphUA(SearchID, fromDate, toDate, 'hashtag', hashtagsUniqueID, userID, 'hashtagsContentTab');
-    //forMentionsGraph
-    plotDistributionGraphUA(SearchID, fromDate, toDate, 'mention', mentionUniqueID, userID, 'mentionsContentUA');
+        sentimentDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'sentiContentUA', false);
+        //forHashtagsGraph
+        plotDistributionGraphUA(SearchID, fromDate, toDate, 'hashtag', hashtagsUniqueID, userID, 'hashtagsContentTab');
+        //forMentionsGraph
+        plotDistributionGraphUA(SearchID, fromDate, toDate, 'mention', mentionUniqueID, userID, 'mentionsContentUA');
+    } else {
+        console.log('Advanced Search Detected!');
+    }
 }
 const makePageReady = (userDetails) => {
     if (suggShowFLag === 1) {
@@ -338,7 +444,7 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
                     TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
                 });
             }
-         });
+        });
     }
 
 
@@ -350,7 +456,7 @@ const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, user
     let chartDivID = option + '-chart';
     $('#' + div).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
     getCooccurDataForUA(query, fromDate, toDate, option, uniqueID, userID).then(response => {
-        let relType= getRelationType(query,option);  
+        let relType = getRelationType(query, option);
         $('#' + div).html('<div class="d-flex"> <span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span> <button class="btn btn-primary  smat-rounded  mr-1  mt-1 analyzeNetworkButton "   value="' + query + '|' + toDate + '|' + fromDate + '|' + relType + '|' + uniqueID + '|' + userID + '" > <span> Analyse network </span> </button></div><div class="px-3" id="' + chartDivID + '" style="min-height:30%;"></div>');
         response.length < 1 ? $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>') : generateBarChartForCooccur(query, response[0]['data'], chartDivID, option, fromDate, toDate);
         $('#' + option + '-total').text(response[0]['nodes']);
@@ -449,3 +555,68 @@ $(window).on('popstate', function (event) {
     var url = window.location.href;
     window.location.href = url;
 });
+
+
+const addQueryToStatusTable = (searchType,sparkID=null, query, fromDate, toDate, unique_name_timestamp = null, fromStatusTable = false, mentionUniqueID = null, hashtagsUniqueID = null) => {
+    $('#tableInitialTitle').remove();
+    unique_name_timestamp != null ? unique_name_timestamp : unique_name_timestamp = new Date().getTime()
+    let recordTemp = [{ 'query': query, 'from': fromDate, 'to': toDate, 'mentionUniqueID': mentionUniqueID, 'hashtagUniqueID': hashtagsUniqueID, 'searchType': searchType, "filename": unique_name_timestamp.toString() }];
+    searchRecords[unique_name_timestamp] = recordTemp;
+    let status = 'Running...';
+    let queryElement = '';
+    let disabledProperty = '';
+
+    fromStatusTable === true ? disabledProperty = '' : disabledProperty;
+    fromStatusTable === true ? status = 'Success' : status;
+    if (searchType==1) {
+        queryElement = decodeQuery(query);
+        sparkID = unique_name_timestamp;//TODO
+    } else {
+        sparkID = unique_name_timestamp;
+        status = 'Success';
+        disabledProperty = '';
+        queryElement='';
+        addSearchToLocalDB('smatSearchHistory','UAsearches',unique_name_timestamp,userID,query,fromDate,toDate,status,'ua');
+
+    }   console.log(SearchID);
+        getUserDetails(SearchID).then(data => {
+        queryElement = '@' + data.author_screen_name+queryElement;
+        $('#uaStatusTable').prepend('<tr><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + '> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1"> Delete </button></td></tr>');
+    });
+}
+const decodeQuery = (query) => {
+    query = query.replace('(','');
+    query = query.replace(')','');
+    
+    // let query = '#CAA&#Radio+!*protest';
+    let queries = query.split(/[|&]+/g).filter(Boolean);
+    let operands = query.match(/[|&]+/g);
+
+    let counter = 0;
+    let finalString = '';
+    finalString = '';
+    queries[0]='';
+    for (let i = 0; i < queries.length; i++) {
+        if (i == 0) {
+            finalString += '<span>' + queries[i] + '</span> ';
+        } else {
+            finalString += '<span> <b>' + decodeOperand(operands[i - 1]) + '</b> </span> ';
+            if (queries[i].includes('!')) {
+                let tempQuery = queries[i].replace('!', '');
+                finalString += '<span class="NOT">' + tempQuery + '</span> ';
+            }
+
+            else
+                finalString += '<span>' + queries[i] + '</span> ';
+        }
+    }
+
+    return finalString;
+}
+
+const decodeOperand = (operand) => {
+    if (operand == '&')
+        return 'AND';
+    else
+        return 'OR'
+}

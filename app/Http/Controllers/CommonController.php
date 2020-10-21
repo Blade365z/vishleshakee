@@ -720,17 +720,62 @@ class CommonController extends Controller
         $qb_obj = new QB;
         $ut_obj = new Ut;
         $final_result = array();
-
+        $current_date = $ut_obj->get_current_date_time($option='date');
+        $current_datetime000 = $ut_obj->get_current_date_time($option='datetime000');
+        $todate = ($ut_obj->separate_date_time($to_datetime))[0];
         $feature_option = 'tweet';
     
-        // $stm_list_10sec = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', 'tweet');
-        if($range_type){
-            $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, $range_type, $feature_option);
-            $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
+        if($range_type){            
+            // $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, $range_type, $feature_option);
+            // $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
+            if($range_type == "10sec"){
+                // get data from 10sec table
+                $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, $range_type, $feature_option);
+                $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
+            }else if($range_type == "hour"){                
+                $result_async_from_db1 = array();                         
+                $result_async_from_db2 = array(); 
+                $result_async_from_db3 = array();
+                if($todate == $current_date){
+                    //for current day from hour table 
+                    $stm_list = $qb_obj->get_statement($current_datetime000, $current_datetime000, $token, 'hour', $feature_option);
+                    $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]); 
+
+                    // and current hour(10sec table)
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
+                    $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $feature_option);
+                    $result_async_from_db3 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
+                }else{
+                    // get data from day table
+                    $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'day', $feature_option);
+                    $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);    
+                }
+                $result_async_from_db = array_merge($result_async_from_db1, $result_async_from_db2, $result_async_from_db3); 
+            }else if($range_type == "day"){                
+                $result_async_from_db1 = array();
+                $result_async_from_db2 = array(); 
+                $result_async_from_db3 = array(); 
+                // get data from day table.......................................// ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-06 00:00:00)
+                $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, $range_type, $feature_option);
+                $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);                       
+                if($todate == $current_date){
+                    //for current day from hour table 
+                    $stm_list = $qb_obj->get_statement($current_datetime000, $current_datetime000, $token, 'hour', $feature_option);
+                    $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);           
+
+                    // and current hour(10sec table)
+                    $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
+                    $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
+                    $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
+                    $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $feature_option);
+                    $result_async_from_db3 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
+                }       
+                $result_async_from_db = array_merge($result_async_from_db1, $result_async_from_db2, $result_async_from_db3); 
+            }
         }else{
-            $diff = $ut_obj->get_difference_between_two_datetime($to_datetime, $from_datetime, 'day');
-            $current_date = $ut_obj->get_current_date_time($option='date');
-            $todate = ($ut_obj->separate_date_time($to_datetime))[0];
+            $diff = $ut_obj->get_difference_between_two_datetime($to_datetime, $from_datetime, 'day');            
             if($diff == 0){
                 if((($ut_obj->separate_date_time($to_datetime))[1] != '00:00:00') and (($ut_obj->separate_date_time($from_datetime))[1] != '00:00:00')){
                     // 10sec ($to_datetime = 2020-09-08 10:30:10, $from_datetime= 2020-09-08 10:00:10)
@@ -756,30 +801,26 @@ class CommonController extends Controller
                     $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                 }
             }else if($diff > 0){
+                $result_async_from_db1 = array();
+                $result_async_from_db2 = array();
+                $result_async_from_db3 = array();
+                // past days.......................................// ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-06 00:00:00)                   
+                $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'day', $feature_option);
+                $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                 if($todate == $current_date){
-                    // past days.......................................// ($to_datetime = 2020-09-08 00:00:00, $from_datetime= 2020-09-06 00:00:00)
-                    $result_async_from_db1 = array();
-                    $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'day', $feature_option);
-                    $result_async_from_db1 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
-                    // For current Day............................... $to_datetime = 2020-09-08 00:00:00
+                    // For current Day............................... $to_datetime = 2020-09-08 00:00:00, $from_datetime = 2020-09-08 00:00:00
                     // past hours(hour table)
-                    $result_async_from_db2 = array();
-                    $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'hour', $feature_option);
+                    $stm_list = $qb_obj->get_statement($current_datetime000, $current_datetime000, $token, 'hour', $feature_option);
                     $result_async_from_db2 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
+
                     // and current hour(10sec table)
-                    $result_async_from_db3 = array();
                     $to_from_datetime_array = $ut_obj->get_current_datetime_previous_datetimehour(); 
                     $to_datetime = $to_from_datetime_array[0]; //2020-09-08 21:44:40
                     $from_datetime = $to_from_datetime_array[1]; //2020-09-08 21:00:00
                     $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, '10sec', $feature_option);
                     $result_async_from_db3 = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
-
-                    $result_async_from_db = array_merge($result_async_from_db1, $result_async_from_db2, $result_async_from_db3);                    
-                }else{
-                    // /($to_datetime = 2020-09-07 00:00:00, $from_datetime= 2020-09-01 00:00:00)
-                    $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token, 'day', $feature_option);
-                    $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
                 }
+                $result_async_from_db = array_merge($result_async_from_db1, $result_async_from_db2, $result_async_from_db3);
             }else{
                 echo "nothing";
             }

@@ -50,6 +50,8 @@ jQuery(function () {
     // initiateHistoricalAnalysis('#WorldUnitedForSSRJustice','2020-09-08','2020-09-11');
     getQueryStatues(userID).then(response => {
         if (response) {
+            statusTableFlag = 1;
+            $('#showTableBtn span').text(" Hide Search History ");
             $('#searchTable').css('display', 'block');
             response.forEach(element => {
                 updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID)
@@ -321,11 +323,16 @@ const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable 
         } else {
             let recordTemp = [{ 'query': query, 'from': fromDate, 'to': toDate, 'mentionUniqueID': mentionUniqueID, 'hashtagUniqueID': hashtagUniqueID, 'userUniqueID': userUniqueID, 'searchType': searchType, "filename": currentTimestamp.toString() }];
             searchRecords[currentTimestamp] = recordTemp;
-            // trigger to spark function
+            // 11 store to MySQl.....
+            storeToMySqlAdvanceSearchData(userID, currentTimestamp.toString(), fromDate, toDate, query, "running...", 'ha').then(data => {
+                console.log(data);
+            });            
+            // 12 trigger to spark function
             console.log(query);
             triggerSparkRequest(query, fromDate, toDate, currentTimestamp.toString());
         }
     }
+    console.log(searchRecords);
 }
 
 
@@ -335,13 +342,13 @@ const triggerSparkRequest = (query, fromDate, toDate, unique_name_timestamp, hig
     let query_list = get_tokens_wrt_pattern(queries); // get token
     // let unique_name_timestamp = (new Date().getTime()).toString(); // create unique_name 
     console.log(query_list);
-    // 1 request to spark.....
+    // 13 request to spark.....
     requestToSpark(query_list, unique_name_timestamp).then(data => {
         console.log(data);
         let sparkID = data.id;
-        // 2 add row to table UI.....
+        // 14 add row to table UI.....
         addToStatusTable(sparkID, query, fromDate, toDate, unique_name_timestamp, highlight = false);
-        // 3 check status until it becomes success.....
+        // 15 check status until it becomes success.....
         let checkSpartStatusInterval = setInterval(function () { checkSparkStatus(sparkID, unique_name_timestamp, fromDate, toDate, query, checkSpartStatusInterval); }, 10000);
 
     });
@@ -355,14 +362,15 @@ const checkSparkStatus = (sparkID, unique_name_timestamp, fromDate, toDate, quer
         console.log(data);
         if (data.status === 'success') {
             window.clearInterval(checkSpartStatusInterval);//clear the interval
-            // 4 store to MySQl.....
-            storeToMySqlAdvanceSearchData(userID, unique_name_timestamp, fromDate, toDate, query).then(data => {
-                console.log(data);
-            });
-            // 5 write to file.....
+            // // update status to MySQl.....
+            // storeToMySqlAdvanceSearchData(userID, unique_name_timestamp, fromDate, toDate, query).then(data => {
+            //     console.log(data);
+            // });
+
+            // 16 write to file.....
             getOuputFromSparkAndStoreAsJSON(sparkID, unique_name_timestamp, userID).then(data => {
-                console.log(data);
-                // 6 change status in table(UI).....  // (#Corona OR #Coronavirus)
+                consle.log(data);
+                // 17 change status in table(UI).....  // (#Corona OR #Coronavirus)
                 makeShowBtnReadyAfterSuccess(sparkID, unique_name_timestamp);
             });
         } else if (data.status === 'dead') {
@@ -382,7 +390,9 @@ const addToStatusTable = (sparkID, query, fromDate, toDate, unique_name_timestam
     console.log(searchRecords);
     fromStatusTable === true ? disabledProperty = '' : disabledProperty;
     fromStatusTable === true ? status = 'Success' : status;
-    $('#haStatusTable').append('<tr><th scope="row">' + unique_name_timestamp + '</th><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + '> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1"> Delete </button></td></tr>');
+    // $('#haStatusTable').append('<tr><th scope="row">' + unique_name_timestamp + '</th><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + '> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1"> Delete </button></td></tr>');
+
+    $('<tr><th scope="row">' + unique_name_timestamp + '</th><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + '> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1"> Delete </button></td></tr>').prependTo("#haStatusTable");
 }
 
 
