@@ -241,6 +241,10 @@ Route::post('/extractFeedbacks', 'FeebackController@extractFeedbacks');
 Route::resource('status', 'queryStatusController', ['except' => ['show']]);
 Route::get('/status/{username}', 'queryStatusController@show');
 
+
+Route::resource('normalStatus', 'normalQueryStatusController');
+
+
 //Define API routes requiring middleware here for Tweet Tracking
 Route::group(['prefix' => 'track'], function () {
     Route::post('/getTweetInfo', 'TweetTracking@getTweetInfo');
@@ -258,3 +262,4 @@ Route::group(['prefix' => 'configure'], function () {
     Route::put('/updateTrackWordStatus','ConfigureSmat@updateTrackWordStatus');
     Route::delete('/deletefromCrawlList','ConfigureSmat@DeleteTrackToken');
 });
+

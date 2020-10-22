@@ -76,26 +76,79 @@
                 <div>
                     <p class="m-0 smat-box-title"> Recent Searches</p>
                 </div>
-                <div class="table-responsive ">
-                    <table class="table  table-bordered">
-                        <thead>
-                            <tr>
+                <div>
+                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 
-                                <th class="py-1 px-3 text-dark " scope="col">Query</th>
-                                <th class="py-1 px-3 text-dark " scope="col">From </th>
-                                <th class="py-1 px-3 text-dark " scope="col">To </th>
-                                <th class="py-1 px-3 text-dark " scope="col"> Status</th>
-                                <th class="py-1 px-3 text-dark" scope="col"> Options</th>
-                            </tr>
-                        </thead>
-                        <tbody id="uaStatusTable">
 
-                        </tbody>
-                    </table>
-                    <div id="tableInitialTitle">
-                        <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                        <li class="nav-item active">
+                            <a class="nav-link smat-rounded active  " id="normalQueryTab" data-toggle="pill"
+                                href="#normalQueryContent" role="tab" aria-controls="pills-profile" aria-selected="true"> Normal Queries</a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link smat-rounded " id="advQueryTab" data-toggle="pill"
+                                href="#advQueryContent" role="tab" aria-controls="mentionsContentUA"
+                                aria-selected="false"> Advance Queries</a>
+                        </li>
+                        
+                    </ul>
+                </div>
+                <div class="tab-content pr-5" id="pills-tabContent">
+               
+                    <div class="tab-pane fade  px-1 active show" id="normalQueryContent" role="tabpanel"
+                        aria-labelledby="normalQueryContent">
+                        <div class="table-responsive ">
+                            <table class="table  table-bordered">
+                                <thead>
+                                    <tr>
+        
+                                        <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                        <th class="py-1 px-3 text-dark " scope="col">From </th>
+                                        <th class="py-1 px-3 text-dark " scope="col">To </th>
+                                        <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                                        <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="uaStatusTable">
+
+                                </tbody>
+                            </table>
+                            <div id="tableInitialTitle">
+                                <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                            </div>
+                        </div>
+                    
+                    
+                    </div>
+                    <div class="tab-pane fade  px-1  " id="advQueryContent" role="tabpanel"
+                    aria-labelledby="advQueryContent">
+                    <div class="table-responsive ">
+                        <table class="table  table-bordered">
+                            <thead>
+                                <tr>
+    
+                                    <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                    <th class="py-1 px-3 text-dark " scope="col">From </th>
+                                    <th class="py-1 px-3 text-dark " scope="col">To </th>
+                                    <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                                    <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                                </tr>
+                            </thead>
+                            <tbody id="uaAdvStatusTable">
+
+                            </tbody>
+                        </table>
+                        <div id="tableInitialTitle">
+                            <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                        </div>
                     </div>
                 </div>
+                </div>
+
+
+
+
+              
+               
             </div>
         </div>
     </div>

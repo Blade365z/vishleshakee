@@ -68,11 +68,13 @@ class HistoricalAdvanceController extends Controller
 
         $request->validate([
             'id' => 'required',
-            'unique_name_timestamp' => 'required'
+            'unique_name_timestamp' => 'required',
+            'userID' => 'required'
         ]);
 
-        $id =  $request->input('id');
+        $id =  $request->input('id');        
         $unique_name_timestamp = $request->input('unique_name_timestamp'); // this is = queryID = filename.json
+        $userid = $request->input('userID');
 
         $curl_result = curl_init();
         curl_setopt($curl_result, CURLOPT_HTTPHEADER, array(
@@ -87,11 +89,14 @@ class HistoricalAdvanceController extends Controller
         $result = json_decode($curl_result, true);
         $status = $result['state'];
         //update status to mysql after success or dead................
-        if(($status = 'success') or ($status = 'dead')){
+        if(($status == 'success') or ($status == 'dead')){
             $mysql_query_obj = new queryStatusController;
             $update_to_mysql = $mysql_query_obj->update($unique_name_timestamp, $status);
-            if(update_to_mysql)
+            if($update_to_mysql){                
+                //write the json file...TODO
+                $this->getOuputFromSparkAndStoreAsJSON($id, $unique_name_timestamp, $userid);
                 return json_encode(array('status' => $status, 'id' => $result['id'], 'updateStatusToMysql' => 'success'));
+            }
             else
                 return json_encode(array('status' => $status, 'id' => $result['id'], 'updateStatusToMysql' => 'error'));
         }        
@@ -100,20 +105,11 @@ class HistoricalAdvanceController extends Controller
 
 
 
-
-    public function getOuputFromSparkAndStoreAsJSON(Request $request)
+    public function getOuputFromSparkAndStoreAsJSON($id, $unique_name_timestamp, $userid)
     {
         $ut_obj = new Utilities;
         //curl -X GET -H "Content-Type: application/json" 172.16.117.202:8998/batches/{80}
-        $request->validate([
-            'id' => 'required',
-            'unique_name_timestamp' =>  'required',
-            'userid' => 'required'
-        ]);
-
-        $id =  $request->input('id');
-        $filename = $request->input('unique_name_timestamp');
-        $userid =  $request->input('userid');
+        $filename = $unique_name_timestamp;
 
         $curl_result = curl_init();
         curl_setopt($curl_result, CURLOPT_HTTPHEADER, array(
@@ -136,6 +132,45 @@ class HistoricalAdvanceController extends Controller
         // return $result;
         return json_encode(array('status' => 'done', 'id' => $id));
     }
+
+
+
+
+    // public function getOuputFromSparkAndStoreAsJSON(Request $request)
+    // {
+    //     $ut_obj = new Utilities;
+    //     //curl -X GET -H "Content-Type: application/json" 172.16.117.202:8998/batches/{80}
+    //     $request->validate([
+    //         'id' => 'required',
+    //         'unique_name_timestamp' =>  'required',
+    //         'userid' => 'required'
+    //     ]);
+
+    //     $id =  $request->input('id');
+    //     $filename = $request->input('unique_name_timestamp');
+    //     $userid =  $request->input('userid');
+
+    //     $curl_result = curl_init();
+    //     curl_setopt($curl_result, CURLOPT_HTTPHEADER, array(
+    //         'Content-Type: application/json'
+    //     ));
+    //     $url = '172.16.117.202:8998/batches/' . $id;
+    //     curl_setopt($curl_result, CURLOPT_URL, $url);
+    //     curl_setopt($curl_result, CURLOPT_RETURNTRANSFER, true);
+    //     curl_setopt($curl_result, CURLOPT_TIMEOUT, 0);
+    //     $curl_result = curl_exec($curl_result);
+    //     $result = json_decode($curl_result, true);
+    //     // return $curl_result['state'];
+
+    //     $result = $result["log"][8]; //string type   
+    //     $result = json_decode($result, true); //array type  
+    //     $file_path =  "$userid/$filename.json";
+    //     $ut_obj->write_to_file($file_type='json', $file_path, $result, $token=null, $userid);
+    //     // $this->storeAsJson($request, $filename, $result);
+
+    //     // return $result;
+    //     return json_encode(array('status' => 'done', 'id' => $id));
+    // }
 
 
 

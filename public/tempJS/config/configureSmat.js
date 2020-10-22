@@ -124,9 +124,14 @@ jQuery(function () {
         console.log('After', dbNodes);
         $(this).parent().parent().remove();
     });
-    $('body').on('click', 'div #configEnvSaveBtn', function () {
+    $('body').on('click', 'div #saveChangesBtn', function () {
         procssToSaveConfParametersToDB();
+        $('#confirmModal').modal('hide');
+        displayErrorMsg('msg-Box','success','Updated Successfully');
     })
+    $('body').on('click', 'div #configEnvSaveBtn', function () {
+        $('#confirmModal').modal('show');
+    });
     $('#envConfForm').on('submit', function (e) {
         e.preventDefault();
         processFormDataForSaving(appURL, dbUser, dbPass, dbNodes, dbKeyspace);

@@ -23,9 +23,9 @@ export const requestToSpark = async (query_list, unique_name_timestamp) => {
 }
 
 
-export const checkStatus = async (id, unique_name_timestamp) => {
+export const checkStatus = async (id, unique_name_timestamp, userID) => {
     let dataArgs;
-    dataArgs = JSON.stringify({ id, unique_name_timestamp });
+    dataArgs = JSON.stringify({ id, unique_name_timestamp, userID });
     let response = await fetch('HA/getStatusFromSpark', {
         method: 'post',
         headers: HeadersForApi,

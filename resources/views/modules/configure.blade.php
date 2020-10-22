@@ -5,6 +5,8 @@
     @include('inc.configModals.addKeySpace')
     @include('inc.configModals.addTrackWordsModal')
     @include('inc.configModals.editCrawlListModal')
+    @include('inc.configModals.confirmConfig')
+    
     <div class="row">
         <div class="col-md-7 offset-md-3">
             <div class="smat-mainHeading ">

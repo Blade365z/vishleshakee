@@ -9,12 +9,12 @@
 
 import { formulateUserSearch } from '../utilitiesJS/userSearch.js';
 import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
-import { getSuggestionsForUA, getUserDetails, getFreqDistDataForUA, getTweetIDsForUA, getSentiDistDataForUA, getCooccurDataForUA } from './helper.js';
+import { getSuggestionsForUA, getUserDetails, getFreqDistDataForUA, getTweetIDsForUA, getSentiDistDataForUA, getCooccurDataForUA, addNormalSearchToDB, populateRecentSearches } from './helper.js';
 import { getCurrentDate, getRangeType, dateProcessor, getDateInFormat } from '../utilitiesJS/smatDate.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { generateUniqueID } from '../utilitiesJS/uniqueIDGenerator.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
-import { addSearchToLocalDB, getRelationType, makeSmatReady, readSearchFromLocalDB } from '../utilitiesJS/smatExtras.js'
+import {  getRelationType, makeDropDownReady, makeSmatReady, makeSuggestionsReady } from '../utilitiesJS/smatExtras.js'
 import { forwardToNetworkAnalysis, forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.js';
 
 
@@ -27,9 +27,13 @@ var mentionUniqueID, hashtagsUniqueID, userID;
 var suggShowFLag = 1;
 var mainInputCounter = 0, searchType = 0;
 var searchRecords = [];
+var suggestionsGlobal, suggInputBoxBuffer = [];
+
+
 //Logic Implementation 
 jQuery(function () {
-   
+
+
     makeSmatReady();
     if (localStorage.getItem('smat.me')) {
         let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
@@ -37,7 +41,8 @@ jQuery(function () {
     } else {
         window.location.href = 'login';
     }
-    readSearchFromLocalDB('smatSearchHistory','UAsearches',userID);
+    // readSearchFromLocalDB('smatSearchHistory','UAsearches',userID);
+   
     toDate = getCurrentDate()
     fromDate = dateProcessor(toDate, '-', 3);
     if (incoming) {
@@ -48,7 +53,11 @@ jQuery(function () {
         SearchID = incoming;
         initateUserSearch(SearchID);
     }
-
+    populateRecentSearches(userID).then(response =>{
+        response.forEach(element => {
+            addQueryToStatusTable(0,element.queryID, element.query, element.fromDate, element.toDate, element.queryID,false,element.hashtagID,element.mentionID);
+        });
+    })
     $('.nav-item ').removeClass('smat-nav-active');
     $('#nav-UA').addClass('smat-nav-active');
     generateSuggestions(suggestionPopularIDs, 'suggUsers', 'users')
@@ -58,7 +67,16 @@ jQuery(function () {
 
     $('#fromDateUA').val(fromDate);
     $('#toDateUA').val(toDate);
+    makeSuggestionsReady('haQueryInputBox', 50).then(response => {
+        suggestionsGlobal = response;
+        if (suggInputBoxBuffer.length > 0) {
+            suggInputBoxBuffer.forEach(element => {
+                makeDropDownReady(response, 'input-' + element, 'suggestion');
+            });
 
+        }
+
+    });
 
     $('#uaQueryHandleForm').on('submit', function (e) {
         //logic different in historical analysis :: If required please update in other module
@@ -186,15 +204,15 @@ jQuery(function () {
         $('#removeField').css('display', 'block');
         if (mainInputCounter == 1) {
             $('#queryAdvUA').append('<div id="fieldID' + mainInputCounter + '" ><div class=" form-group  mb-1 d-flex"><div class=" border smat-rounded px-2 py-1 bg-white w-100 d-flex"  id="input-' + mainInputCounter + '"><input type="text" class="form-control  typeahead  smat-ha-Input " id="queryID' + mainInputCounter + '" placeholder="Query"  autocomplete="OFF"  required></div></div></div>');
-            // !suggestionsGlobal ? suggInputBoxBuffer.push(mainInputCounter) : makeDropDownReady(suggestionsGlobal, 'input-' + mainInputCounter, 'suggestion');
+            !suggestionsGlobal ? suggInputBoxBuffer.push(mainInputCounter) : makeDropDownReady(suggestionsGlobal, 'input-' + mainInputCounter, 'suggestion');
 
         } else {
             // not operation enabled
             $('#queryAdvUA').append('<div id="fieldID' + mainInputCounter + '" ><div class=" form-group  mb-1 d-flex"><div class="" value="' + mainInputCounter + '"><select class=" smat-select btn HA-operand-select mx-2" id="operandID' + mainInputCounter + '" ><option value="&">AND</option><option class="or-option"  value="|">OR</option></select></div><div class=" border smat-rounded px-2 py-1 bg-white w-100 d-flex" id="input-' + mainInputCounter + '" ><input  type="checkbox" value="" name="NOT" id="notID' + mainInputCounter + '" title="NOT" value="option2" style="margin-top:13px;"><input type="text" class="form-control   typeahead smat-ha-Input " id="queryID' + mainInputCounter + '" placeholder="Query"  autocomplete="OFF" required></div></div></div>');
-            // !suggestionsGlobal ? suggInputBoxBuffer.push(mainInputCounter) : makeDropDownReady(suggestionsGlobal, 'input-' + mainInputCounter, 'suggestion');
+            !suggestionsGlobal ? suggInputBoxBuffer.push(mainInputCounter) : makeDropDownReady(suggestionsGlobal, 'input-' + mainInputCounter, 'suggestion');
 
         }
-        if (mainInputCounter === 3) {
+        if (mainInputCounter === 2) {
             $('#addQueryButton').css('display', 'none');
         }
     });
@@ -264,17 +282,24 @@ const initateUserSearch = (query, key = null, fromDateArg = null, toDateArg = nu
             QueryMain = query;
         } else {
             $('#addQueryHint').css('display', 'block');
+            ResetAdvQueryIps('addAdvQueryDiv');
             searchType = 0;
             SearchID = query;
         }
     }
+    if(searchType==0){
+        addNormalSearchToDB(new Date().getTime(),userID,query,fromDate,toDate,'Success','ua',hashtagsUniqueID,mentionUniqueID);
+    }else{
+        //TODO::add to sparkstarsTable
+    }
+  
     if (addToStatusTable) {
-        addQueryToStatusTable(searchType,null, query, fromDate, toDate, null, false, mentionUniqueID, hashtagsUniqueID);
+        addQueryToStatusTable(searchType, null, query, fromDate, toDate, null, false, mentionUniqueID, hashtagsUniqueID);
     }
     if (searchType === 0) {
         getUserDetails(SearchID).then(data => makePageReady(data));
         let rangeType = getRangeType(fromDate, toDate);
-        window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
+        // window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
         frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false);
 
         sentimentDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'sentiContentUA', false);
@@ -456,12 +481,15 @@ const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, user
     let chartDivID = option + '-chart';
     $('#' + div).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
     getCooccurDataForUA(query, fromDate, toDate, option, uniqueID, userID).then(response => {
+        if( response[0]['data'].length < 1){
+            $('#'+div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+        }else{
         let relType = getRelationType(query, option);
         $('#' + div).html('<div class="d-flex"> <span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span> <button class="btn btn-primary  smat-rounded  mr-1  mt-1 analyzeNetworkButton "   value="' + query + '|' + toDate + '|' + fromDate + '|' + relType + '|' + uniqueID + '|' + userID + '" > <span> Analyse network </span> </button></div><div class="px-3" id="' + chartDivID + '" style="min-height:30%;"></div>');
         response.length < 1 ? $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>') : generateBarChartForCooccur(query, response[0]['data'], chartDivID, option, fromDate, toDate);
         $('#' + option + '-total').text(response[0]['nodes']);
+    }
     });
-    0.
 }
 
 
@@ -557,7 +585,7 @@ $(window).on('popstate', function (event) {
 });
 
 
-const addQueryToStatusTable = (searchType,sparkID=null, query, fromDate, toDate, unique_name_timestamp = null, fromStatusTable = false, mentionUniqueID = null, hashtagsUniqueID = null) => {
+const addQueryToStatusTable = (searchType, sparkID = null, query, fromDate, toDate, unique_name_timestamp = null, fromStatusTable = false, mentionUniqueID = null, hashtagsUniqueID = null) => {
     $('#tableInitialTitle').remove();
     unique_name_timestamp != null ? unique_name_timestamp : unique_name_timestamp = new Date().getTime()
     let recordTemp = [{ 'query': query, 'from': fromDate, 'to': toDate, 'mentionUniqueID': mentionUniqueID, 'hashtagUniqueID': hashtagsUniqueID, 'searchType': searchType, "filename": unique_name_timestamp.toString() }];
@@ -565,29 +593,30 @@ const addQueryToStatusTable = (searchType,sparkID=null, query, fromDate, toDate,
     let status = 'Running...';
     let queryElement = '';
     let disabledProperty = '';
-
+    let tableDiv='';
     fromStatusTable === true ? disabledProperty = '' : disabledProperty;
     fromStatusTable === true ? status = 'Success' : status;
-    if (searchType==1) {
+    if (searchType == 1) {
+        tableDiv="uaAdvStatusTable";
         queryElement = decodeQuery(query);
         sparkID = unique_name_timestamp;//TODO
     } else {
+        tableDiv="uaStatusTable";
         sparkID = unique_name_timestamp;
         status = 'Success';
         disabledProperty = '';
-        queryElement='';
-        addSearchToLocalDB('smatSearchHistory','UAsearches',unique_name_timestamp,userID,query,fromDate,toDate,status,'ua');
-
-    }   console.log(SearchID);
-        getUserDetails(SearchID).then(data => {
-        queryElement = '@' + data.author_screen_name+queryElement;
-        $('#uaStatusTable').prepend('<tr><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + '> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1"> Delete </button></td></tr>');
+        queryElement = '';
+    }
+    let queryTemp = searchType==1? SearchID : query;
+    getUserDetails(queryTemp).then(data => {
+        queryElement = '@' + data.author_screen_name + queryElement;
+        $('#'+tableDiv).prepend('<tr><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + '> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1"> Delete </button></td></tr>');
     });
 }
 const decodeQuery = (query) => {
-    query = query.replace('(','');
-    query = query.replace(')','');
-    
+    query = query.replace('(', '');
+    query = query.replace(')', '');
+
     // let query = '#CAA&#Radio+!*protest';
     let queries = query.split(/[|&]+/g).filter(Boolean);
     let operands = query.match(/[|&]+/g);
@@ -595,7 +624,7 @@ const decodeQuery = (query) => {
     let counter = 0;
     let finalString = '';
     finalString = '';
-    queries[0]='';
+    queries[0] = '';
     for (let i = 0; i < queries.length; i++) {
         if (i == 0) {
             finalString += '<span>' + queries[i] + '</span> ';
@@ -619,4 +648,10 @@ const decodeOperand = (operand) => {
         return 'AND';
     else
         return 'OR'
+}
+
+
+const ResetAdvQueryIps = (div) => {
+    mainInputCounter=0;
+    $('#'+div).html('<div class="d-flex mb-2" id="addAdvQueryDiv"><div class="d-flex" id="queryAdvUA"></div><div><button class="btn btn-neg smat-rounded mx-1 mt-2 " id="removeField" onclick="return false" style="display: none;"> <i class="fa fa-minus" aria-hidden="true"></i></button></div><div><button class="btn btn-primary smat-rounded mx-1 mt-2 " id="addQueryButton" onclick="return false" style="display: block;"><i class="fa fa-plus" aria-hidden="true"></i></button></div><div><p class="mb-0 mt-3 text-muted" id="addQueryHint" style="display: block;"> Click to add more queries </p></div></div>');
 }

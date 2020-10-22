@@ -42,6 +42,7 @@
                             <li class="clickable">Trend Analysis</li>
                             <li class="clickable">Historical Analysis</li>
                             <li class="clickable">Network Analysis </li>
+                            @include('modules.networkAnalysisHelp');
                             <li class="clickable">User Analysis </li>
                         </ul>
                         </p>

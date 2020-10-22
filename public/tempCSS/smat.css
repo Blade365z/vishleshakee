@@ -166,7 +166,10 @@ body {
 }
 
 
-
+#barChart{
+    max-height:400px;
+    overflow-y:auto;
+}
 .smat-list {
     list-style: none !important;
 }

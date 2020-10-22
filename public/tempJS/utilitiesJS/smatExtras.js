@@ -93,47 +93,60 @@ export const displayErrorMsg = (div, type, msg = null) => {
 }
 
 
-export const indexedDBStoreForSearch = (dbName,objName) => {
-    var db;
+// const retriveRecordsFromIDB = () => {
 
-    var request = indexedDB.open(dbName, 3);
-    request.onerror = function (event) {
-        console.log("There is some Error in Local DB (Indexed DB)");
-    };
-    request.onsuccess = function (event) {
-        db = event.target.result;
-        db.createObjectStrore(objName);
-        console.log("success: " + db);
-    };
- 
-   
-}
-export const addSearchToLocalDB = (dbName, ObjName, id, user, queryArg, from, to, statusArg, typeArg) => {
-    const request = window.indexedDB.open(dbName,3);
-    console.log("adding")
-    request.onupgradeneeded = () => {
-        let db = request.result;S
-        let store = db.createObjectStore(ObjName, { keyPath: "userID" });
+//     var dbRetriveReq = window.indexedDB.open("UAsearchRec");
+//     dbRetriveReq.onsuccess = function (event) {
+//         db = dbRetriveReq.result;
+//         retrive();
+//     }
+//     function retrive() {
+//         db.transaction(userID).objectStore(userID).getAll().onsuccess = function (event) {
+//             retrivedFromLocal = event.target.result;
+//             $('#uaStatusTable').html('');
+//             let counter = 0;
+//             retrivedFromLocal.forEach(element => {
+//                 let recordTemp = [{ 'query': element.query, 'from': element.fromDate, 'to': element.toDate, 'mentionUniqueID': element.mentionUniqueID, 'hashtagUniqueID': element.hashtagsUniqueID, 'searchType': 0, "filename": element.queryID }];
+//                 searchRecords[element.queryID] = recordTemp
 
-        store.put({ queryID: id, userID: user, query: queryArg, fromDate: from, toDate: to, status: statusArg, type: typeArg })
-    }
-    request.onsuccess = function (event) {
-        if(request.readyState=="done"){
-            console.log('done');
-        }
-    };
-}
+//                 getUserDetails(element['query']).then(data => {
+//                     counter = counter + 1;
+//                     $('#uaStatusTable').prepend('<tr id="row-' + counter + '"><td>@' + data.author_screen_name + '</td><td>' + element.fromDate + '</td><td>' + element.toDate + '</td><td id="' + element.queryID + 'Status">' + element.status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + element.queryID + '" id="' + element.queryID + 'ShowBtn" > Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + element.queryID + '" id="' + element.queryID + 'DeleteBtn"  type="1"> Delete </button></td></tr>');
+//                 });
+//             });
 
-export const readSearchFromLocalDB = (db,Obj,userID)  => {
-    var request = indexedDB.open(db);
-    request.onerror = function (event) {
-        alert("Unable to retrieve daa from database!");
-    };
+//         }
 
-    request.onsuccess = function (event) {
-        db = event.target.result;
-        db.transaction(Obj).objectStore(Obj).get(userID).onsuccess = function (event) {
-            console.log(event.target.result);
-        };
-    };
-}
+//     }
+//     console.log(searchRecords);
+// }
+
+// const cleanUpLocalDB = (arr = null, db, rowID = null) => {
+//     var transaction = db.transaction([userID], "readwrite");
+//     var objectStore = transaction.objectStore(userID);
+//     let dbSize = 0;
+//     dbSize = objectStore.count();
+//     dbSize.onsuccess = function (event) {
+//         console.log('DB SIZE :', event.target.result);
+//         dbSize = event.target.result;
+//         if (event.target.result > 4) {
+//             $('#row-' + RowdeleteOffset).remove();
+//             RowdeleteOffset += 1;
+
+//             arr = arr.slice(1, retrivedFromLocal.length);
+//             var objectStoreRequest = objectStore.clear();
+//             objectStoreRequest.onsuccess = function (event) {
+
+//             };
+//             var objectStorePrev = transaction.objectStore(userID);
+//             for (let i = 0; i <= arr.length - 1; i++) {
+//                 var objectStorePrevRequest = objectStorePrev.add(arr[i]);
+//                 objectStorePrevRequest.onsuccess = function (event) {
+
+//                 };
+//             }
+//         }
+//     }
+
+// }
+

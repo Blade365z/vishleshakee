@@ -143,3 +143,32 @@ export const getCooccurDataForUA = async (query, from, to, option, uniqueID, use
         return dataArrayTemp;
     }
 } 
+
+
+export const addNormalSearchToDB  = async (queryID,userID,query,fromDate,toDate,status,module_type,hashtagID,mentionID) => {
+    let dataArgs=JSON.stringify({
+        queryID,userID,query,fromDate,toDate,status,module_type,hashtagID,mentionID
+    })
+    let response = await fetch('normalStatus', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: dataArgs
+    });
+    let data = await response.json()
+    if(data.message){
+        console.log(data.message);
+    }    
+}
+
+export const populateRecentSearches = async( userID) => {
+    let response = await fetch('normalStatus/'+userID, {
+        method: 'get',
+        headers: HeadersForApi
+    });
+    let data = await response.json()
+    if(data.message){
+        console.log(data.message);
+    }else{
+        return data;
+    } 
+}
