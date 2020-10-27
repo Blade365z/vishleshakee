@@ -209,6 +209,7 @@ Route::group(['prefix' => 'UA'], function () {
     Route::post('/getTweetIDs', 'UserAnalysisController@getTweetIDUA');
     Route::post('/getSentimentDataForUser', 'UserAnalysisController@getSentimentDataForUser');
     Route::post('/getCooccurDataForUser', 'UserAnalysisController@getCooccurDataForUser');
+    Route::get('/getUsersFromCrawlerList','UserAnalysisController@getUAListFromCrawler');
 });
 
 //Define API routes requiring middleware here for Map
@@ -242,7 +243,9 @@ Route::resource('status', 'queryStatusController', ['except' => ['show']]);
 Route::get('/status/{username}', 'queryStatusController@show');
 
 
-Route::resource('normalStatus', 'normalQueryStatusController');
+Route::resource('normalStatus', 'normalQueryStatusController', ['except' => ['show']]);
+Route::post('/normalStatus/{id}', 'normalQueryStatusController@show');
+
 
 
 //Define API routes requiring middleware here for Tweet Tracking

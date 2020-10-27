@@ -19,14 +19,16 @@ class HistoricalAdvanceController extends Controller
         $rname = $request->input('unique_name_timestamp');
         $result = $this->curlData($query_list, $rname);
         $result = json_decode($result, true);
+        $status = $result['state'];
+        $id =  $result['id'];
 
         // if($status=='success')
         // while (1) {
-        //     $status = $this->curlData($id);
-        //     $status = $this->getCurlStatus(210  );
-        //     if ($status == 'success') {
+        //     // $status = $this->curlData($id);
+        //     $status_res = $this->getStatusFromSparkBackend($id, $unique_name_timestamp, $userid);
+        //     $status = $status_res['state'];
+        //     if(($status == 'success') or ($status == 'dead'))
         //         break;
-        //     }
         // }
 
         echo json_encode(array('query_time' => $rname, 'status' => $result['state'], 'id' => $result['id']));
@@ -62,10 +64,49 @@ class HistoricalAdvanceController extends Controller
 
 
 
+    // public function getStatusFromSparkBackend($id, $unique_name_timestamp, $userid)
+    // {       
+    //     //curl -X GET -H "Content-Type: application/json" 172.16.117.202:8998/batches/{80}
+
+    //     $id =  $request->input('id');        
+    //     $unique_name_timestamp = $request->input('unique_name_timestamp'); // this is = queryID = filename.json
+    //     $userid = $request->input('userID');
+
+    //     $curl_result = curl_init();
+    //     curl_setopt($curl_result, CURLOPT_HTTPHEADER, array(
+    //         'Content-Type: application/json'
+    //     ));
+    //     $url = '172.16.117.202:8998/batches/' . $id;
+    //     curl_setopt($curl_result, CURLOPT_URL, $url);
+    //     curl_setopt($curl_result, CURLOPT_RETURNTRANSFER, true);
+    //     curl_setopt($curl_result, CURLOPT_TIMEOUT, 0);
+    //     $curl_result = curl_exec($curl_result);
+    //     // echo $curl_result;
+    //     $result = json_decode($curl_result, true);
+    //     $status = $result['state'];
+    //     //update status to mysql after success or dead................
+    //     if(($status == 'success') or ($status == 'dead')){
+    //         $mysql_query_obj = new queryStatusController;
+    //         $update_to_mysql = $mysql_query_obj->update($unique_name_timestamp, $status);
+    //         if($update_to_mysql){                
+    //             //write the json file...TODO
+    //             if($status == 'success'){
+    //                 $this->getOuputFromSparkAndStoreAsJSON($id, $unique_name_timestamp, $userid);
+    //             }
+    //             return json_encode(array('status' => $status, 'id' => $result['id'], 'updateStatusToMysql' => 'success'));
+    //         }
+    //         else
+    //             return json_encode(array('status' => $status, 'id' => $result['id'], 'updateStatusToMysql' => 'error'));
+    //     }        
+    //     return json_encode(array('status' => $status, 'id' => $result['id']));
+    // }
+
+
+
+
     public function getStatusFromSpark(Request $request)
     {       
         //curl -X GET -H "Content-Type: application/json" 172.16.117.202:8998/batches/{80}
-
         $request->validate([
             'id' => 'required',
             'unique_name_timestamp' => 'required',
@@ -107,8 +148,8 @@ class HistoricalAdvanceController extends Controller
 
     public function getOuputFromSparkAndStoreAsJSON($id, $unique_name_timestamp, $userid)
     {
-        $ut_obj = new Utilities;
         //curl -X GET -H "Content-Type: application/json" 172.16.117.202:8998/batches/{80}
+        $ut_obj = new Utilities;        
         $filename = $unique_name_timestamp;
 
         $curl_result = curl_init();

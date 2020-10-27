@@ -162,17 +162,91 @@ export const getCompleteMap = (id,op) => {
             location_tweet_count = location_tweet_count + 1;
             var senti = op[i].sentiment.value;
             if (senti == "0") {
-                L.marker([parseFloat(op[i].Latitude), parseFloat(op[i].Longitude)], {
+
+                let tweet = op[i];
+
+                let sentiment = '', category = '', media = '', location = '';
+                let senticlass = '';
+                category = (tweet.category == 'normal') ? 'Normal' : ((tweet.category == 'sec') ? 'Security' : ((tweet.category == 'com') ? 'Communal' : 'Communal & Security'));
+                if (tweet.sentiment === 0) {
+                  sentiment = 'Postive';
+                  senticlass = 'pos'
+                } else if (tweet.sentiment === 1) {
+                  sentiment = 'Negative';
+                  senticlass = 'neg'
+                } else {
+                  sentiment = 'Neutral';
+                  senticlass = 'neu'
+                }
+            
+                if (tweet.t_location) {
+                  location = tweet.t_location;
+                }
+            
+            
+                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
+                
+                // console.log(div_element);
+
+                L.marker([parseFloat(op[i]["Latitude"]), parseFloat(op[i]["Longitude"])], {
                     icon: tweetIcon
-                }).bindPopup("<div style='background: rgba(238, 180, 98, 0.5)'><b>" + op[i].author + "</b> : @" + op[i].author_screen_name + " <br>" + op[i].tweet + "</div>").addTo(group1);
+                }).bindPopup(div_element).addTo(group1);
             } else if (senti == "1") {
-                L.marker([parseFloat(op[i].Latitude), parseFloat(op[i].Longitude)], {
+                let tweet = op[i];
+
+                let sentiment = '', category = '', media = '', location = '';
+                let senticlass = '';
+                category = (tweet.category == 'normal') ? 'Normal' : ((tweet.category == 'sec') ? 'Security' : ((tweet.category == 'com') ? 'Communal' : 'Communal & Security'));
+                if (tweet.sentiment === 0) {
+                  sentiment = 'Postive';
+                  senticlass = 'pos'
+                } else if (tweet.sentiment === 1) {
+                  sentiment = 'Negative';
+                  senticlass = 'neg'
+                } else {
+                  sentiment = 'Neutral';
+                  senticlass = 'neu'
+                }
+            
+                if (tweet.t_location) {
+                  location = tweet.t_location;
+                }
+            
+            
+                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
+                
+
+                L.marker([parseFloat(op[i]["Latitude"]), parseFloat(op[i]["Longitude"])], {
                     icon: tweetIcon
-                }).bindPopup("<div style='background: rgba(205, 118, 114, 0.5)'><b>" + op[i].author + "</b> : @" + op[i].author_screen_name + " <br>" + op[i].tweet + "</div>").addTo(group1);
+                }).bindPopup(div_element).addTo(group1);
             } else if (senti == "2") {
-                L.marker([parseFloat(op[i].Latitude), parseFloat(op[i].Longitude)], {
+                let tweet = op[i];
+
+                let sentiment = '', category = '', media = '', location = '';
+                let senticlass = '';
+                category = (tweet.category == 'normal') ? 'Normal' : ((tweet.category == 'sec') ? 'Security' : ((tweet.category == 'com') ? 'Communal' : 'Communal & Security'));
+                if (tweet.sentiment === 0) {
+                  sentiment = 'Postive';
+                  senticlass = 'pos'
+                } else if (tweet.sentiment === 1) {
+                  sentiment = 'Negative';
+                  senticlass = 'neg'
+                } else {
+                  sentiment = 'Neutral';
+                  senticlass = 'neu'
+                }
+            
+                if (tweet.t_location) {
+                  location = tweet.t_location;
+                }
+            
+            
+                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
+                
+
+                L.marker([parseFloat(op[i]["Latitude"]), parseFloat(op[i]["Longitude"])], {
                     icon: tweetIcon
-                }).bindPopup("<div style='background: rgba(118, 186, 27, 0.5)'><b>" + op[i].author + "</b> : @" + op[i].author_screen_name + " <br>" + op[i].tweet + "</div>").addTo(group1);
+                }).bindPopup(div_element).addTo(group1);
             }
             group1.addTo(History_Map);
         }

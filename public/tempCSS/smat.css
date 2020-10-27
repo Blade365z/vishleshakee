@@ -266,7 +266,7 @@ color:white;
 }
 
 .pull-text-top {
-    margin-top: -7px !important;
+    margin-top: -6px !important;
 }
 .btn-danger{
     background-color: var(--color-neg);
@@ -330,8 +330,6 @@ color:white;
 }
 #trendTweets{
     height:387px;
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 .TTtab{
     height:400px;
@@ -453,6 +451,11 @@ select{
 
 #uaSearchInput{
     width:28%;
+}
+.UATopContent{
+    display:block; 
+    height:300px; 
+    overflow-y:auto;
 }
 .profilePicSmall{
     height:35px;
@@ -664,7 +667,7 @@ select{
         margin-top: 1%;
     }
     .pull-text-top {
-        margin-top: -5px !important;
+        margin-top: -6px !important;
     }
     .haTab {
         min-height:400px;

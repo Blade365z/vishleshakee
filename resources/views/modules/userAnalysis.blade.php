@@ -26,10 +26,8 @@
                         <span>Search
                             User</span> </button>
                     <button class="btn text-normal smat-rounded  mx-1 mb-3 " onclick="return false;" id="showUAsugg"> <span
-                            id="suggestionCurrentStatus">Hide</span> Suggestions </button>
-                    <button class="btn text-normal smat-rounded  mx-1 mb-3 " onclick="return false;" id="statusTableBtnUA"
-                        title="show/hide advanced search history"> <span id="statusTableCurrentStatus">Hide</span> Adv.
-                        searches </button>
+                            id="suggestionCurrentStatus">Hide</span> Recent Searches </button>
+                   
                 </div>
                 <!-- <button class="btn  text-normal smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show Search History </span> </button> -->
             </div>
@@ -37,123 +35,102 @@
         </form>
     </div>
 
-    <div class="row" id="suggDiv">
-        <div class="col-md-6">
-            <div class="card shadow mb-2">
-                <div class="card-body">
-                    <div class="text-center">
-                        <h6 class="text-dark "> Popular Users </h6>
-                    </div>
-                    <div class="d-flex justify-content-center" id="suggUsers-1">
 
-                    </div>
-                    <div class="d-flex  justify-content-center mt-2" id="suggUsers-2">
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow mb-2">
-                <div class="card-body">
-                    <div class="text-center">
-                        <h6 class="text-dark "> Popular News Handles </h6>
-                    </div>
-                    <div class="d-flex justify-content-center " id="suggNews-1">
-
-                    </div>
-                    <div class="d-flex justify-content-center mt-2 " id="suggNews-2">
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-    <div class="my-3" id="searchTable" style="display:block; max-height:300px; overflow-y:auto">
+    <div class="my-3" id="searchTable">
         <div class="card">
             <div class="card-body">
-                <div>
-                    <p class="m-0 smat-box-title"> Recent Searches</p>
-                </div>
-                <div>
-                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-
-
-                        <li class="nav-item active">
-                            <a class="nav-link smat-rounded active  " id="normalQueryTab" data-toggle="pill"
-                                href="#normalQueryContent" role="tab" aria-controls="pills-profile" aria-selected="true"> Normal Queries</a>
-                        </li>
-                        <li class="nav-item ">
-                            <a class="nav-link smat-rounded " id="advQueryTab" data-toggle="pill"
-                                href="#advQueryContent" role="tab" aria-controls="mentionsContentUA"
-                                aria-selected="false"> Advance Queries</a>
-                        </li>
-                        
-                    </ul>
-                </div>
-                <div class="tab-content pr-5" id="pills-tabContent">
-               
-                    <div class="tab-pane fade  px-1 active show" id="normalQueryContent" role="tabpanel"
-                        aria-labelledby="normalQueryContent">
-                        <div class="table-responsive ">
-                            <table class="table  table-bordered">
-                                <thead>
-                                    <tr>
+                <div class="row">
+                    <div class="col-sm-9">
+                        <div>
+                            <p class="m-0 smat-box-title"> Recent Searches</p>
+                        </div>
+                        <div>
+                            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
         
-                                        <th class="py-1 px-3 text-dark " scope="col">Query</th>
-                                        <th class="py-1 px-3 text-dark " scope="col">From </th>
-                                        <th class="py-1 px-3 text-dark " scope="col">To </th>
-                                        <th class="py-1 px-3 text-dark " scope="col"> Status</th>
-                                        <th class="py-1 px-3 text-dark" scope="col"> Options</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="uaStatusTable">
-
-                                </tbody>
-                            </table>
-                            <div id="tableInitialTitle">
-                                <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+        
+                                <li class="nav-item active">
+                                    <a class="nav-link smat-rounded active  " id="normalQueryTab" data-toggle="pill"
+                                        href="#normalQueryContent" role="tab" aria-controls="pills-profile" aria-selected="true"> Normal Queries</a>
+                                </li>
+                                <li class="nav-item ">
+                                    <a class="nav-link smat-rounded " id="advQueryTab" data-toggle="pill"
+                                        href="#advQueryContent" role="tab" aria-controls="mentionsContentUA"
+                                        aria-selected="false"> Advance Queries</a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                        <div class="tab-content UATopContent" id="pills-tabContent"  >
+                       
+                            <div class="tab-pane fade  px-1 active show" id="normalQueryContent" role="tabpanel"
+                                aria-labelledby="normalQueryContent">
+                                <div class="table-responsive ">
+                                    <table class="table  table-bordered">
+                                        <thead>
+                                            <tr>
+                
+                                                <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                                <th class="py-1 px-3 text-dark " scope="col">From </th>
+                                                <th class="py-1 px-3 text-dark " scope="col">To </th>
+                                                <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                                                <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="uaStatusTable">
+        
+                                        </tbody>
+                                    </table>
+                                    <div id="tableInitialTitle">
+                                        <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                                    </div>
+                                </div>
+                            
+                            
+                            </div>
+                            <div class="tab-pane fade  px-1  " id="advQueryContent" role="tabpanel"
+                            aria-labelledby="advQueryContent">
+                            <div class="table-responsive ">
+                                <table class="table  table-bordered">
+                                    <thead>
+                                        <tr>
+            
+                                            <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                            <th class="py-1 px-3 text-dark " scope="col">From </th>
+                                            <th class="py-1 px-3 text-dark " scope="col">To </th>
+                                            <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                                            <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="uaAdvStatusTable">
+        
+                                    </tbody>
+                                </table>
+                                <div id="tableInitialTitle">
+                                    <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                                </div>
                             </div>
                         </div>
-                    
-                    
+                        </div>
                     </div>
-                    <div class="tab-pane fade  px-1  " id="advQueryContent" role="tabpanel"
-                    aria-labelledby="advQueryContent">
-                    <div class="table-responsive ">
-                        <table class="table  table-bordered">
-                            <thead>
-                                <tr>
-    
-                                    <th class="py-1 px-3 text-dark " scope="col">Query</th>
-                                    <th class="py-1 px-3 text-dark " scope="col">From </th>
-                                    <th class="py-1 px-3 text-dark " scope="col">To </th>
-                                    <th class="py-1 px-3 text-dark " scope="col"> Status</th>
-                                    <th class="py-1 px-3 text-dark" scope="col"> Options</th>
-                                </tr>
-                            </thead>
-                            <tbody id="uaAdvStatusTable">
+                    <div class="col-sm-3 ">
+                        <div>
+                            <p class="m-0 smat-box-title"> Few user suggestion</p>
+                            <p class="text-muted pull-text-top m-0">Some popular users and news handle</p>
+                        </div>
+                        <div  id="userSuggestions" style="max-height:330px;overflow-y:auto;">
 
-                            </tbody>
-                        </table>
-                        <div id="tableInitialTitle">
-                            <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+
                         </div>
                     </div>
                 </div>
-                </div>
-
-
-
-
-              
-               
+            
             </div>
         </div>
     </div>
+<div id="errorMsgUA">
 
-    <div id="UAAnalysisDiv" style="display:block">
+</div>
+    <div id="UAAnalysisDiv" style="display:none">
 
         <div class="row mt-3">
             <div class="col-md-5">
@@ -278,7 +255,7 @@
                             </ul>
                         </div>
 
-                        <div class="tab-content px-5" id="pills-tabContent">
+                        <div class="tab-content pr-5" id="pills-tabContent">
 
                             <div class="tab-pane fade show active uaTabTopRight px-1" id="hashtagsContentTab"
                                 role="tabpanel" aria-labelledby="hashtagsContentTab">hashtagsContentTab</div>

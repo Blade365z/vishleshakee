@@ -121,8 +121,7 @@ export const getTopDataHA = async (from, to, option, limit) => {
     let dataArgs = JSON.stringify({
         from, to, option, limit
     });
-    console.log(dataArgs);
-    let response = await fetch('TA/getTopTrending', {
+         let response = await fetch('TA/getTopTrending', {
         method: 'post',
         headers: HeadersForApi,
         body: dataArgs

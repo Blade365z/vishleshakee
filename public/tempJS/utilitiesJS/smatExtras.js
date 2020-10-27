@@ -82,14 +82,19 @@ export const getRelationType = (query, type) => {
 
 export const displayErrorMsg = (div, type, msg = null) => {
     if (type == 'error') {
-        $('#' + div).html('<div class="alert-danger p-1 text-center smat-rounded smatMsg">Some error occured!</div>');
+        if(msg!=null){
+            $('#' + div).html('<div class="alert-danger p-2 text-center smat-rounded smatMsg">' + msg + '</div>');
+        }else{
+            $('#' + div).html('<div class="alert-danger p-2 text-center smat-rounded smatMsg">Some error occured!</div>');
+        }
+      
     }
     else {
-        $('#' + div).html('<div class="alert-success p-1 text-center smat-rounded smatMsg">' + msg + '</div>');
+        $('#' + div).html('<div class="alert-success p-2 text-center smat-rounded smatMsg">' + msg + '</div>');
     }
     setTimeout(() => {
         $('.smatMsg').remove();
-    }, 3000);
+    }, 10000);
 }
 
 

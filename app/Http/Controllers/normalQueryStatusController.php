@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\NormalQueries;
+use App\QueryStatus;
 
 class normalQueryStatusController extends Controller
 {
@@ -57,7 +58,7 @@ class normalQueryStatusController extends Controller
             'hashtagID'=>$request->input('hashtagID'),
             'mentionID'=>$request->input('mentionID'),
         ]);
-         $this->performCleanup($request->input('userID'));
+         $this->performCleanup($request->input('userID'),$request->input('module_type'));
         $statusObj->save();
         return response()->json(['data' => 'Submitted Successfully!'], 200);
     }
@@ -69,10 +70,19 @@ class normalQueryStatusController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request,$id)
     {
-        $statusObj =  NormalQueries::where('userID', '=', $id)->get();
-        return $statusObj;
+        $request->validate([
+            'type' => 'required'
+            ]);
+        if($request->input('type')==0){
+            $statusObj =  NormalQueries::where([['userID', '=', $id],['type','=',$request->input('mode')]])->get();
+            return $statusObj;
+        }else{
+            $statusObj =  QueryStatus::where([['userID', '=', $id],['type','=',$request->input('mode')]])->get();
+            return $statusObj;
+        }
+        
     }
 
     /**
@@ -108,11 +118,12 @@ class normalQueryStatusController extends Controller
     {
         $statusObj =  NormalQueries::where('queryID', '=', $id)->delete();
     }
-    public function performCleanup($userID){
-        $statusObj =  NormalQueries::where('userID', '=', $userID)->get();
+    public function performCleanup($userID,$module){
+
+        $statusObj =  NormalQueries::where([['userID', '=', $userID],['type','=',$module]])->get();
         $count = $statusObj->count();
         if($count>7){
-            $minObj =  NormalQueries::where('userID', '=', $userID)->min('queryID');
+            $minObj =  NormalQueries::where([['userID', '=', $userID],['type','=',$module]])->min('queryID');
             $this->destroy($minObj);
         }
     }

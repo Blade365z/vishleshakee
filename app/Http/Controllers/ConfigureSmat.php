@@ -76,8 +76,8 @@ class ConfigureSmat extends Controller
             'status' => 'required',
         ]);
         $datetimeobj = new DateTime();
-        $datetime = $datetimeobj->format('Y-m-d H:i:s');
-        $date = date('Y-m-s', strtotime($datetime) - 0);
+        $datetime = $datetimeobj->format('Y-m-d');
+        $date = date('Y-m-d', strtotime($datetime) - 0);
 
         $crawlerListObj = new CrawlerList([
             'track' => $request->get('trackToken'),

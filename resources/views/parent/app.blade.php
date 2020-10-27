@@ -29,7 +29,7 @@
 
 </html>
 
-<script src="https://unpkg.com/@popperjs/core@2"></script>
+{{-- <script src="https://unpkg.com/@popperjs/core@2"></script> --}}
 <script type="module" src="public/bootpag/bootpag-min.js"></script>
 <script src="public/datepicker/datepicker-min.js"></script>
 <script src="public/datepicker/datepicker-en.js"></script>

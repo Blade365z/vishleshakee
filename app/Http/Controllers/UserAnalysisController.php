@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DBModel\DBmodel;
 use App\Http\Controllers\CommonController as CC;
 use Illuminate\Http\Request;
+use App\CrawlerList;
 
 class UserAnalysisController extends Controller
 {
@@ -138,8 +139,6 @@ class UserAnalysisController extends Controller
 
     }
 
-
-    
     public function getSentimentDataForUser(Request $request)
     {
         if ($request->input('to') && $request->input('from') && $request->input('query') && $request->input('rangeType')) {
@@ -147,7 +146,7 @@ class UserAnalysisController extends Controller
             $query = $request->input('query');
             $from = $request->input('from');
             $to = $request->input('to');
-            $rangeType = $request->input('rangeType'); 
+            $rangeType = $request->input('rangeType');
             if ($request->input('isDateTimeAlready') == 0) {
                 $fromTime = date('Y-m-d H:i:s', strtotime($from) + 0);
                 $toTime = date('Y-m-d H:i:s', strtotime($to) + 0);
@@ -173,7 +172,7 @@ class UserAnalysisController extends Controller
 
     public function getCooccurDataForUser(Request $request)
     {
-        if ($request->input('uniqueID') && $request->input('userID')  && $request->input('option')) {
+        if ($request->input('uniqueID') && $request->input('userID') && $request->input('option')) {
             $uniqueID = $request->input('uniqueID');
             $userID = $request->input('userID');
             $option = $request->input('option');
@@ -182,7 +181,7 @@ class UserAnalysisController extends Controller
             return response()->json(['error' => 'Unique ID / User ID not provided'], 404);
         }
 
-        if ($request->input('mode')=='write') {
+        if ($request->input('mode') == 'write') {
             if ($request->input('to') && $request->input('from') && $request->input('query')) {
                 $query = $request->input('query');
                 $from = $request->input('from');
@@ -198,14 +197,18 @@ class UserAnalysisController extends Controller
             } else {
                 return response()->json(['error' => 'Please check yout arguments'], 404);
             }
-        }else if($request->input('mode')=='read'){
+        } else if ($request->input('mode') == 'read') {
             $commonObj = new CommonController;
-            $limit=$request->input('limit');
-            $data = $commonObj->data_formatter_for_co_occur(null, $option, $limit,$uniqueID,$file_path,$userID);
+            $limit = $request->input('limit');
+            $data = $commonObj->data_formatter_for_co_occur(null, $option, $limit, $uniqueID, $file_path, $userID);
             return $data;
         }
 
     }
-
+    public function getUAListFromCrawler()
+    {
+        $crawlerListObj = CrawlerList::where('type', '=', 'user')->get('track');
+        return $crawlerListObj;
+    }
 
 }

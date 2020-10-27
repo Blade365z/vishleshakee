@@ -330,7 +330,20 @@ jQuery(function () {
         node_highlighting(input);
     });
 
-})
+    //mala
+    // $('body').on('click', 'div .deleteBtn', function () {
+    //     let type = $(this).attr('type');
+    //     if (type == '0') {
+    //         $(this).parent().parent().remove();
+    //     } else {
+    //         let filename = $(this).attr('value');
+    //         removeFromStatusTable(filename);
+    //         $(this).parent().parent().remove();
+    //         //TODO::Delete file.
+    //     }
+    // });
+});
+// jquery ended
 
 
 // Tab Shifts 

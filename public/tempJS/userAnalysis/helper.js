@@ -160,10 +160,13 @@ export const addNormalSearchToDB  = async (queryID,userID,query,fromDate,toDate,
     }    
 }
 
-export const populateRecentSearches = async( userID) => {
+export const populateRecentSearches = async( userID,type,mode) => {
     let response = await fetch('normalStatus/'+userID, {
-        method: 'get',
-        headers: HeadersForApi
+        method: 'post',
+        headers: HeadersForApi,
+        body:JSON.stringify({
+            type,mode
+        })
     });
     let data = await response.json()
     if(data.message){
@@ -171,4 +174,12 @@ export const populateRecentSearches = async( userID) => {
     }else{
         return data;
     } 
+}
+export const getUsersFromCrawlerList = async() =>{
+    let response =  await fetch('UA/getUsersFromCrawlerList', {
+        method: 'get',
+        headers: HeadersForApi,
+    });
+    let data = await response.json()
+    return data;
 }

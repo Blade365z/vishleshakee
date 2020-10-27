@@ -159,11 +159,14 @@ jQuery(function () {
         let typeTemp = $('#trackWord-edit').attr('type');
         let handleCaptured = $('#trackWordHandleInput-edit').val();
         updateTrackWordInDb(idCaptured, captured, handleCaptured);
-        $('#trackWord-' + idCaptured).text(captured);
+        $('#trackWord-' + idCaptured +' ').text(captured);
         $('#editBtnCrawlList-' + idCaptured).attr('handle', handleCaptured);
         $('#trackWord-edit').val('');
         $('#trackWord-edit').attr('value', '');
         $('#editCrawlList').modal('hide');
+        if(captured.includes('$'))
+        $('#trackWordHandle-'+idCaptured).text(handleCaptured)
+        $('#editBtnCrawlList-'+idCaptured).attr('value',captured)
 
     });
     $('body').on('click', 'div .deleteCrawlListBtn', function () {
@@ -262,7 +265,7 @@ const addToCrawlerListTable = (id, trackWord, type, status, handle = "NULL") => 
     }
     let handleName = '';
     type == 'user' ? handleName = handle : handleName;
-    $('#crawlerList').append('<tr id="track-' + id + '"><th scope="row">' + id + '</th><td id="trackWord-' + id + '"><p class="mb-1">' + trackWord + ' </p><p class="m-0 text-muted smat-dash-title pull-text-top"> ' + handleName + '</p></td><td id="trackWordType-' + id + '">' + type + '</td><td><div class="d-flex"><div class="form-check"><input class="form-check-input  statusRadio-' + id + ' istrackEnabled" type="radio" id="trackEnabled-' + id + '" value="1"  source="' + id + '|' + trackWord + '"  ' + enabled + '><label class="form-check-label" for="trackEnabled-' + id + '">Enable</label></div><div class="form-check mx-3"><input class="form-check-input statusRadio-' + id + ' istrackEnabled"  type="radio"  id="trackDisabled-' + id + '" value="0"  source="' + id + '|' + trackWord + '"  ' + disabled + '><label class="form-check-label" for="trackDisabled-' + id + '">Disable</label></div></div></td><td><button class="btn btn-secondary smat-rounded  btn-sm editCrawlListBtn editCrawlbtn " id="editBtnCrawlList-' + id + '"  value="' + trackWord + '"  source="' + id + '"  type="' + type + '" handle="' + handle + '"><span><i class="fa fa-edit mr-1"></i>Edit</span></button><button class="btn btn-neg smat-rounded  btn-sm mx-2 deleteCrawlListBtn"    value="' + id + '"  ><span><i class="fa fa-trash mr-1"></i>Delete</span></button></td></tr>');
+    $('#crawlerList').append('<tr id="track-' + id + '"><th scope="row">' + id + '</th><td><p class="mb-1"   id="trackWord-' + id + '"  >' + trackWord + ' </p><p class="m-0 text-muted smat-dash-title pull-text-top" id="trackWordHandle-'+id+'"> ' + handleName + '</p></td><td id="trackWordType-' + id + '">' + type + '</td><td><div class="d-flex"><div class="form-check"><input class="form-check-input  statusRadio-' + id + ' istrackEnabled" type="radio" id="trackEnabled-' + id + '" value="1"  source="' + id + '|' + trackWord + '"  ' + enabled + '><label class="form-check-label" for="trackEnabled-' + id + '">Enable</label></div><div class="form-check mx-3"><input class="form-check-input statusRadio-' + id + ' istrackEnabled"  type="radio"  id="trackDisabled-' + id + '" value="0"  source="' + id + '|' + trackWord + '"  ' + disabled + '><label class="form-check-label" for="trackDisabled-' + id + '">Disable</label></div></div></td><td><button class="btn btn-secondary smat-rounded  btn-sm editCrawlListBtn editCrawlbtn " id="editBtnCrawlList-' + id + '"  value="' + trackWord + '"  source="' + id + '"  type="' + type + '" handle="' + handle + '"><span><i class="fa fa-edit mr-1"></i>Edit</span></button><button class="btn btn-neg smat-rounded  btn-sm mx-2 deleteCrawlListBtn"    value="' + id + '"  ><span><i class="fa fa-trash mr-1"></i>Delete</span></button></td></tr>');
 }
 
 const generateCrawlerList = (type, option = null) => {
