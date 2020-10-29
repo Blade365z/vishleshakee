@@ -142,6 +142,11 @@ export const removeFromStatusTable = async(id) => {
     let response = await fetch('status/'+id, {
         method: 'delete'
     })
-    let data = await response.json();
-    return data;
+}
+
+export const removeFromStatusTableNormal = async(id)=>{
+    let response = await fetch('normalStatus/'+id, {
+        method: 'delete'
+    })
+                   
 }

@@ -80,78 +80,24 @@ export const getRelationType = (query, type) => {
 }
 
 
-export const displayErrorMsg = (div, type, msg = null) => {
+export const displayErrorMsg = (div, type, msg = null,hideFlag=true) => {
     if (type == 'error') {
         if(msg!=null){
-            $('#' + div).html('<div class="alert-danger p-2 text-center smat-rounded smatMsg">' + msg + '</div>');
+            $('#' + div).html('<div class="alert-danger p-2 text-center smat-rounded smatMsg m-auto">' + msg + '</div>');
         }else{
-            $('#' + div).html('<div class="alert-danger p-2 text-center smat-rounded smatMsg">Some error occured!</div>');
+            $('#' + div).html('<div class="alert-danger p-2 text-center smat-rounded smatMsg m-auto ">Some error occured!</div>');
         }
       
+    }else if(type=='normal'){
+        $('#' + div).html('<div class="alert-info p-2 text-center smat-rounded smatMsg m-auto ">' + msg + '</div>');
     }
     else {
-        $('#' + div).html('<div class="alert-success p-2 text-center smat-rounded smatMsg">' + msg + '</div>');
+        $('#' + div).html('<div class="alert-success p-2 text-center smat-rounded smatMsg m-auto">' + msg + '</div>');
     }
+    if(hideFlag){
     setTimeout(() => {
         $('.smatMsg').remove();
-    }, 10000);
+    }, 5000);
 }
-
-
-// const retriveRecordsFromIDB = () => {
-
-//     var dbRetriveReq = window.indexedDB.open("UAsearchRec");
-//     dbRetriveReq.onsuccess = function (event) {
-//         db = dbRetriveReq.result;
-//         retrive();
-//     }
-//     function retrive() {
-//         db.transaction(userID).objectStore(userID).getAll().onsuccess = function (event) {
-//             retrivedFromLocal = event.target.result;
-//             $('#uaStatusTable').html('');
-//             let counter = 0;
-//             retrivedFromLocal.forEach(element => {
-//                 let recordTemp = [{ 'query': element.query, 'from': element.fromDate, 'to': element.toDate, 'mentionUniqueID': element.mentionUniqueID, 'hashtagUniqueID': element.hashtagsUniqueID, 'searchType': 0, "filename": element.queryID }];
-//                 searchRecords[element.queryID] = recordTemp
-
-//                 getUserDetails(element['query']).then(data => {
-//                     counter = counter + 1;
-//                     $('#uaStatusTable').prepend('<tr id="row-' + counter + '"><td>@' + data.author_screen_name + '</td><td>' + element.fromDate + '</td><td>' + element.toDate + '</td><td id="' + element.queryID + 'Status">' + element.status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + element.queryID + '" id="' + element.queryID + 'ShowBtn" > Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + element.queryID + '" id="' + element.queryID + 'DeleteBtn"  type="1"> Delete </button></td></tr>');
-//                 });
-//             });
-
-//         }
-
-//     }
-//     console.log(searchRecords);
-// }
-
-// const cleanUpLocalDB = (arr = null, db, rowID = null) => {
-//     var transaction = db.transaction([userID], "readwrite");
-//     var objectStore = transaction.objectStore(userID);
-//     let dbSize = 0;
-//     dbSize = objectStore.count();
-//     dbSize.onsuccess = function (event) {
-//         console.log('DB SIZE :', event.target.result);
-//         dbSize = event.target.result;
-//         if (event.target.result > 4) {
-//             $('#row-' + RowdeleteOffset).remove();
-//             RowdeleteOffset += 1;
-
-//             arr = arr.slice(1, retrivedFromLocal.length);
-//             var objectStoreRequest = objectStore.clear();
-//             objectStoreRequest.onsuccess = function (event) {
-
-//             };
-//             var objectStorePrev = transaction.objectStore(userID);
-//             for (let i = 0; i <= arr.length - 1; i++) {
-//                 var objectStorePrevRequest = objectStorePrev.add(arr[i]);
-//                 objectStorePrevRequest.onsuccess = function (event) {
-
-//                 };
-//             }
-//         }
-//     }
-
-// }
+}
 

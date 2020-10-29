@@ -22,7 +22,7 @@
                 </button>
             </div>
         </form>
-        <small class="text-muted">*Maximum range of 3 Days.</small>
+        <span class="clickable" id="resetDates">Click to reset dates  </span> &nbsp |  &nbsp <small class="text-muted">*Maximum range of 3 Days.</small>
     </div>
     <div>
    

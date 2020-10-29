@@ -1,5 +1,5 @@
 import { getTweetIDsForHA } from '../historicalAnalysis/helper.js';
-import { forwardToUserAnalysis ,forwardToHistoricalAnalysis} from '../utilitiesJS/redirectionScripts.js';
+import { forwardToUserAnalysis, forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.js';
 //imports 
 import { dateProcessor, getCurrentDate } from '../utilitiesJS/smatDate.js';
 import { makeSmatReady } from '../utilitiesJS/smatExtras.js';
@@ -57,9 +57,23 @@ jQuery(function () {
         maxDate: new Date(dateProcessor(fromDate, '+', 2)),
     }).val(fromDate);
 
+    $('#resetDates').on('click', function () {
+        var myDatepicker = $('#toDateTA').datepicker().data('datepicker');
+        myDatepicker.clear();
+        myDatepicker = $('#fromDateTA').datepicker().data('datepicker');
+        myDatepicker.clear();
+        $("#fromDateTA").datepicker({
+            minDate: null,
+            maxDate: null
+        });
+        $("#toDateTA").datepicker({
+            minDate: null,
+            maxDate: null
+        });
+    })
     $('#trendTweets').html('<div class="text-center smat-loader " ><i class="fa fa-circle-o-notch donutSpinner mt-5" aria-hidden="true"></i></div>');
     generateTrendingTokensForTA(fromDate, toDate, 'top_hashtag', 'taResultsHashtags', 'all').then(queryTemp => {
-        getTrendTweets(queryTemp,fromDate,toDate,'trendTweets');
+        getTrendTweets(queryTemp, fromDate, toDate, 'trendTweets');
     });
     generateTrendingTokensForTA(fromDate, toDate, 'top_mention', 'taResultsMentions', 'all');
     // generateTrendingTokensForTA(fromDate, toDate, 'top_user', 'taResultsUsers', 'all');
@@ -71,23 +85,23 @@ jQuery(function () {
         fromDate = $('#fromDateTA').val();
         toDate = $('#toDateTA').val();
         generateTrendingTokensForTA(fromDate, toDate, 'top_hashtag', 'taResultsHashtags', 'all').then(queryTemp => {
-            getTrendTweets(queryTemp,fromDate,toDate,'trendTweets');
+            getTrendTweets(queryTemp, fromDate, toDate, 'trendTweets');
         });
         generateTrendingTokensForTA(fromDate, toDate, 'top_mention', 'taResultsMentions', 'all');
         // generateTrendingTokensForTA(fromDate, toDate, 'top_user', 'taResultsUsers', 'all');
     })
     $('body').on('click', 'div .username', function () {
         let queryCaptured = '$' + $(this).attr('value');
-        forwardToUserAnalysis(queryCaptured,fromDate,toDate);
+        forwardToUserAnalysis(queryCaptured, fromDate, toDate);
         console.log(queryCaptured);
-      });
-      $('body').on('click','div .query ',function(){
+    });
+    $('body').on('click', 'div .query ', function () {
         let queryCaptured = $(this).text().trim();
-        forwardToHistoricalAnalysis(queryCaptured,fromDate,toDate); 
+        forwardToHistoricalAnalysis(queryCaptured, fromDate, toDate);
     });
     $('body').on('click', 'div .trendTweets', function () {
         let queryCaptured = $(this).attr('value');
-        getTrendTweets(queryCaptured,fromDate,toDate,'trendTweets')
+        getTrendTweets(queryCaptured, fromDate, toDate, 'trendTweets')
     })
 
 
@@ -107,9 +121,9 @@ const generateTrendingTokensForTA = async (from, to, option, div = null, filterA
     let first = await getTrendingDataFromController(from, to, option, 50).then(response => {
 
         $('#' + div).html('');
-        if(option==='top_hashtag'){
+        if (option === 'top_hashtag') {
             $('#totalHashtags').text(response.nodes);
-        }else if(option==='top_mention'){
+        } else if (option === 'top_mention') {
             $('#totalMentions').text(response.nodes);
         }
 
@@ -137,13 +151,13 @@ const generateTrendingTokensForTA = async (from, to, option, div = null, filterA
 }
 
 
-const getTrendTweets = (query,fromDate,toDate,div) =>{ 
+const getTrendTweets = (query, fromDate, toDate, div) => {
     $('#trendTweets').html('<div class="text-center smat-loader " ><i class="fa fa-circle-o-notch donutSpinner mt-5" aria-hidden="true"></i></div>')
     getTweetIDsForHA(query, fromDate, toDate).then(response => {
         $('#trendTweets').html('');
         $('#trendTweetsQuery').text(query);
         TweetsGenerator(response.data, 6, div, fromDate, toDate, false);
     })
-} 
+}
 
 // {/* <a class="text-dark" href="historicalAnalysis?query=' + encodeURIComponent(key) + '&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to) + '" target="_blank"  > */} </a>

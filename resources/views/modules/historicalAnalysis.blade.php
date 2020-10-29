@@ -55,11 +55,11 @@
                         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
     
     
-                            <li class="nav-item active">
+                            <li class="nav-item active recentSearchTab ">
                                 <a class="nav-link smat-rounded active  " id="normalQueryTab" data-toggle="pill"
                                     href="#normalQueryContent" role="tab" aria-controls="pills-profile" aria-selected="true"> Normal Queries</a>
                             </li>
-                            <li class="nav-item ">
+                            <li class="nav-item recentSearchTab ">
                                 <a class="nav-link smat-rounded " id="advQueryTab" data-toggle="pill"
                                     href="#advQueryContent" role="tab" aria-controls="mentionsContentUA"
                                     aria-selected="false"> Advance Queries</a>
@@ -69,7 +69,7 @@
                     </div>
                     <div class="tab-content UATopContent" id="pills-tabContent"  >
                    
-                        <div class="tab-pane fade  px-1 active show" id="normalQueryContent" role="tabpanel"
+                        <div class="tab-pane fade  px-1 recentSearchTabContent active show" id="normalQueryContent" role="tabpanel"
                             aria-labelledby="normalQueryContent">
                             <div class="table-responsive ">
                                 <table class="table  table-bordered">
@@ -88,13 +88,13 @@
                                     </tbody>
                                 </table>
                                 <div id="tableInitialTitle">
-                                    <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                                
                                 </div>
                             </div>
                         
                         
                         </div>
-                        <div class="tab-pane fade  px-1  " id="advQueryContent" role="tabpanel"
+                        <div class="tab-pane fade recentSearchTabContent  px-1  " id="advQueryContent" role="tabpanel"
                         aria-labelledby="advQueryContent">
                         <div class="table-responsive ">
                             <table class="table  table-bordered">
@@ -112,8 +112,8 @@
     
                                 </tbody>
                             </table>
-                            <div id="tableInitialTitle">
-                                <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
+                            <div id="tableInitialTitleAdv">
+                                
                             </div>
                         </div>
                     </div>

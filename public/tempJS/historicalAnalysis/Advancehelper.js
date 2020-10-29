@@ -12,7 +12,7 @@ var HeadersForApi = {
 
 export const requestToSpark = async (query_list, unique_name_timestamp) => {
     let dataArgs;
-    dataArgs = JSON.stringify({ query_list, unique_name_timestamp });
+    dataArgs = JSON.stringify({ query_list, unique_name_timestamp});
     let response = await fetch('HA/requestToSpark', {
         method: 'post',
         headers: HeadersForApi,

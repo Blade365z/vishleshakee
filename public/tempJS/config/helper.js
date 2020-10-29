@@ -12,7 +12,7 @@ var HeadersForApi = {
 
 
 
-export const getDatabaseEnvParameters = async () =>{
+export const getDatabaseEnvParameters = async () => {
     let response = await fetch('configure/getConfigurations', {
         method: 'post',
         headers: HeadersForApi
@@ -21,90 +21,98 @@ export const getDatabaseEnvParameters = async () =>{
     return data;
 }
 
-export const getCrawlerList = async (type) =>{
+export const getCrawlerList = async (type) => {
     let dataArgs = JSON.stringify({
         type
     })
     let response = await fetch('configure/GetAllTrackToken', {
         method: 'post',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     })
     let data = await response.json();
     return data;
 }
-export const addTrackToDb = async(id, trackToken, type,handle, status) => {
-    let dataArgs = JSON.stringify({
-        id,trackToken,type,handle,status
-    });
+export const addTrackToDb = async (id = null, trackToken, type, handle, status) => {
+
+    let dataArgs = '';
+    if (id) {
+        dataArgs =JSON.stringify({
+            id, trackToken, type, handle, status
+        });
+    } else {
+        dataArgs =JSON.stringify({
+             trackToken, type, handle, status
+        });
+    }
     let response = await fetch('configure/saveCrawlerInfo', {
         method: 'post',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     })
     let data = await response.json();
     return data;
 }
 
-export const updateStatusToDB = async (id,status) =>{
+export const updateStatusToDB = async (id, status) => {
     let dataArgs = JSON.stringify({
         id,
         status,
-        option:'status'
+        option: 'status'
     });
     let response = await fetch('configure/updateTrackWordStatus', {
         method: 'put',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     })
     let data = await response.json();
     return data;
 }
 
-export const updateTrackWordInDb = async (id,trackWord,handle) =>{
+export const updateTrackWordInDb = async (id, trackWord, handle) => {
     let dataArgs = JSON.stringify({
         id,
         trackWord,
         handle,
-        option:'trackWord'
+        option: 'trackWord'
     });
     let response = await fetch('configure/updateTrackWordStatus', {
         method: 'put',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     })
     let data = await response.json();
     return data;
 }
-export const deletefromCrawlList = async (id) =>{
+export const deletefromCrawlList = async (id) => {
     let dataArgs = JSON.stringify({
         id
     });
     let response = await fetch('configure/deletefromCrawlList', {
         method: 'delete',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     })
     let data = await response.json();
     return data;
 }
-export const saveConfigInfoToDb = async (id=null,appUrl,dbUser,dbPass,dbNodes,dbKeyspace,dbPort,sparkEngine) =>{
+export const saveConfigInfoToDb = async (id = null, appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine) => {
     console.log(dbKeyspace);
-    let dataArgs={};
-    if(id){
+    let dataArgs = {};
+    if (id) {
         dataArgs = JSON.stringify({
-            id,appUrl,dbUser,dbPass,dbNodes,dbKeyspace,dbPort,sparkEngine
+            id, appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine
         });
-    }else{
+    } else {
         dataArgs = JSON.stringify({
-            appUrl,dbUser,dbPass,dbNodes,dbKeyspace,dbPort,sparkEngine
+            appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine
         });
     }
-   
+
     let response = await fetch('configure/save', {
         method: 'post',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     })
     let data = await response.json();
     return data;

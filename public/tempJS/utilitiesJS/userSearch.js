@@ -68,18 +68,16 @@ const checkPagingStateTokenUserSearch = async (div) => {
     page_state = data;
     if (page_state.trim() === '') {
         BREAK_FLAG = 1;
-        $('#LoadMore_UserSearch_' + div).css('display', 'none');
-        $('#user_containerList').append('<div> <p class="my-2">No more users found.</p></div> ')
+        $('#LoadMore_UserSearch_' + div).remove();
+        $('#'+div).html('<div> <p class="my-2">No more users found.</p></div> ')
         console.log('<<< END OF LIST >>>');
         return 0;
     }
   }
-export const print_users_list = (data, div) => {
+const print_users_list = (data, div) => {
     try {
         data.forEach(element => {
-            if(element.verified){
             let verified = element.verified == 'True' ? '<span><img class="verifiedIcon" src="public/icons/smat-verified.png"/></span>' : '';
-        }
             $('#' + div).append('<div class="row m-2"><span><img class="profilePicSmall" src="' + element['profile_image_url_https'] + '"  /> </span><span class="ml-1"><a class="authorName pt-1 m-0 font-weight-bold"   value="$' + element['author_id'] + '"  >' + element['author'] + '</a> ' + verified + '<p class="smat-dash-title pull-text-top m-0 ">@' + element['author_screen_name'] + '</p></span></div>')
 
         });
@@ -87,5 +85,4 @@ export const print_users_list = (data, div) => {
         console.log('err')
     }
 }
-
 
