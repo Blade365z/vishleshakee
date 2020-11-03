@@ -46,10 +46,7 @@ jQuery(function () {
     if(incoming){
         //TODO::Redirection 
         var networkType;        
-        if(!(uniqueIDReceived == "null")){
-            console.log(uniqueIDReceived);
-            console.log("Maria CXH");
-            
+        if(!(uniqueIDReceived == "null")){           
             if(incoming.charAt(0) == "$"){
                 getUserDetailsNA(incoming).then(response => {
                 incoming = response.author;
@@ -118,8 +115,6 @@ jQuery(function () {
         let args = $(this).attr('value');
         
         args = args.split(/[|]/).filter(Boolean);
-
-        console.log("ARGS",args);
 
         $('.subject').text(queryDictionaryFilename[args[6]]);
 
@@ -193,7 +188,6 @@ jQuery(function () {
                 message_displayer("SELECT THE NETWORK AND SHIFT TO LINK PREDICTION TAB","error");
                 return;
             }
-            console.log(args);
             render_linkprediction_graph(args[6],args[7]).then(response => {
                 update_view_graph_for_link_prediction(response,args[7],args[9]);
                 message_displayer("DISPLAYING RESULTS FOR LINK PREDICTION","success");
@@ -266,7 +260,6 @@ jQuery(function () {
             let filename = queryTemp + fromDateStripped + toDateStripped + noOfNodesTemp + naTypeTemp;
             networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename).then(response => {
                
-                console.log("RES-GEN",response);
                 if(response["res"]=="empty"){
                     totalQueries -= 1;
                     totalNetworkatInstance = totalNetworkatInstance - 1;
@@ -466,7 +459,6 @@ $("#commTab").on('click', function () {
         anyNetworkViewedYet = true;
     }
     let input = select_graph[0];
-    console.log("K",queryDictionaryFilename[input]);
     $('.subject').text(queryDictionaryFilename[input]);
     render_graph('na/graph_view_data_formator', input).then(response => {
         draw_graph(response, "networkDivid");
@@ -490,7 +482,6 @@ $('#upload_form').on('submit', function (event) {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     let dir_name = userInfoTemp['id'];
 
-    console.log("NN",n);
     if(!$("#cardnamefileupload").val()){
         message_displayer("NAME YOUR NETWORK IN THE INPUT BOX WHILE UPLOADING YOUR FILE","error");
         $('#myModal_file_upload').modal('toggle');
@@ -525,16 +516,12 @@ $('#upload_form').on('submit', function (event) {
 
 
 const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, naEngine, filename, div, status) => {
-    console.log(filename);
     let tempArr = [];
     tempArr = { 'id': id, 'query': query, 'from': fromDateTemp, 'to': toDateTemp, 'nodesNo': noOfNodesTemp, 'naType': naTypeTemp, 'filename': filename, 'naEngine': naEngine };
     searchRecords.push(tempArr);
     cardIDdictionary[id] = filename;
     queryDictionaryFilename[filename] = query;
     queryDictionaryNetworkName[filename] = naTypeTemp;
-
-    console.log("Search Dict",searchRecords);
-    console.log("cardDict",cardIDdictionary);
 
     if(status == "normal"){
         $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> From: ' + fromDateTemp + ' </p><p class="   smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > To:' + toDateTemp + ' </p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Nodes: ' + noOfNodesTemp + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > Type: ' + naTypeTemp + '</p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Status: Ready</p></div></div></div></div>');
@@ -585,7 +572,6 @@ function padNumber(d) {
 }
 
 const showing_results_for = (cardData) => {
-    console.log(cardData);
     let data = cardData;
     $('#naShowingResForTitle').text(data['query']);
 
@@ -660,6 +646,11 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
             //TODO::tobealtered!
             let queryMetaData = searchRecords[currentlyShowing - 1];
 
+            if(!queryMetaData){
+                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                return;
+            }
+
             transferQueryToStatusTable(queryMetaData, 'Centrality', algo_option, sparkID);
             function checkSparkStatus() {
                 fetch('na/getsparkstatus/' + sparkID, {
@@ -686,7 +677,7 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
 });
 
 
-$("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").val(), algo_option = "") {
+$("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").val(), algo_option) {
     var SOURCE = $("#link_source_node").val();
 
     if(SOURCE.charAt(0) != "#" && SOURCE.charAt(0) != "@"){
@@ -700,6 +691,7 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
 
     var NAType = $("#networkEngineNA").val();
     algo_option = $("input[name='linkpredictionRadioOptions']:checked").val();
+    var algo_option_global = algo_option;
     var select_graph = selected_graph_ids();
     let input = select_graph[0];
 
@@ -792,7 +784,12 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
             //TODO::tobealtered!
             let queryMetaData = searchRecords[currentlyShowing - 1];
 
-            transferQueryToStatusTable(queryMetaData, 'Link Prediction', algo_option, sparkID);
+            if(!queryMetaData){
+                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                return;
+            }
+
+            transferQueryToStatusTable(queryMetaData, 'Link Prediction', algo_option_global, sparkID);
             function checkSparkStatus() {
                 fetch('na/getsparkstatus/' + sparkID, {
                     method: 'get'
@@ -801,7 +798,7 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
                         if (response.state === 'success') {
                             let query_list = [algo_option, input];
                             storeResultofSparkFromController(sparkID, query_list, userID).then(response => {
-                                makeShowBtnReadyAfterSuccess(sparkID, response.filename, 'linkprediction', algo_option,data["query_list"][1] );
+                                makeShowBtnReadyAfterSuccess(sparkID, response.filename, 'linkprediction', algo_option_global,data["query_list"][1] );
                                 window.clearInterval(checkSpartStatusInterval_centrality);
                             })
                         }
@@ -913,6 +910,11 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
 
             //TODO::tobealtered!
             let queryMetaData = searchRecords[currentlyShowing - 1];
+
+            if(!queryMetaData){
+                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                return;
+            }
 
             transferQueryToStatusTable(queryMetaData, 'ShortestPath', algo_option, sparkID);
             function checkSparkStatus() {
@@ -1030,6 +1032,11 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
             let sparkID = response.id;
             //TODO::tobealtered!
             let queryMetaData = searchRecords[currentlyShowing - 1];
+
+            if(!queryMetaData){
+                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                return;
+            }
 
             transferQueryToStatusTable(queryMetaData, 'communities', algo_option, sparkID);
             function checkSparkStatus() {
@@ -1439,7 +1446,7 @@ function IDGenerator() {
     }
 }
 
-const algoDict = { "degcen": 'Degree Centrality', "pgcen": "Page Rank Centrality" };
+const algoDict = { "degcen": 'Degree Centrality', "pgcen": "Page Rank Centrality", "adamicadar": "Adamic Adar", "jaccardcoeff": "Jaccard Coefficient", "resourceallocation": "Resource Allocation", "commonneighbor": "Common Neighbor", "lpa": "Label Propagation", "Shortest Path": "Single Shortest Path"};
 const transferQueryToStatusTable = (data, operation, algo, sparkID = 123, renderDivID = 'networkDivid') => {
     $('#searchTable').css('display', 'block');
     let algoTitle = algoDict[algo];

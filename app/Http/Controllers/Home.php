@@ -59,7 +59,7 @@ class Home extends Controller
         if ($request->input('interval') && $request->input('query')) {
             $interval = $request->input('interval');
             if ($interval > 86400) {
-                return response()->json(['error' => 'Not Allowed'], 404);
+                return response()->json(['error' => 'Not Allowed'], 400);
             }
             $query = $request->input('query');
             $dateTimeArgs = $this->CurrentDateTimeGeneratorPublic($interval);
@@ -75,7 +75,7 @@ class Home extends Controller
             $finalData = array(['data' => $freqData, 'finalTime' => $fromTime]);
             return ($finalData);
         } else {
-            return response()->json(['error' => 'Arguments not set properly in http request'], 404);
+            return response()->json(['error' => 'Arguments not set properly in http request'], 400);
         }
 
     }
@@ -85,7 +85,7 @@ class Home extends Controller
         if ($request->input('interval') && $request->input('query')) {
             $interval = $request->input('interval');
             if ($interval > 86400) {
-                return response()->json(['error' => 'Not Allowed'], 404);
+                return response()->json(['error' => 'Not Allowed'], 400);
             }
             $query = $request->input('query');
             $dateTimeArgs = $this->CurrentDateTimeGeneratorPublic($interval);
@@ -101,7 +101,7 @@ class Home extends Controller
             $finalData = array(['data' => $sentiData, 'finalTime' => $fromTime]);
             return ($finalData);
         } else {
-            return response()->json(['error' => 'interval  or query not set'], 404);
+            return response()->json(['error' => 'interval  or query not set'], 400);
         }
 
     }
@@ -111,7 +111,7 @@ class Home extends Controller
         if ($request->input('interval') && $request->input('query')) {
             $interval = $request->input('interval');
             if ($interval > 86400) {
-                return response()->json(['error' => 'Not Allowed'], 404);
+                return response()->json(['error' => 'Not Allowed'], 400);
             }
             $query = $request->input('query');
             $option = $request->input('option');
@@ -130,7 +130,7 @@ class Home extends Controller
             $finalData = array(['data' => $data, 'finalTime' => $fromTime]);
             return $finalData;
         } else {
-            return response()->json(['error' => 'interval  or query not set'], 404);
+            return response()->json(['error' => 'interval  or query not set'], 400);
         }
 
     }
@@ -145,7 +145,7 @@ class Home extends Controller
             $data = $commonObj->data_formatter_for_co_occur($query, $option, $limit);
             return $data;
         } else {
-            return response()->json(['error' => 'Arguments not set'], 404);
+            return response()->json(['error' => 'Arguments not set'], 400);
         }
     }
 
@@ -167,10 +167,10 @@ class Home extends Controller
         if ($request->input('interval')) {
             $interval = $request->input('interval');
             if ($interval > 86400) {
-                return response()->json(['error' => 'Not Allowed'], 404);
+                return response()->json(['error' => 'Not Allowed'], 400);
             }
         } else {
-            return response()->json(['error' => 'interval  or query not set'], 404);
+            return response()->json(['error' => 'interval  or query not set'], 400);
         }
         $dateTimeArgs = $this->CurrentDateTimeGeneratorPublic($interval);
         $commonObj = new CommonController;
@@ -184,7 +184,7 @@ class Home extends Controller
             if ($request->input('interval') && $request->input('query')) {
                 $interval = $request->input('interval');
                 if ($interval > 86400) {
-                    return response()->json(['error' => 'Not Allowed'], 404);
+                    return response()->json(['error' => 'Not Allowed'], 400);
                 }
                 $query = $request->input('query');
             } else if ($intervalArg && $queryArg) {
@@ -192,7 +192,7 @@ class Home extends Controller
                 $query = $queryArg;
 
             } else {
-                return response()->json(['error' => 'interval  or query not set'], 404);
+                return response()->json(['error' => 'interval  or query not set'], 400);
             }
             $dateTimeArgs = $this->CurrentDateTimeGeneratorPublic($interval);
             $fromTime = $dateTimeArgs[0];
@@ -218,7 +218,7 @@ class Home extends Controller
         if (isset($_GET['tweet_id_list'])) {
             $tIDlist = $_GET['tweet_id_list'];
         } else {
-            return response()->json(['error' => 'No Data Captured'], 404);
+            return response()->json(['error' => 'No Data Captured'], 400);
         }
         $commonObj = new CommonController;
         $data = $commonObj->get_tweets_info($tIDlist);

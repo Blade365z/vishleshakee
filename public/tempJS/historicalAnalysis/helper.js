@@ -130,9 +130,13 @@ export const getTopDataHA = async (from, to, option, limit) => {
     return data;
 }
 
-export const getQueryStatues = async (userID) => {
+export const getQueryStatues = async (userID, mode) => {
     let response = await fetch('status/'+userID, {
-        method: 'get'
+        method: 'post',
+        headers: HeadersForApi,
+        body:JSON.stringify({
+            mode
+        })
     })
     let data = await response.json();
     return data;

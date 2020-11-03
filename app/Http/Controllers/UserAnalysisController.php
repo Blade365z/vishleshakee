@@ -57,7 +57,7 @@ class UserAnalysisController extends Controller
         if (isset($_GET['userIDArray'])) {
             $userIDsArr = $_GET['userIDArray'];
         } else {
-            return response()->json(['error' => 'No Data Captured'], 404);
+            return response()->json(['error' => 'No Data Captured'], 400);
         }
         $common_object = new CC;
         echo $common_object->get_user_info($userIDsArr, true);
@@ -68,7 +68,7 @@ class UserAnalysisController extends Controller
         if ($request->input('userID')) {
             $userID = $request->input('userID');
         } else {
-            return response()->json(['error' => 'No Data Captured'], 404);
+            return response()->json(['error' => 'No Data Captured'], 400);
         }
         $common_object = new CC;
         return $common_object->get_user_info($userID, false);
@@ -100,7 +100,7 @@ class UserAnalysisController extends Controller
             return $data;
 
         } else {
-            return response()->json(['error' => 'Please check yout arguments'], 404);
+            return response()->json(['error' => 'Please check yout arguments'], 400);
         }
     }
 
@@ -134,7 +134,7 @@ class UserAnalysisController extends Controller
             $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter);
             return $data;
         } else {
-            return response()->json(['error' => 'Please check yout arguments'], 404);
+            return response()->json(['error' => 'Please check yout arguments'], 400);
         }
 
     }
@@ -166,7 +166,7 @@ class UserAnalysisController extends Controller
             return $data;
 
         } else {
-            return response()->json(['error' => 'Please check yout arguments'], 404);
+            return response()->json(['error' => 'Please check yout arguments'], 400);
         }
     }
 
@@ -178,7 +178,7 @@ class UserAnalysisController extends Controller
             $option = $request->input('option');
             $file_path = $userID . '/' . $uniqueID . '.csv';
         } else {
-            return response()->json(['error' => 'Unique ID / User ID not provided'], 404);
+            return response()->json(['error' => 'Unique ID / User ID not provided'], 400);
         }
 
         if ($request->input('mode') == 'write') {
@@ -195,7 +195,7 @@ class UserAnalysisController extends Controller
                 $data = $commonObj->get_co_occur_data($toTime, $fromTime, $query, null, $option, $file_path, true, false, $userID);
                 return $data;
             } else {
-                return response()->json(['error' => 'Please check yout arguments'], 404);
+                return response()->json(['error' => 'Please check yout arguments'], 400);
             }
         } else if ($request->input('mode') == 'read') {
             $commonObj = new CommonController;

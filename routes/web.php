@@ -240,7 +240,7 @@ Route::post('/getFeedback', 'FeebackController@checkIfFeedbackExist');
 Route::post('/extractFeedbacks', 'FeebackController@extractFeedbacks');
 
 Route::resource('status', 'queryStatusController', ['except' => ['show']]);
-Route::get('/status/{username}', 'queryStatusController@show');
+Route::post('/status/{username}', 'queryStatusController@show');
 
 
 Route::resource('normalStatus', 'normalQueryStatusController', ['except' => ['show']]);

@@ -71,7 +71,7 @@ jQuery(function () {
             displayErrorMsg('tableInitialTitleAdv','normal','No recent advance searches found in records.',false);
         }
         response.forEach(element => {
-            addQueryToStatusTable(1, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, false, element.hashtagID, element.mentionID);
+            addQueryToStatusTable(1, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.hashtagID, element.mentionID, false, element.status);
         });
     });
     getUsersFromCrawlerList().then(response => {
@@ -236,9 +236,14 @@ jQuery(function () {
     });
 
     $('body').on('click','div #addHandleToCrawlerList',function(){
-        getUserDetails(SearchID).then(response=>{
-            addTrackToDb(null,SearchID,'user',response.author_screen_name,1);
-            //TODO::Complete UI, add success error messages, confirm add pop up
+        getUserDetails(SearchID).then(data=>{
+            addTrackToDb(null,SearchID,'user',data.author_screen_name,1).then(response=>{
+                if(response.error){
+                    displayErrorMsg('errorMsgUA','error',response.error);   
+                }else{
+                    displayErrorMsg('errorMsgUA','success','The Handle <b>@'+data.author_screen_name+'</b> has been '+response.data);   
+                }
+            })
         });
     })
 
@@ -280,7 +285,7 @@ jQuery(function () {
     $('body').on('click', 'div .showBtn', function () {
         let idCaptured = $(this).attr('value');
         initateUserSearch(searchRecords[idCaptured][0]['query'], searchRecords[idCaptured][0]['filename'], searchRecords[idCaptured][0]['from'], searchRecords[idCaptured][0]['to'], searchRecords[idCaptured][0]['mentionUniqueID'], searchRecords[idCaptured][0]['hashtagUniqueID'], searchRecords[idCaptured][0]['searchType'], false);
-    })
+    });
 
 });
 
@@ -383,9 +388,10 @@ const triggerSparkRequest = (query, fromDate, toDate, unique_name_timestamp, hig
         console.log(data);
         let sparkID = data.id;
         // 14 add row to table UI.....
-        addToStatusTable(sparkID, query, fromDate, toDate, unique_name_timestamp, highlight = false);
+        // addToStatusTable(sparkID, query, fromDate, toDate, unique_name_timestamp, highlight = false);
         // 15 check status until it becomes success.....
-        let checkSpartStatusInterval = setInterval(function () { checkSparkStatus(sparkID, unique_name_timestamp, fromDate, toDate, query, checkSpartStatusInterval); }, 10000);
+        checkSparkStatus(sparkID, unique_name_timestamp, fromDate, toDate, query); 
+        // let checkSpartStatusInterval = setInterval(function () { checkSparkStatus(sparkID, unique_name_timestamp, fromDate, toDate, query, checkSpartStatusInterval); }, 10000);
 
     });
 }
@@ -393,11 +399,11 @@ const triggerSparkRequest = (query, fromDate, toDate, unique_name_timestamp, hig
 
 
 //mala
-const checkSparkStatus = (sparkID, unique_name_timestamp, fromDate, toDate, query, checkSpartStatusInterval) => {
+const checkSparkStatus = (sparkID, unique_name_timestamp, fromDate, toDate, query) => {
     checkStatus(sparkID, unique_name_timestamp, userID).then(data => {
         console.log(data);
         if (data.status === 'success') {
-            window.clearInterval(checkSpartStatusInterval);//clear the interval
+            // window.clearInterval(checkSpartStatusInterval);//clear the interval
             // // update status to MySQl.....
             // storeToMySqlAdvanceSearchData(userID, unique_name_timestamp, fromDate, toDate, query).then(data => {
             //     console.log(data);
@@ -411,23 +417,23 @@ const checkSparkStatus = (sparkID, unique_name_timestamp, fromDate, toDate, quer
             // });
 
             //16 enable Show btn....
-            makeShowBtnReadyAfterSuccess(sparkID, unique_name_timestamp);
+            makeShowBtnReadyAfterSuccess(userID, unique_name_timestamp);
         } else if (data.status === 'dead') {
-            window.clearInterval(checkSpartStatusInterval);//clear the interval
-            $('#' + sparkID + 'DeleteBtn').prop("disabled", false);
-            $('#' + sparkID + 'Status').text('Dead');
+            // window.clearInterval(checkSpartStatusInterval);//clear the interval
+            $('#' + userID + 'DeleteBtn').prop("disabled", false);
+            $('#' + userID + 'Status').text('Dead');
         }
     });
 }
 
 //mala
-const makeShowBtnReadyAfterSuccess = (sparkID, filename) => {
-    $('#' + sparkID + 'ShowBtn').prop("disabled", false);
-    $('#' + sparkID + 'DeleteBtn').prop("disabled", false);
-    let btnValue = $('#' + sparkID + 'Btn').attr('value');
+const makeShowBtnReadyAfterSuccess = (userID, filename) => {
+    $('#' + userID + 'ShowBtn').prop("disabled", false);
+    $('#' + userID + 'DeleteBtn').prop("disabled", false);
+    let btnValue = $('#' + userID + 'Btn').attr('value');
     // $('#' + sparkID + 'Btn').removeClass('btn-secondary');
     // $('#' + sparkID + 'Btn').addClass('btn-primary');
-    $('#' + sparkID + 'Status').text('Success');
+    $('#' + userID + 'Status').text('Success');
 }
 
 //mala
@@ -439,7 +445,7 @@ const get_tokens_wrt_pattern = (queries, pattern = null) => {
         var query_list = queries[0].trim().match(pattern);
     } else {
         // var pattern = /#(\w+)|@(\w+)|\*(\w+)|\&|\||\!|\(|\)/g;
-        var pattern = /#(\w+)|@(\w+)|\^(\w+)|\*(\w+)|\&|\||\!|\(|\)/g;
+        var pattern = /#(\w+)|@(\w+)|\^(\w+)|\*(\w+)|\$(\w+)|\&|\||\!|\(|\)/g;
         var query_list = queries[0].trim().match(pattern);
     }
     return final_query_list.concat(query_list);
@@ -719,7 +725,7 @@ $(window).on('popstate', function (event) {
 });
 
 
-const addQueryToStatusTable = (searchType, sparkID = null, query, fromDate, toDate, unique_name_timestamp = null, fromStatusTable = false, mentionUniqueID = null, hashtagsUniqueID = null,highlight=false) => {
+const addQueryToStatusTable = (searchType, sparkID = null, query, fromDate, toDate, unique_name_timestamp = null, fromStatusTable = false, mentionUniqueID = null, hashtagsUniqueID = null,highlight=false, query_status=null) => {
   
     unique_name_timestamp != null ? unique_name_timestamp : unique_name_timestamp = new Date().getTime()
     let recordTemp = [{ 'query': query, 'from': fromDate, 'to': toDate, 'mentionUniqueID': mentionUniqueID, 'hashtagUniqueID': hashtagsUniqueID, 'searchType': searchType, "filename": unique_name_timestamp.toString() }];
@@ -730,7 +736,10 @@ const addQueryToStatusTable = (searchType, sparkID = null, query, fromDate, toDa
     let tableDiv = '';
     let queryTemp;
     fromStatusTable === true ? disabledProperty = '' : disabledProperty;
-    fromStatusTable === true ? status = 'Success' : status;
+    // fromStatusTable === true ? status = 'Success' : status;
+    if (fromStatusTable) {
+        status = query_status;
+    }
     if (searchType == 1) {
         $('#tableInitialTitleAdv').html('');
         tableDiv = "uaAdvStatusTable";
@@ -762,7 +771,7 @@ const addQueryToStatusTable = (searchType, sparkID = null, query, fromDate, toDa
             queryElement = '@' + data.author_screen_name + queryElement;
         //mala
         if (searchType)
-            $('<tr class="'+hightlightArg+'"><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + ' disabled> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1" disabled> Delete </button></td></tr>').prependTo('#' + tableDiv);
+            $('<tr class="'+hightlightArg+'"><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + ' > Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="1" > Delete </button></td></tr>').prependTo('#' + tableDiv);
         else
             $('<tr class="'+hightlightArg+'"> <td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td id="' + sparkID + 'Status">' + status + '</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'ShowBtn" ' + disabledProperty + '> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" value="' + unique_name_timestamp + '" id="' + sparkID + 'DeleteBtn" ' + disabledProperty + '  type="'+searchType+'"> Delete </button></td></tr>').prependTo('#' + tableDiv);
     });

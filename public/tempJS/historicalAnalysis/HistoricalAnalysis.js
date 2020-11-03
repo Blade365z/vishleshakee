@@ -49,7 +49,7 @@ jQuery(function () {
         });
     });
     // get past advance searches from MySQL Table......... 
-    getQueryStatues(userID).then(response => {
+    getQueryStatues(userID, 'ha').then(response => {
         if (response.length < 1) {
             displayErrorMsg('tableInitialTitleAdv', 'normal', 'No recent advance searches found in records.', false);
         }
@@ -57,6 +57,8 @@ jQuery(function () {
             statusTableFlag = 1;
             $('#showTableBtn span').text(" Hide Search History ");
             $('#searchTable').css('display', 'block');
+            console.log("helooooooo");
+            console.log(response);
             response.forEach(element => {
                 updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID)
 
@@ -86,6 +88,7 @@ jQuery(function () {
         }
     })
     // /haQueryInputBox
+    let getStatusFromMySqlInterval = setInterval(function () { getStatusFromMySql(userID, getStatusFromMySqlInterval); }, 10000);
 
 
     $("#fromDateHA").val(fromDate);
@@ -334,7 +337,25 @@ jQuery(function () {
 });
 
 
+const getStatusFromMySql = (userID) => {	
+    // get past advance searches from MySQL Table......... 
+    getQueryStatues(userID, 'ha').then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitleAdv', 'normal', 'No recent advance searches found in records.', false);
+        }
+        if (response) {
+            // statusTableFlag = 1;
+            $('#haAdvStatusTable').empty();
+            console.log("helooooooo");
+            console.log(response);
+            response.forEach(element => {
+                updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID)
 
+                addToStatusTable(element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.status);
+            });
+        }
+    });
+}
 
 
 const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable = false, filename = null, highlight = false) => {
@@ -348,7 +369,7 @@ const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable 
     // console.log(highlightTag)
     //normal search ....add to Status Table
     if (searchType == 0) {
-        openSpecificTab('normalQueryTab', 'recentSearchTab');
+        // openSpecificTab('normalQueryTab', 'recentSearchTab');
         if (!filename) {
             addNormalSearchToDB(uniqueTimeStamp, userID, query, fromDate, toDate, 'Success', 'ha', hashtagUniqueID, mentionUniqueID);
         }
@@ -360,7 +381,7 @@ const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable 
 
         //advance search ....add to Status Table
     } else if (searchType == 1) {
-        openSpecificTab('advQueryTab', 'recentSearchTab');
+        // openSpecificTab('advQueryTab', 'recentSearchTab');
         $('#tableInitialTitleAdv').html('');
         if (fromStatusTable) {
             let recordTemp = [{ 'query': query, 'from': fromDate, 'to': toDate, 'mentionUniqueID': mentionUniqueID, 'hashtagUniqueID': hashtagUniqueID, 'userUniqueID': userUniqueID, 'searchType': searchType, "filename": filename }];

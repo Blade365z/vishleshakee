@@ -139,7 +139,7 @@ class LocationMap extends Controller
          
             $tweetid_list_array = array();
             // array_push($tweetid_list_array,'1300689867836395526');
-            // array_push($tweetid_list_array,'1305520073982054404');
+            // array_push($tweetid_list_array,'1305520073982054400');
             
             foreach ($data['data'] as $tid) {
                 array_push($tweetid_list_array, $tid);
@@ -159,7 +159,7 @@ class LocationMap extends Controller
             if ($request->input('interval') && $request->input('query')) {
                 $interval = $request->input('interval');
                 if ($interval > 86400) {
-                    return response()->json(['error' => 'Not Allowed'], 404);
+                    return response()->json(['error' => 'Not Allowed'], 400);
                 }
                 $query = $request->input('query');
             } else if ($intervalArg && $queryArg) {
@@ -167,7 +167,7 @@ class LocationMap extends Controller
                 $query = $queryArg;
 
             } else {
-                return response()->json(['error' => 'interval  or query not set'], 404);
+                return response()->json(['error' => 'interval  or query not set'], 400);
             }
 
             $datetime_object = new Hm;
@@ -187,9 +187,9 @@ class LocationMap extends Controller
         $commonObj = new CommonController;
         $data = $commonObj->get_tweets($toTime, $fromTime, $query, '10sec', $filter, 'tweet');
         // return $data;
-        $tweetid_list_array = array();
+        $tweetid_list_array = array();  
         // array_push($tweetid_list_array,'1300689867836395526');
-        // array_push($tweetid_list_array,'1305520073982054404');
+        // array_push($tweetid_list_array,'1305520073982054400');
         
         foreach ($data['data'] as $tid) {
             array_push($tweetid_list_array, $tid);

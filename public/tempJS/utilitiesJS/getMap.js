@@ -273,7 +273,7 @@ export const getCompleteMap = (id,op) => {
     if(location_tweet_count==0)
     {
         $('#'+id).css('height', '20px');
-        $('#'+id).html(`<div style="height: 20px; background:white"><div style="background:white; margin-left: 350px;">No Map Data Found</div></div>`);
+        $('#'+id).html(`<div style="height: 20px; background:white"><div class="text-center ">No Map Data Found.</div></div>`);
         
 
     }

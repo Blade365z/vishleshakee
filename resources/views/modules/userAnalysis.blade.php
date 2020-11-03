@@ -141,7 +141,7 @@
                     </div>
                    
                     <form id="uaQueryHandleForm">
-                        <div class="d-flex mb-2" id="addAdvQueryDiv">
+                        <div class="d-flex" id="addAdvQueryDiv">
 
                             <div class="d-flex" id="queryAdvUA">
 

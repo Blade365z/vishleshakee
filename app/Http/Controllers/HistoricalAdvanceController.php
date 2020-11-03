@@ -258,7 +258,7 @@ class HistoricalAdvanceController extends Controller
             $option = $request->input('option');
             $file_path_to_write_csv = $userID . '/' . $uniqueID . '.csv';
         } else {
-            return response()->json(['error' => 'Unique ID / User ID not provided'], 404);
+            return response()->json(['error' => 'Unique ID / User ID not provided'], 400);
         }
 
         if ($request->input('mode')=='write') {
@@ -275,7 +275,7 @@ class HistoricalAdvanceController extends Controller
                 $data = $this->getCooccurDataForAdvance_main($toTime, $fromTime, $query, $option, $file_path_to_write_csv, true, $userID, $filename);
                 return $data;
             } else {
-                return response()->json(['error' => 'Please check yout arguments'], 404);
+                return response()->json(['error' => 'Please check yout arguments'], 400);
             }
         }else if($request->input('mode')=='read'){
             $commonObj = new CommonController;
@@ -321,7 +321,7 @@ class HistoricalAdvanceController extends Controller
             $data = $this->getTweetIDForAdvance_main($toTime, $fromTime, $query, $rangeType, $filter, $userid, $filename);
             return $data;
         } else {
-            return response()->json(['error' => 'Please check yout arguments'], 404);
+            return response()->json(['error' => 'Please check yout arguments'], 400);
         }
     }
 

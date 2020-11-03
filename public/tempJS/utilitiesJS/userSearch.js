@@ -69,7 +69,7 @@ const checkPagingStateTokenUserSearch = async (div) => {
     if (page_state.trim() === '') {
         BREAK_FLAG = 1;
         $('#LoadMore_UserSearch_' + div).remove();
-        $('#'+div).html('<div> <p class="my-2">No more users found.</p></div> ')
+        $('#'+div).append('<div> <p class="my-2">No more users found.</p></div> ')
         console.log('<<< END OF LIST >>>');
         return 0;
     }

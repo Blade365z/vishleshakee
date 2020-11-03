@@ -29,7 +29,7 @@ class ConfigureSmat extends Controller
                 'sparkEngine' => 'required',
             ]);
             if ($request->input('id')) {
-                $id=$request->input('id');
+                $id = $request->input('id');
                 $configObj = Configure::where('id', $id)->update(array(
                     'appUrl' => $request->get('appUrl'),
                     'dbUser' => $request->get('dbUser'),
@@ -78,16 +78,21 @@ class ConfigureSmat extends Controller
         $datetimeobj = new DateTime();
         $datetime = $datetimeobj->format('Y-m-d');
         $date = date('Y-m-d', strtotime($datetime) - 0);
-
-        $crawlerListObj = new CrawlerList([
-            'track' => $request->get('trackToken'),
-            'handle' => $request->get('handle'),
-            'type' => $request->get('type'),
-            'status' => $request->get('status'),
-            'date' => $date,
-        ]);
-        $crawlerListObj->save();
-        return response()->json(['data' => 'Submitted Successfully!'], 200);
+        $checkFlag=$this->checkIfAlreadyExists($request->get('trackToken'));
+        if($checkFlag==true){
+            return response()->json(['error' => 'Already exists in the crawler'],400 );
+        }else{
+            $crawlerListObj = new CrawlerList([
+                'track' => $request->get('trackToken'),
+                'handle' => $request->get('handle'),
+                'type' => $request->get('type'),
+                'status' => $request->get('status'),
+                'date' => $date,
+            ]);
+            $crawlerListObj->save();
+            return response()->json(['data' => 'Successfully added to the crawler'], 200);
+        }
+     
     }
     public function GetAllTrackToken(Request $request)
     {
@@ -139,5 +144,14 @@ class ConfigureSmat extends Controller
             return response()->json(['data' => 'Status Successfully Updated!'], 200);
         }
     }
+    public function checkIfAlreadyExists($query)
+    {
+        $crawlerListObj = CrawlerList::where('track', $query)->get();
 
+        if(count($crawlerListObj)>=1){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
