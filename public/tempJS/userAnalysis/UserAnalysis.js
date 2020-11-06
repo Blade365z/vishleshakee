@@ -499,9 +499,9 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
         $('.10sec-' + chartType).remove();
     }
     if (appendArg) {
-        $('#' + freqParentDiv).append('<div class=" mt-2   appendedChart ' + appendedChartParentID + '"><div class="d-flex"> <div class="mr-auto closeGraph"    value="' + rangeType + '-freq-chart" title="close" > close <i class="fas fa-times"></i> </div> </div> <div class="row"><div class="col-sm-8"><div class="uaTab freqDistChart resultDiv  chartDiv border" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="freqDistTweets border resultDiv " id="' + chartTweetDivID + '"></div><div class="freqDistSummary border d-flex pt-2 resultDiv "  id="' + summaryDivID + '" ></div></div></div></div>');
+        $('#' + freqParentDiv).append('<div class=" mt-2   appendedChart ' + appendedChartParentID + '"><div class="d-flex"> <div class="mr-auto closeGraph"    value="' + rangeType + '-freq-chart" title="close" > close <i class="fas fa-times"></i> </div> </div> <div class="row"><div class="col-sm-8"><div class="uaTab freqDistChart resultDiv-'+rangeType+'   chartDiv border" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="freqDistTweets border resultDiv-'+rangeType+' " id="' + chartTweetDivID + '"></div><div class="freqDistSummary border d-flex pt-2 resultDiv-'+rangeType+' "  id="' + summaryDivID + '" ></div></div></div></div>');
     } else {
-        $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="uaTab freqDistChart border resultDiv  chartDiv" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="freqDistTweets resultDiv   border" id="' + chartTweetDivID + '"></div><div class="freqDistSummary border d-flex pt-2 resultDiv "  id="' + summaryDivID + '" ></div></div></div></div>');
+        $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="uaTab freqDistChart border resultDiv-'+rangeType+'  chartDiv" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="freqDistTweets resultDiv-'+rangeType+'   border" id="' + chartTweetDivID + '"></div><div class="freqDistSummary border d-flex pt-2 resultDiv-'+rangeType+' "  id="' + summaryDivID + '" ></div></div></div></div>');
     }
     //Loader...
     $('#' + chartDivID).html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
@@ -509,7 +509,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
     if (rangeType == 'day') {
         getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
             if (response.data.length < 1) {
-                $('.resultDiv').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
             } else {
                 generateFreqDistBarChart(query, response, rangeType, chartDivID);
                 freqSummaryGenerator(response, summaryDivID, rangeType);
@@ -524,7 +524,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
     } else if (rangeType == 'hour') {
         getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
             if (response.data.length < 1) {
-                $('.resultDiv').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
             } else {
                 generateFreqDistBarChart(query, response, rangeType, chartDivID);
                 freqSummaryGenerator(response, summaryDivID, rangeType);
@@ -537,7 +537,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
     } else {
         getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
             if (response.data.length < 1) {
-                $('.resultDiv').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
             } else {
                 generateFrequencyLineChart(query, response, rangeType, chartDivID);
                 freqSummaryGenerator(response, summaryDivID, rangeType);
@@ -563,9 +563,9 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
         $('.10sec-' + chartType).remove();
     }
     if (appendArg) {
-        $('#' + sentiParentDiv).append('<div class=" mt-2 ' + appendedChartParentID + '"><div class="d-flex"> <div class="mr-auto closeGraph"    value="' + rangeType + '-senti-chart" title="close" > close <i class="fas fa-times"></i> </div> </div> <div class="row"><div class="col-sm-8"><div class="uaTab sentiDistChart chartDiv resultDiv  border" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary border  resultDiv d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
+        $('#' + sentiParentDiv).append('<div class=" mt-2 ' + appendedChartParentID + '"><div class="d-flex"> <div class="mr-auto closeGraph"    value="' + rangeType + '-senti-chart" title="close" > close <i class="fas fa-times"></i> </div> </div> <div class="row"><div class="col-sm-8"><div class="uaTab sentiDistChart chartDiv resultDiv-'+rangeType+'  border" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv-'+rangeType+' border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary border  resultDiv-'+rangeType+' d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
     } else {
-        $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="uaTab resultDiv  sentiDistChart  chartDiv border"  id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary resultDiv  border d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
+        $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="uaTab resultDiv-'+rangeType+'  sentiDistChart  chartDiv border"  id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv-'+rangeType+' border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary resultDiv-'+rangeType+'  border d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
     }
     //Loader...
     $('#' + chartDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
@@ -573,7 +573,7 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
     if (rangeType == 'day') {
         getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
             if (response.data.length < 1) {
-                $('.resultDiv').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
             } else {
                 generateSentiDistBarChart(response, query, rangeType, chartDivID);
                 generateSentimentSummary(response, summaryDivID, rangeType);
@@ -587,7 +587,7 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
     } else if (rangeType == 'hour') {
         getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
             if (response.data.length < 1) {
-                $('.resultDiv').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
             } else {
                 generateSentiDistBarChart(response, query, rangeType, chartDivID);
                 generateSentimentSummary(response, summaryDivID, rangeType);
@@ -600,7 +600,7 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
 
         getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
             if (response.data.length < 1) {
-                $('.resultDiv').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
             } else {
                 generateSentiDistLineChart(query, response, rangeType, chartDivID);
                 generateSentimentSummary(response, summaryDivID, rangeType);

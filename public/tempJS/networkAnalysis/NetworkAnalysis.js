@@ -204,7 +204,7 @@ jQuery(function () {
             }
             render_centrality_graph(args[6], args[2], args[5],currentNetworkEngine).then(response => {
                 $('.analysis_summary_div').html('');
-                $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node</th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
+                $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node Rankings (Decreasing Order) </th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
                 for (var i = 0; i < response["nodes"].length; i++) {
                     $('#tableBody').append('<tr><td>' + response["nodes"][i]["label"] + '</td><td>' + response["nodes"][i]["size"] + '</td></tr>');
                 }
@@ -633,7 +633,7 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
         if (currentNetworkEngine == "networkx") {
             render_centrality_graph(data["input"], "networkDivid", data["algo_option"],currentNetworkEngine).then(response => {
                 $('.analysis_summary_div').html('');
-                $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node</th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
+                $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node Rankings (Decreasing Order)</th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
                 for (var i = 0; i < response["nodes"].length; i++) {
                     $('#tableBody').append('<tr><td>'+'<a href="#target" class="click_events">'+ response["nodes"][i]["label"] +'</a>'+ '</td><td>' + response["nodes"][i]["size"] + '</td></tr>');
                 }
