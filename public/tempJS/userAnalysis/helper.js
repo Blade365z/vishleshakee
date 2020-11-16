@@ -175,6 +175,8 @@ export const populateRecentSearches = async( userID,type,mode) => {
         return data;
     } 
 }
+
+
 export const getUsersFromCrawlerList = async() =>{
     let response =  await fetch('UA/getUsersFromCrawlerList', {
         method: 'get',

@@ -118,9 +118,11 @@ jQuery(function () {
 
         $('.subject').text(queryDictionaryFilename[args[6]]);
 
-        render_graph('na/graph_view_data_formator', args[6]).then(response => {
-            draw_graph(response, "networkDivid");
-        });
+        // Commented for the time being
+       // render_graph('na/graph_view_data_formator', args[6]).then(response => {
+         //   draw_graph(response, "networkDivid");
+        //});
+
         if(args[4] == "ShortestPath"){
 
             $('.nav-pills a[href="#netContentNA"]').tab('show');
@@ -191,7 +193,7 @@ jQuery(function () {
             render_linkprediction_graph(args[6],args[7]).then(response => {
                 update_view_graph_for_link_prediction(response,args[7],args[9]);
                 message_displayer("DISPLAYING RESULTS FOR LINK PREDICTION","success");
-            })
+            });
         }else{
 
             $('.nav-pills a[href="#netContentNA"]').tab('show');

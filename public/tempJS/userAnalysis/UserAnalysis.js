@@ -17,7 +17,7 @@ import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDist
 import { displayErrorMsg, getRelationType, makeDropDownReady, makeSmatReady, makeSuggestionsReady } from '../utilitiesJS/smatExtras.js'
 import { forwardToNetworkAnalysis, forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.js';
 import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './AdvanceHelper.js'
-import { removeFromStatusTableNormal } from '../historicalAnalysis/helper.js';
+import { removeFromStatusTable, removeFromStatusTableNormal } from '../historicalAnalysis/helper.js';
 import { addTrackToDb } from '../config/helper.js';
 
 
@@ -158,22 +158,23 @@ jQuery(function () {
         let capturedToken = $(this).attr('value');
         initateUserSearch(capturedToken);
     });
+
+
     $('body').on('click', 'div .deleteBtn', function () {
         let type = $(this).attr('type');
         let idCaptured = $(this).attr('value');
+        // console.log(idCaptured);
         if (type == '0') {
             $(this).parent().parent().remove();
             removeFromStatusTableNormal(idCaptured);
         } else {
-            alert('TODO::Spark Status delete route')
-            // removeFromStatusTable(filename);
-            // $(this).parent().parent().remove();
+            // alert('TODO::Spark Status delete route')
+            removeFromStatusTable(idCaptured);
+            $(this).parent().parent().remove();
             // deleteFromStatusTable(filename)
         }
         delete searchRecords[idCaptured];
-        checkRecords();
-
-       
+        checkRecords();       
     });
     
     let tweetDivHeight = $('#userInfoDiv').height();
@@ -309,7 +310,7 @@ jQuery(function () {
 
 // }
 
-const initateUserSearch = (query, key = null, fromDateArg = null, toDateArg = null, mentionUniqueIDArg = null, hashtagsUniqueIDArg = null, searchTypeArg = null, addToStatusTable = true) => {
+const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg = null, mentionUniqueIDArg = null, hashtagsUniqueIDArg = null, searchTypeArg = null, addToStatusTable = true) => {
     if (fromDateArg && toDateArg) {
         fromDate = fromDateArg;
         toDate = toDateArg;
@@ -341,6 +342,7 @@ const initateUserSearch = (query, key = null, fromDateArg = null, toDateArg = nu
 
 
     let unique_name_timestamp = new Date().getTime()  //mala
+    let rangeType = getRangeType(fromDate, toDate); //mala
     if (addToStatusTable) {
         if (searchType == 0) {
             addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);
@@ -350,8 +352,7 @@ const initateUserSearch = (query, key = null, fromDateArg = null, toDateArg = nu
         addQueryToStatusTable(searchType, null, query, fromDate, toDate, unique_name_timestamp, false, mentionUniqueID, hashtagsUniqueID,true); //mala
     }
     if (searchType === 0) {
-        getUserDetails(SearchID).then(data => makePageReady(data));
-        let rangeType = getRangeType(fromDate, toDate);
+        getUserDetails(SearchID).then(data => makePageReady(data));       
         // window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
         frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false);
 
@@ -362,11 +363,25 @@ const initateUserSearch = (query, key = null, fromDateArg = null, toDateArg = nu
         plotDistributionGraphUA(SearchID, fromDate, toDate, 'mention', mentionUniqueID, userID, 'mentionsContentUA');
     } else {
         //mala
-        console.log('Advanced Search Detected!');
-        // 11 trigger to spark function
-        console.log(query);
-        triggerSparkRequest(query, fromDate, toDate, unique_name_timestamp);
-        //...TODOMALA
+        if(filename){
+            console.log(searchType);
+            console.log("show results");
+            console.log(filename);
+            // if filename already exist then  just read file and show results
+            frequencyDistributionUA(query, rangeType, fromDate, toDate, null, 'freqContentUA', false, filename);
+            sentimentDistributionUA(query, rangeType, fromDate, toDate, null, 'sentiContentUA', false, filename);
+            // plotDistributionGraphUA(query, fromDate, toDate, 'user', activeUserID, userID, 'usersContentHA');
+            plotDistributionGraphUA(query, fromDate, toDate, 'mention', mentionUniqueID, userID, 'mentionsContentUA', filename);
+            plotDistributionGraphUA(query, fromDate, toDate, 'hashtag', hashtagsUniqueID, userID, 'hashtagsContentTab', filename);
+        }else{
+            // console.log("show results");
+            // console.log(filename);
+            // if filename doesn't exist then trigger spark
+            console.log('Advanced Search Detected!');
+            // 11 trigger to spark function
+            console.log(query);
+            triggerSparkRequest(query, fromDate, toDate, unique_name_timestamp);
+        }
     }
 }
 
@@ -485,7 +500,8 @@ Please NOTE :
 2.Set append Args to True when append is requeired
 */
 let freqParentDiv = 'freqContentUA';
-export const frequencyDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false) => {
+export const frequencyDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null) => {
+    console.log(query);
     let chartType = 'freq-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
@@ -507,51 +523,85 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
     $('#' + chartDivID).html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     $('#' + chartTweetDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
     if (rangeType == 'day') {
-        getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
-            if (response.data.length < 1) {
-                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
-            } else {
-                generateFreqDistBarChart(query, response, rangeType, chartDivID);
-                freqSummaryGenerator(response, summaryDivID, rangeType);
-                getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                    TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
-                });
-            }
+        if (filename) {
+            getFreqDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
+                generateFreqDistBarChart(query, data, rangeType, chartDivID, filename);
+                freqSummaryGenerator(data, summaryDivID, rangeType);
+            });
 
-        });
+            getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+            });
+        } else {
+            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+                if (response.data.length < 1) {
+                    $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                } else {
+                    generateFreqDistBarChart(query, response, rangeType, chartDivID);
+                    freqSummaryGenerator(response, summaryDivID, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    });
+                }
 
-
+            });
+        }
     } else if (rangeType == 'hour') {
-        getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
-            if (response.data.length < 1) {
-                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
-            } else {
-                generateFreqDistBarChart(query, response, rangeType, chartDivID);
-                freqSummaryGenerator(response, summaryDivID, rangeType);
-                getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                    TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
-                });
-            }
-        });
+        if (filename) {
+            getFreqDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
+                generateFreqDistBarChart(query, data, rangeType, chartDivID, filename);
+                freqSummaryGenerator(data, summaryDivID, rangeType);
+            });
+
+            getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+            });
+        } else {
+            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+                if (response.data.length < 1) {
+                    $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                } else {
+                    generateFreqDistBarChart(query, response, rangeType, chartDivID);
+                    freqSummaryGenerator(response, summaryDivID, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    });
+                }
+            });
+        }
 
     } else {
-        getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
-            if (response.data.length < 1) {
-                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
-            } else {
-                generateFrequencyLineChart(query, response, rangeType, chartDivID);
-                freqSummaryGenerator(response, summaryDivID, rangeType);
-                getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1).then(response => {
-                    let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
-                    TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
-                });
-            }
-        });
+        if (filename) {
+            getFreqDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
+                generateFrequencyLineChart(query, data, rangeType, chartDivID, filename);
+                freqSummaryGenerator(data, summaryDivID, rangeType);
+            });
+
+            getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                // console.log(rangeType);
+                TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+            });
+        } else {
+            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
+                if (response.data.length < 1) {
+                    $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                } else {
+                    generateFrequencyLineChart(query, response, rangeType, chartDivID);
+                    freqSummaryGenerator(response, summaryDivID, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1).then(response => {
+                        let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
+                    });
+                }
+            });
+        }
     }
 
 }
+
+
 let sentiParentDiv = 'sentiContentUA';
-export const sentimentDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false) => {
+export const sentimentDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null) => {
     let chartType = 'senti-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
@@ -571,65 +621,111 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
     $('#' + chartDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     $('#' + chartTweetDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
     if (rangeType == 'day') {
-        getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
-            if (response.data.length < 1) {
-                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
-            } else {
-                generateSentiDistBarChart(response, query, rangeType, chartDivID);
-                generateSentimentSummary(response, summaryDivID, rangeType);
-                getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                    TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
-                });
-            }
+        if (filename) {
+            getSentiDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
+                generateSentiDistBarChart(data, query, rangeType, chartDivID, filename);
+                generateSentimentSummary(data, summaryDivID, rangeType);
+            });
 
-        });
+            getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                // console.log(rangeType);
+                TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+            });
+        } else {
+            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+                if (response.data.length < 1) {
+                    $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                } else {
+                    generateSentiDistBarChart(response, query, rangeType, chartDivID);
+                    generateSentimentSummary(response, summaryDivID, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    });
+                }
+
+            });
+        }
 
     } else if (rangeType == 'hour') {
-        getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
-            if (response.data.length < 1) {
-                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
-            } else {
-                generateSentiDistBarChart(response, query, rangeType, chartDivID);
-                generateSentimentSummary(response, summaryDivID, rangeType);
-                getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                    TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
-                });
-            }
-        });
-    } else {
+        if (filename) {
+            getSentiDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
+                generateSentiDistBarChart(data, query, rangeType, chartDivID, filename);
+                generateSentimentSummary(data, summaryDivID, rangeType);
+            });
 
-        getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
-            if (response.data.length < 1) {
-                $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
-            } else {
-                generateSentiDistLineChart(query, response, rangeType, chartDivID);
-                generateSentimentSummary(response, summaryDivID, rangeType);
-                getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1).then(response => {
-                    let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
-                    TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
-                });
-            }
-        });
+            getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                // console.log(rangeType);
+                TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+            });
+        } else {
+            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+                if (response.data.length < 1) {
+                    $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                } else {
+                    generateSentiDistBarChart(response, query, rangeType, chartDivID);
+                    generateSentimentSummary(response, summaryDivID, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    });
+                }
+            });
+        }
+    } else {
+        if (filename) {
+            getSentiDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
+                generateSentiDistLineChart(query, data, rangeType, chartDivID, filename);
+                generateSentimentSummary(data, summaryDivID, rangeType);
+            });
+
+            getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                // console.log(rangeType);
+                TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+            });
+        } else {
+            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
+                if (response.data.length < 1) {
+                    $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+                } else {
+                    generateSentiDistLineChart(query, response, rangeType, chartDivID);
+                    generateSentimentSummary(response, summaryDivID, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1).then(response => {
+                        let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
+                    });
+                }
+            });
+        }
     }
 
 
 
 }
 
-const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, userID, div) => {
+const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null) => {
     //Loader...
     let chartDivID = option + '-chart';
     $('#' + div).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
-    getCooccurDataForUA(query, fromDate, toDate, option, uniqueID, userID).then(response => {
-        if (response[0]['data'].length < 1) {
-            $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
-        } else {
-            let relType = getRelationType(query, option);
-            $('#' + div).html('<div class="d-flex"> <span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span> <button class="btn btn-primary  smat-rounded  mr-1  mt-1 analyzeNetworkButton "   value="' + query + '|' + toDate + '|' + fromDate + '|' + relType + '|' + uniqueID + '|' + userID + '" > <span> Analyse network </span> </button></div><div class="px-3" id="' + chartDivID + '" style="min-height:30%;"></div>');
-            response.length < 1 ? $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>') : generateBarChartForCooccur(query, response[0]['data'], chartDivID, option, fromDate, toDate);
+
+    if (filename) {
+        // console.log("generate advance");
+        getCooccurDataForAdvanceHA(query, fromDate, toDate, option, uniqueID, userID, filename).then(response => {
+            // console.log(response);
+            $('#' + div).html('<div class="d-flex " ><span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span><button class="btn btn-primary mt-1  mr-3 analyzeNetworkButton smat-rounded"   value="' + query + '?' + toDate + '?' + fromDate + '?' + option + '?' + uniqueID + '?' + userID + '" > <span> Analyse network </span> </button></div><div class="px-5 co_occur_plot" id="' + chartDivID + '"></div>');
+            response[0].nodes == 0 ? $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>') : generateBarChartForCooccur(query, response[0]['data'], chartDivID, option, fromDate, toDate);
             $('#' + option + '-total').text(response[0]['nodes']);
-        }
-    });
+        });
+    } else {
+        getCooccurDataForUA(query, fromDate, toDate, option, uniqueID, userID).then(response => {
+            if (response[0]['data'].length < 1) {
+                $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
+            } else {
+                let relType = getRelationType(query, option);
+                $('#' + div).html('<div class="d-flex"> <span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span> <button class="btn btn-primary  smat-rounded  mr-1  mt-1 analyzeNetworkButton "   value="' + query + '|' + toDate + '|' + fromDate + '|' + relType + '|' + uniqueID + '|' + userID + '" > <span> Analyse network </span> </button></div><div class="px-3" id="' + chartDivID + '" style="min-height:30%;"></div>');
+                response.length < 1 ? $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>') : generateBarChartForCooccur(query, response[0]['data'], chartDivID, option, fromDate, toDate);
+                $('#' + option + '-total').text(response[0]['nodes']);
+            }
+        });
+    }
 }
 
 
