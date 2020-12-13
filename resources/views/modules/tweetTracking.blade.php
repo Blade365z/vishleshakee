@@ -1,5 +1,7 @@
 @extends('parent.app')
 @section('content')
+    <link href="public/tempCSS/tracking.css" rel="stylesheet" />
+
     <div class="smat-mainHeading ">
         Tweet Tracking
     </div>
@@ -57,10 +59,10 @@
             </div>
 
         </div>
-        <div class="col-sm-7">
+        <div class="col-sm-7" style="display:none" id="trackAnalysisMainDiv">
             <div>
                 <p class="smat-box-title-large "> Showing Analysis For The <span type="button"
-                        class="sourceTweet font-weight-bold text-normal" id="analysisType"> </span>  </p>
+                        class="sourceTweet font-weight-bold text-normal" id="analysisType"> </span> </p>
             </div>
             <div id="date-divUA">
                 <form id="ttDateForm">
@@ -87,9 +89,8 @@
             <div>
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item active">
-                        <a class="nav-link active smat-rounded " id="retweetTab" data-toggle="pill"
-                            href="#retweetContent" role="tab" aria-controls="mentionsContentUA"
-                            aria-selected="true">Re-tweet Frequency</a>
+                        <a class="nav-link active smat-rounded " id="retweetTab" data-toggle="pill" href="#retweetContent"
+                            role="tab" aria-controls="mentionsContentUA" aria-selected="true">Re-tweet Frequency</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link smat-rounded   " id="quotedTweetTab" data-toggle="pill"
@@ -97,9 +98,12 @@
                             aria-selected="false">Quoted-Tweet Frequency</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link smat-rounded   " id="replyTweetTab" data-toggle="pill"
-                            href="#replytweetContent" role="tab" aria-controls="pills-profile"
-                            aria-selected="false">Reply-Tweet Frequency</a>
+                        <a class="nav-link smat-rounded   " id="replyTweetTab" data-toggle="pill" href="#replytweetContent"
+                            role="tab" aria-controls="pills-profile" aria-selected="false">Reply-Tweet Frequency</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link smat-rounded   " id="replyTweetTab" data-toggle="pill" href="#replytweetContent"
+                            role="tab" aria-controls="pills-profile" aria-selected="false">Track Topology</a>
                     </li>
                 </ul>
             </div>
@@ -118,12 +122,18 @@
             </div>
         </div>
     </div>
+
+
+
+    <div id="trackAnalysisMain">
+
+    </div>
+
     <script>
         var tweetIDCaptured = @json($tweetID ?? '');
 
     </script>
-    <script type="module" src="public/amcharts4/core.js"></script>
-    <script type="module" src="public/amcharts4/charts.js"></script>
-    <script type="module" src="public/amcharts4/themes/animated.js"></script>
-   <script type="module" src="public/tempJS/tweetTracking/tweetTracking.js"></script>
+
+    <script type="module" src="public/tempJS/tweetTracking/tweetTracking.js"></script>
+
 @endsection

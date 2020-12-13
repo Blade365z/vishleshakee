@@ -26,6 +26,9 @@
       <li class="nav-item mx-3 borderLeftRight " id="nav-UA">
         <a class="nav-link" href="userAnalysis">User Analysis</a>
       </li>
+      <li class="nav-item mx-3 borderLeftRight " id="nav-save">
+        <a class="nav-link" href="saveAnalysis">Save Analysis</a>
+      </li>
       @endif
  
 
@@ -43,6 +46,9 @@
           <a class="dropdown-item" href="configure">Configure</a>
           @endif
           @if (Auth::check())
+          <a class="dropdown-item" href="#" id="openCreateProjectModal"> Create project </a>
+          <a class="dropdown-item" href="#" id="openSelectProjectModal"> Select project </a>
+          <a class="dropdown-item" target="_blank" href="ShowProject"> Show project(s) </a>
           <div class="dropdown-divider text-center"></div>
 
           <a href="logout" class="dropdown-item">Logout</a>

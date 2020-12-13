@@ -2,6 +2,15 @@ import { smatFeedbackMain } from './smatFeedback.js';
 import { getTopDataHA } from '../historicalAnalysis/helper.js';
 import { getCurrentDate } from '../utilitiesJS/smatDate.js';
 
+
+//API HEADERS for the http api requests
+var HeadersForApi = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+};
+
+
 export const makeSmatReady = () => {
     // $('body').on('click', 'div .closeGraph', function () {
     //     let graphCaptured = $(this).attr('value');
@@ -95,9 +104,62 @@ export const displayErrorMsg = (div, type, msg = null,hideFlag=true) => {
         $('#' + div).html('<div class="alert-success p-2 text-center smat-rounded smatMsg m-auto">' + msg + '</div>');
     }
     if(hideFlag){
-    setTimeout(() => {
-        $('.smatMsg').remove();
-    }, 5000);
-}
+        setTimeout(() => {
+            $('.smatMsg').remove();
+        }, 5000);
+    }
 }
 
+
+export const getUserID = () => {
+    let userID;
+    if (localStorage.getItem('smat.me')) {
+        let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
+        userID = userInfoTemp['id'];
+    } else {
+        window.location.href = 'login';
+    }
+    return userID;
+}
+
+
+
+export const getUserDetail = async () => {
+    let response = await fetch('smat/getme', {
+        method: 'get'
+    });
+    let data = await response.json()
+    return data;
+}
+
+
+
+
+export const actionLog = async (user_id, action_msg) => {
+    console.log(user_id);
+    let response = await fetch('log', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            user_id, action_msg
+        })
+    });
+    let data = await response.json()
+    return data;
+}
+
+
+export const removeVariableFromLocalStorage = () =>{
+    localStorage.removeItem("project_id");
+    localStorage.removeItem("projectName");
+    localStorage.removeItem('uid');
+}
+
+
+export const toShowSelectedProject = () => {
+    if(localStorage.getItem('projectName')){
+        let pname = localStorage.getItem('projectName');
+        let div1 = 'CP: <span style="color: #3490dc;">'+pname+'</span>';
+        $("#selected_project_name_id").html(div1);
+    }
+}

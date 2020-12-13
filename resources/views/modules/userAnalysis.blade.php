@@ -15,7 +15,7 @@
                 <div class="form-group  text-normal  border smat-rounded d-flex  mr-2 px-2 py-1  bg-white"
                     id="uaSearchInput">
                     <i class="fa fa-search px-1 pt-2" aria-hidden="true" style="margin-top:5px"></i>
-                    <input type="text" class="form-control" name="query" id="queryUASearch" placeholder="Query"
+                    <input type="text" class="form-control" name="query" id="queryUASearch" placeholder="Search by an User"
                         style="border:0px;" autocomplete="OFF" required>
                 </div>
 

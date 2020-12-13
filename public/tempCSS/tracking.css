@@ -1,0 +1,56 @@
+.tweetTrackDiv{
+   height:600px;
+  width:90%;
+}
+ul {
+   list-style-type: none;
+ }
+ 
+.trackDateTitle , .trackCategoryTitle{
+   font-size:1.6em;
+}
+.trackCount , .trackCategoryCount{
+   font-size:1em;
+}
+.trackDateCard{
+   color:var(--color-text);
+}
+.trackDateCard:hover{
+   background-color: var(--color-lightGray);
+   cursor:pointer;
+}
+.trackDateList{
+   overflow-y: auto;
+   overflow-x: hidden;
+   height:600px;
+
+
+}
+.trackCategoryBox{
+   border-radius:24px;
+
+}
+.trackCategoryBox:hover{
+   background-color:var(--color-lightGray);
+   cursor:pointer;
+   
+}
+.tweetRawTrackDiv{
+   height:500px;
+  
+}
+.trackHierarchyNode{
+   max-width:70px;
+}
+.activeDate{
+   background-color: var(--color-active);
+   color:white ;
+}
+.activeCategory{
+   background-color: var(--color-green);
+   color:white ;
+}
+.openTweetRaw:hover{
+   opacity: 50% !important;
+   cursor:pointer;
+}

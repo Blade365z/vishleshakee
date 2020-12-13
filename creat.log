@@ -1,0 +1,184 @@
+INFO 2020-12-03 23:47:15,448 Started
+INFO 2020-12-03 23:47:15,454 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-03 23:47:15,461 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-03 23:47:15,591 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-03 23:50:24,980 Started
+INFO 2020-12-03 23:50:24,986 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-03 23:50:24,989 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-03 23:50:25,128 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 00:01:52,578 Started
+INFO 2020-12-04 00:01:52,583 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:01:52,585 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:01:52,717 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 00:48:41,078 Started
+INFO 2020-12-04 00:48:41,083 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-04 00:48:41,101 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:48:41,110 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:48:41,110 Started
+INFO 2020-12-04 00:48:41,115 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:48:41,118 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:48:41,244 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 00:48:41,258 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 00:54:01,303 Started
+INFO 2020-12-04 00:54:01,307 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-04 00:54:01,312 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:54:01,315 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:54:01,448 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 00:55:14,336 Started
+INFO 2020-12-04 00:55:14,339 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-04 00:55:14,343 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:55:14,346 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 00:55:14,479 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 02:38:17,520 Started
+INFO 2020-12-04 02:38:17,525 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:38:17,527 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:38:17,662 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 02:40:39,380 Started
+INFO 2020-12-04 02:40:39,383 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-04 02:40:39,388 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:40:39,391 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:40:39,525 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 02:45:00,498 Started
+INFO 2020-12-04 02:45:00,502 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-04 02:45:00,505 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:45:00,508 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:45:00,638 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 02:46:41,403 Started
+INFO 2020-12-04 02:46:41,408 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:46:41,412 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 02:46:41,616 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 11:40:35,683 Started
+INFO 2020-12-04 11:40:35,687 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 11:40:35,693 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 11:40:35,833 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 11:56:37,494 Started
+INFO 2020-12-04 11:56:37,497 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-04 11:56:37,503 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 11:56:37,509 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 11:56:37,651 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 18:41:02,321 Started
+INFO 2020-12-04 18:41:02,324 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-04 18:41:02,328 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 18:41:02,330 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 18:41:02,461 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-04 23:25:55,612 Started
+INFO 2020-12-04 23:25:55,617 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 23:25:55,621 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-04 23:25:55,754 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-07 19:14:48,662 Started
+INFO 2020-12-07 19:14:48,666 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-07 19:14:48,671 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-07 19:14:48,675 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-07 19:14:48,811 Cassandra host 172.16.117.157:9042 removed

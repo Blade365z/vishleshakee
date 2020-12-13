@@ -82,15 +82,15 @@ jQuery(function () {
     let selected = $("#networkEngineNA").val();
     if (selected == "networkx") {
         currentNetworkEngine = selected;
-        $("#resourceallocation").hide();
-        $("#commonneighbor").hide();
+        //$("#resourceallocation").hide();
+        //$("#commonneighbor").hide();
     }
     $('#networkEngineNA').on('change', function () {
         let selected = $("#networkEngineNA").val();
         if (selected == "networkx") {
             currentNetworkEngine = selected;
-            $("#resourceallocation").hide();
-            $("#commonneighbor").hide();
+            //$("#resourceallocation").hide();
+            // $("#commonneighbor").hide();
             $("#async").show();
             $("#grivan").show();
             $("#btwncen").show();
@@ -102,7 +102,7 @@ jQuery(function () {
             $("#commonneighbor").show();
             $("#async").hide();
             $("#grivan").hide();
-            $("#btwncen").hide();
+            //$("#btwncen").hide();
             $("#evcen").hide();
             $("#apsp").hide();
         }
@@ -1448,7 +1448,7 @@ function IDGenerator() {
     }
 }
 
-const algoDict = { "degcen": 'Degree Centrality', "pgcen": "Page Rank Centrality", "adamicadar": "Adamic Adar", "jaccardcoeff": "Jaccard Coefficient", "resourceallocation": "Resource Allocation", "commonneighbor": "Common Neighbor", "lpa": "Label Propagation", "Shortest Path": "Single Shortest Path"};
+const algoDict = { "degcen": 'Degree Centrality', "pgcen": "Page Rank Centrality", "adamicadar": "Adamic Adar", "jaccardcoeff": "Jaccard Coefficient", "resourceallocation": "Resource Allocation", "commonneighbor": "Common Neighbor", "lpa": "Label Propagation", "Shortest Path": "Single Shortest Path","btwncen":"Betweeness Centrality"};
 const transferQueryToStatusTable = (data, operation, algo, sparkID = 123, renderDivID = 'networkDivid') => {
     $('#searchTable').css('display', 'block');
     let algoTitle = algoDict[algo];

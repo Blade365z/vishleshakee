@@ -1,0 +1,241 @@
+INFO 2020-12-08 09:33:05,219 Started
+INFO 2020-12-08 09:33:05,226 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:33:05,228 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:33:05,363 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 09:33:05,548 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:33:05,553 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:33:05,686 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 09:40:57,138 Started
+INFO 2020-12-08 09:40:57,142 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:40:57,145 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:40:57,282 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 09:40:57,458 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:40:57,461 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 09:40:57,590 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 09:40:57,809 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 09:40:57,836 token_count done
+INFO 2020-12-08 09:40:57,845 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 09:40:57,866 token_count_hour_wise done
+INFO 2020-12-08 09:40:57,879 Failed creating named tuple for results with column names [u'created_date', u'class', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 09:40:58,044 token_count_day_wise done
+INFO 2020-12-08 09:40:58,052 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 09:40:58,719 token_co_occur done
+INFO 2020-12-08 09:40:58,726 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 09:40:58,744 token_co_occur_hour_wise done
+INFO 2020-12-08 10:06:05,698 Started
+INFO 2020-12-08 10:06:05,702 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:06:05,705 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:06:05,832 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 10:06:06,016 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:06:06,019 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:06:06,163 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 10:06:06,512 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:06:06,535 token_count done
+INFO 2020-12-08 10:06:06,542 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:06:06,690 token_count_hour_wise done
+INFO 2020-12-08 10:06:06,701 Failed creating named tuple for results with column names [u'created_date', u'class', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:06:06,764 token_count_day_wise done
+INFO 2020-12-08 10:06:06,774 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:06:06,895 token_co_occur done
+INFO 2020-12-08 10:06:06,929 Host 172.16.117.201:9042 error: Server error.
+INFO 2020-12-08 10:06:06,938 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:06:06,961 token_co_occur_hour_wise done
+INFO 2020-12-08 10:18:51,992 Started
+INFO 2020-12-08 10:18:51,997 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:18:51,999 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:18:52,133 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 10:18:52,328 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-08 10:18:52,337 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:18:52,339 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 10:18:52,470 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 10:18:52,713 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:18:52,735 token_count done
+INFO 2020-12-08 10:18:52,740 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:18:52,757 token_count_hour_wise done
+INFO 2020-12-08 10:18:52,762 Failed creating named tuple for results with column names [u'created_date', u'class', u'token_name', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'token_name', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:18:52,894 token_count_day_wise done
+INFO 2020-12-08 10:18:53,091 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:18:53,164 token_co_occur done
+INFO 2020-12-08 10:18:53,243 Failed creating named tuple for results with column names [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist'] (cleaned: [u'created_date', u'class', u'created_time', u'token_name1', u'token_name2', u'category_class_list', u'count_list', u'tweetidlist']) (see Python 'namedtuple' documentation for details on name rules). Results will be returned with positional names. Avoid this by choosing different names, using SELECT "<col name>" AS aliases, or specifying a different row_factory on your Session
+INFO 2020-12-08 10:18:53,269 token_co_occur_hour_wise done
+INFO 2020-12-08 10:18:53,273 Host 172.16.117.201:9042 error: Server error.
+INFO 2020-12-08 11:13:18,402 Started
+INFO 2020-12-08 11:13:18,407 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 11:13:18,409 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 11:13:18,542 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 11:13:18,747 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 11:13:18,754 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 11:13:18,886 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 17:44:04,847 Started
+INFO 2020-12-08 17:44:04,853 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:04,857 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:04,992 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 17:44:05,187 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:05,191 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:05,332 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 17:44:11,968 Started
+INFO 2020-12-08 17:44:11,974 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:11,978 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:12,133 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 17:44:12,327 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:12,336 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 17:44:12,479 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 20:30:19,351 Started
+INFO 2020-12-08 20:30:19,357 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 20:30:19,361 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 20:30:19,496 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-08 20:30:19,736 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 20:30:19,740 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-08 20:30:19,877 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-09 18:45:19,729 Started
+INFO 2020-12-09 18:45:19,734 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-09 18:45:19,739 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:19,741 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:19,875 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-09 18:45:20,188 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:20,192 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:20,339 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-09 18:45:25,649 Started
+INFO 2020-12-09 18:45:25,655 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:25,658 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:25,798 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-09 18:45:25,982 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-09 18:45:25,991 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:25,997 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-09 18:45:26,134 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:06:19,107 Started
+INFO 2020-12-11 12:06:19,113 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:19,116 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:19,263 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:06:19,451 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-11 12:06:19,470 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:19,482 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:19,634 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:06:25,316 Started
+INFO 2020-12-11 12:06:25,322 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:25,328 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:25,454 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:06:25,631 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:25,634 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:25,784 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:06:26,286 Started
+INFO 2020-12-11 12:06:26,293 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:26,296 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:26,427 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:06:26,625 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-11 12:06:26,636 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:26,641 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:06:26,787 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:35:33,685 Started
+INFO 2020-12-11 12:35:33,691 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:35:33,699 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:35:33,823 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-11 12:35:33,967 [control connection] Error connecting to 172.16.117.157:9042:
+Traceback (most recent call last):
+  File "cassandra/cluster.py", line 3522, in cassandra.cluster.ControlConnection._reconnect_internal
+    return self._try_connect(host)
+  File "cassandra/cluster.py", line 3544, in cassandra.cluster.ControlConnection._try_connect
+    connection = self._cluster.connection_factory(host.endpoint, is_control_connection=True)
+  File "cassandra/cluster.py", line 1620, in cassandra.cluster.Cluster.connection_factory
+    return self.connection_class.factory(endpoint, self.connect_timeout, *args, **kwargs)
+  File "cassandra/connection.py", line 760, in cassandra.connection.Connection.factory
+    conn = cls(endpoint, *args, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/cassandra/io/libevreactor.py", line 267, in __init__
+    self._connect_socket()
+  File "cassandra/connection.py", line 827, in cassandra.connection.Connection._connect_socket
+    raise socket.error(sockerr.errno, "Tried connecting to %s. Last error: %s" %
+error: [Errno 111] Tried connecting to [('172.16.117.157', 9042)]. Last error: Connection refused
+INFO 2020-12-11 12:35:33,976 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:35:33,981 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-11 12:35:34,109 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-12 01:49:32,195 Started
+INFO 2020-12-12 01:49:32,199 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 01:49:32,208 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 01:49:32,339 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-12 01:49:32,510 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 01:49:32,516 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 01:49:32,649 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-12 16:25:00,758 Started
+INFO 2020-12-12 16:25:00,765 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 16:25:00,768 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 16:25:00,901 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-12 16:25:01,079 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 16:25:01,115 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 16:25:01,246 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-12 17:50:50,506 Started
+INFO 2020-12-12 17:50:50,513 Downgrading core protocol version from 66 to 65 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 17:50:50,517 Downgrading core protocol version from 65 to 4 for 172.16.117.152:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 17:50:50,651 Cassandra host 172.16.117.157:9042 removed
+INFO 2020-12-12 17:50:50,863 Downgrading core protocol version from 66 to 65 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 17:50:50,876 Downgrading core protocol version from 65 to 4 for 172.16.117.204:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
+INFO 2020-12-12 17:50:51,052 Cassandra host 172.16.117.157:9042 removed

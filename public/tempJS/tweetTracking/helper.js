@@ -20,34 +20,56 @@ export const getTweetInfo = async (id) => {
 }
 
 
-export const getFreqDataForTweets = async(id,from,to,type) => {
+export const getFreqDataForTweets = async (id, from, to, type) => {
     let dataArgs = JSON.stringify({
-        id,from,to,type
+        id, from, to, type
     })
     // console.log(dataArgs);
     let response = await fetch('track/getFrequencyDistributionTweet', {
         method: 'post',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     });
     let data = await response.json()
     return data;
 }
 
-
-
-export const getTweetsForSource = async(id,to,type) => {
+export const getDatesDist = async (id, from, to, type) => {
     let dataArgs = JSON.stringify({
-        sid:id,
-        to,
-        tweet_id_list_type:type
+        id, from, to, type:'all'
+    })
+    // console.log(dataArgs);
+    let response = await fetch('track/getDatesDist', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: dataArgs
     });
-    console.log(dataArgs)
+    let data = await response.json()
+    return data;
+}
+
+export const getTweetsForSource = async (id, to, from = null, type) => {
+    let dataArgs = '';
+    if (from) {
+        dataArgs = JSON.stringify({
+            sid: id,
+            to, from,
+            tweet_id_list_type: type
+        });
+    } else {
+        dataArgs = JSON.stringify({
+            sid: id,
+            to,
+            tweet_id_list_type: type
+        });
+    }
+    // console.log(dataArgs)
     let response = await fetch('track/getTweetIDsForSource', {
         method: 'post',
         headers: HeadersForApi,
-        body:dataArgs
+        body: dataArgs
     });
     let data = await response.json()
-    return data;
+    return data.data;
 }
+

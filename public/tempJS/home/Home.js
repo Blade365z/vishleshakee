@@ -15,7 +15,7 @@ import { getFreqDistData, getTopCooccurData, getMe, getSentiDistData, getTopData
 import { generateFrequencyChart, generateSentimentChart, generateBarChart } from './chartHelper.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { get_tweet_location_home,getCompleteMap } from '../utilitiesJS/getMap.js';
-import { makeSuggestionsReady, makeSmatReady, getRelationType } from '../utilitiesJS/smatExtras.js'
+import { makeSuggestionsReady, makeSmatReady, getRelationType, removeVariableFromLocalStorage } from '../utilitiesJS/smatExtras.js'
 import { getCurrentDate } from '../utilitiesJS/smatDate.js';
 import {forwardToHistoricalAnalysis, forwardToNetworkAnalysis, forwardToUserAnalysis} from '../utilitiesJS/redirectionScripts.js';
 
@@ -30,9 +30,13 @@ const intervalValues = { '15': 900, '30': 1800, '45': 2700, '1': 3600, '2': 7200
 const categoryColor = { 'normal': 'text-normal', 'com': 'text-com', 'sec': 'text-sec', 'com_sec': 'text-com_sec' }
 var date = getCurrentDate();
 var TopTrendingData;
-var userID='';
-
+var userID;
+ 
 jQuery(function () {
+
+  removeVariableFromLocalStorage();
+
+
   $('[data-toggle="popover"]').popover(); //Initalizing popovers
   
   if (localStorage.getItem('smat.me')) {

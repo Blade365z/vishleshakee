@@ -197,17 +197,26 @@ class QueryBuilder{
         // range_type = retweet, Reply, QuotedTweet, Tweet
         //$token = source_tweet_id
         if($feature_option == 'tweet_track'){
-            if($from_datetime){
+            if($range_type=='all'){
                 $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
-                $where_clause = "source_tweet_id='" . $token ."' AND datetime = ? AND tweet_type='" . $range_type ."'";
+               $where_clause = "source_tweet_id='" . $token ."' AND datetime = ? " ;
                 $prepared_statement = "SELECT * FROM tweet_track WHERE ".$where_clause;  
                 $final_res[0] = $prepared_statement;
                 $final_res[1] = $input_args;
             }else{
-                $where_clause = "source_tweet_id='" . $token ."' AND datetime ='" . $to_datetime ."' AND tweet_type='" . $range_type ."'";
-                $prepared_statement = "SELECT * FROM tweet_track WHERE ".$where_clause;  
-                $final_res[0] = $prepared_statement;
+                if($from_datetime){
+                    $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
+                    $where_clause = "source_tweet_id='" . $token ."' AND datetime = ? AND tweet_type='" . $range_type ."'";
+                    $prepared_statement = "SELECT * FROM tweet_track WHERE ".$where_clause;  
+                    $final_res[0] = $prepared_statement;
+                    $final_res[1] = $input_args;
+                }else{
+                    $where_clause = "source_tweet_id='" . $token ."' AND datetime ='" . $to_datetime ."' AND tweet_type='" . $range_type ."'";
+                    $prepared_statement = "SELECT * FROM tweet_track WHERE ".$where_clause;  
+                    $final_res[0] = $prepared_statement;
+                }
             }
+            
         }
         
         return $final_res;

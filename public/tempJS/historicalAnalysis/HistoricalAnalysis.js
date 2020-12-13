@@ -1,14 +1,15 @@
+/*jshint esversion: 6 */
 //imports 
 
 import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
-import { getFreqDistDataForHA, getTweetIDsForHA, getSentiDistDataForHA, getCooccurDataForHA, getQueryStatues, removeFromStatusTable, removeFromStatusTableNormal } from './helper.js'
+import { getFreqDistDataForHA, getTweetIDsForHA, getSentiDistDataForHA, getCooccurDataForHA, getQueryStatues, removeFromStatusTable, removeFromStatusTableNormal } from './helper.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
 import { getCurrentDate, getRangeType, dateProcessor } from '../utilitiesJS/smatDate.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { generateUniqueID } from '../utilitiesJS/uniqueIDGenerator.js';
-import { makeSuggestionsReady, makeSmatReady, makeDropDownReady, getRelationType, displayErrorMsg } from '../utilitiesJS/smatExtras.js'
-import { getDateRange } from '../utilitiesJS/smatDate.js'
-import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './Advancehelper.js'
+import { makeSuggestionsReady, makeSmatReady, makeDropDownReady, getRelationType, displayErrorMsg, toShowSelectedProject } from '../utilitiesJS/smatExtras.js';
+import { getDateRange } from '../utilitiesJS/smatDate.js';
+import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './Advancehelper.js';
 import { forwardToNetworkAnalysis } from '../utilitiesJS/redirectionScripts.js';
 import { addNormalSearchToDB, populateRecentSearches } from '../userAnalysis/helper.js';
 
@@ -36,6 +37,12 @@ var suggestionsGlobal, suggInputBoxBuffer = [];
 
 // ready function
 jQuery(function () {
+    console.log(localStorage.getItem('projectName'));
+    // to show project selected................................
+    toShowSelectedProject();
+    // ........................................................
+    
+    
     $('[data-toggle="popover"]').popover(); //Initalizing popovers
     makeSmatReady();
     fromDate = getCurrentDate()
@@ -45,7 +52,7 @@ jQuery(function () {
             displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
         }
         response.forEach(element => {
-            updateStatusTable(element.query, element.fromDate, element.toDate, 0, true, element.queryID, false)
+            updateStatusTable(element.query, element.fromDate, element.toDate, 0, true, element.queryID, false);
         });
     });
     // get past advance searches from MySQL Table......... 
@@ -332,11 +339,42 @@ jQuery(function () {
         checkRecords();
     });
 
+
+    $('body').on('click', 'div .saveAnalysisBtn', function () {
+        // let type = $(this).attr('type');
+        // let idCaptured = $(this).attr('value');
+        // if (type == '0') {
+        //     $(this).parent().parent().remove();
+        // } else {
+        //     //advance search
+        // }
+    });
+
+
     $('body').on('click', 'div .suggHashtags', function () {
         updateStatusTable($(this).text(), fromDate, toDate, 0, false, null, true);
     });
 
 });
+// ..................END of jquery ready function.......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const getStatusFromMySql = (userID) => {	
@@ -348,8 +386,8 @@ const getStatusFromMySql = (userID) => {
         if (response) {
             // statusTableFlag = 1;
             $('#haAdvStatusTable').empty();
-            console.log("helooooooo");
-            console.log(response);
+            // console.log("helooooooo");
+            // console.log(response);
             response.forEach(element => {
                 updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID)
 

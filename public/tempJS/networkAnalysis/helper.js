@@ -854,6 +854,7 @@ export const sparkUpload = (filename_arr) =>{
                 }
             })
             .done(function(res) {
+                //console.log(res);
             })
 }
 

@@ -111,8 +111,6 @@ export const getMe = async () => {
 
         }
     }
-
-
 }
 
 export const getTopData = async (interval) => {

@@ -270,9 +270,29 @@ class MultiNet():
 
 	def common_neighbours(self,*args):
 		G = self.generate_graph(args[0])
-		print G
-		commons = nx.common_neighbors(G,args[1],args[2]) 
-		return sorted(commons) 
+		targets = nx.non_edges(G)
+		source = args[1]
+		source_list = []
+		print(args[2])
+		for u,v in targets:
+			if ((u == source) or( v == source)):
+				source_list.append(tuple([u,v]))
+		C_N = [(e[0],e[1],len(list(nx.common_neighbors(G,e[0],e[1])))) for e in source_list]
+		C_N = sorted(C_N,key= lambda x:x[2], reverse=True)[:int(args[2])]
+		# commons = nx.common_neighbors(G,args[1],args[2]) 
+		return C_N
+
+	def resource_allocation_index(self,*args):
+		G = self.generate_graph(args[0])
+		targets = nx.non_edges(G)
+		source_node = args[1]
+		source_list = []
+		for u,v in targets:
+			if ((u == source_node) or( v == source_node)):
+				source_list.append(tuple([u,v]))
+
+		rai = nx.resource_allocation_index(G,source_list)
+		return sorted(rai,key= lambda x:x[2], reverse=True)[:int(args[2])]
 
 	def jaccard(self, *args):
 		G = self.generate_graph(args[0])

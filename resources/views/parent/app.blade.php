@@ -17,6 +17,8 @@
 <body>
 <div class="container" id="main-wrapper">
         @include("inc.navbar")
+        @include("inc.createProjectModal")
+        @include("inc.selectProjectModal")
         @include('inc.publicTweets')
         @include('inc.helpHA')
         @include('inc.feedbackmodal')
@@ -30,6 +32,7 @@
 </html>
 
 {{-- <script src="https://unpkg.com/@popperjs/core@2"></script> --}}
+<script type="module" src="public/tempJS/project/createProject.js"></script>
 <script type="module" src="public/bootpag/bootpag-min.js"></script>
 <script src="public/datepicker/datepicker-min.js"></script>
 <script src="public/datepicker/datepicker-en.js"></script>

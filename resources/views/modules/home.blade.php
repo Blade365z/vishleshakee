@@ -277,6 +277,12 @@
 </div>
 <script>
 var incoming = @json($query ?? '') ;
+var userID='';
+if (localStorage.getItem('smat.me')) {
+    let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
+    userID = userInfoTemp['id'];
+  } 
+
 </script>
 <script type="module" src="public/amcharts4/core.js"></script>
 <script type="module" src="public/amcharts4/charts.js"></script>

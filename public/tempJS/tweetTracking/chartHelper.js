@@ -14,7 +14,6 @@ import {TweetsGenerator} from '../utilitiesJS/TweetGenerator.js'
 export const drawFreqDataForTweet = (data, div, id, type) => {
     // Create chart instance
     am4core.useTheme(am4themes_animated);
-    console.log(id, '  ', type);
     var chart = am4core.create(div, am4charts.XYChart);
     // Add data
     var dataTemp = [];
@@ -68,7 +67,7 @@ export const drawFreqDataForTweet = (data, div, id, type) => {
     series.columns.template.events.on("hit", function (ev) {
         let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
         var date = getDateInFormat(datetime_obj['date'], 'Y-m-d'); 
-        getTweetsForSource(id,date,type).then(response => {
+        getTweetsForSource(id,date,null,type).then(response => {
             $('#tweetsModal').modal('show');
             TweetsGenerator(response.data,6,'tweets-modal-div',null,null,true,null);
         })

@@ -253,6 +253,8 @@ Route::group(['prefix' => 'track'], function () {
     Route::post('/getTweetInfo', 'TweetTracking@getTweetInfo');
     Route::post('/getFrequencyDistributionTweet', 'TweetTracking@getFrequencyDistributionTweet');
     Route::post('/getTweetIDsForSource', 'TweetTracking@get_tweet_idlist_for_track_type_sourceid');
+    ///getDatesDist
+    Route::post('/getDatesDist', 'TweetTracking@getDatesDist');
 });
 
 
@@ -266,3 +268,21 @@ Route::group(['prefix' => 'configure'], function () {
     Route::delete('/deletefromCrawlList','ConfigureSmat@DeleteTrackToken');
 });
 
+
+// project - feature
+Route::post('createKT', 'ProjectActivityController@create_table_keyspace');
+Route::post('insertKT', 'ProjectActivityController@insert_to_new_keyspace');
+Route::post('showP/{id}', 'ProjectActivityController@show');
+Route::post('getProjectName/{project_id}', 'ProjectActivityController@get_project_name');
+Route::post('getAllProject/{id}', 'ProjectActivityController@get_all_projects');
+
+
+Route::get('/ShowProject', function () {
+    return view('modules.ShowProject');
+})->middleware('auth');
+
+
+
+
+// log file route
+Route::post('log', 'LogController@write_to_log_file');

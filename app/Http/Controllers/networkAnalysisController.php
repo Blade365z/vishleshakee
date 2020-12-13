@@ -307,7 +307,7 @@ class networkAnalysisController extends Controller
         if ($request->input('engine') == "networkx") {
             $multiplier = 300;
         } else {
-            $multiplier = 17;
+            $multiplier = 0.15;
         }
         // unique edges generation
         $commonController_obj = new CommonController;
@@ -422,6 +422,12 @@ class networkAnalysisController extends Controller
             case 'jaccardcoeff':
                 $algo_choosen_option = '786';
                 break;
+            case 'commonneighbor':
+                $algo_choosen_option = '53';
+                break;  
+            case 'resourceallocation':
+                $algo_choosen_option = '1007';
+                break;                 
             default:
                 # code...
                 break;
@@ -1007,7 +1013,9 @@ class networkAnalysisController extends Controller
         //DegreeCentrality
         {
             $filename = $filename_arr[0] . 'centralities.csv';
-        } else if ($algo == 'intersection') {
+        }elseif ($algo == 'btwncen'){
+            $filename = $filename_arr[0] . 'centralities.csv';
+        }else if ($algo == 'intersection') {
             $filename = $filename_arr[0];
             for ($i = 1; $i < sizeof($filename_arr); $i++) {
                 $filename = $filename . '_' . $filename_arr[$i];
@@ -1045,14 +1053,15 @@ class networkAnalysisController extends Controller
     public function curlData($query_list, $rname)
     {
         $curl = curl_init();
-        $data['conf'] = array('spark.jars.packages' => 'anguenot:pyspark-cassandra:2.4.0', 'spark.cassandra.connection.host' => '10.0.0.11', 'spark.cores.max' => 16);
+        //Number of executor earlier it was 4
+        $data['conf'] = array('spark.jars.packages' => 'anguenot:pyspark-cassandra:2.4.0', 'spark.cassandra.connection.host' => '10.0.0.11', 'spark.cores.max' => 16,'spark.driver.memory' => "8G", "spark.driver.maxResultSize" => "16G", "spark.sql.shuffle.partitions" => "20","executorCores" => 10,"numExecutors" => 2,"executorMemory" =>  "25G");
         $data['file'] = 'local:/home/admin/bbk/sigma/spark/batch/file_reader_net_ops.py';
         $data['args'] = $query_list;
         $data['name'] = strval($rname);
-        $data['executorCores'] = 8;
+        $data['executorCores'] = 10;
         $data['numExecutors'] = 2;
         $data['executorMemory'] = '25G';
-        $data['driverMemory'] = '1G';
+        $data['driverMemory'] = '8G';
         $data = json_encode($data);
         // echo $data;
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
@@ -1177,7 +1186,7 @@ class networkAnalysisController extends Controller
 
         $fp = fopen("storage/$dir_name/$filename", "w");
 
-        if (($algo_option == 'pgcen') or ($algo_option == 'degcen')) {
+        if (($algo_option == 'pgcen') or ($algo_option == 'degcen')  or ($algo_option == 'btwncen')) {
             foreach ($result_arr as $key => $value) {
                 $line = array($value['id'], $value['pagerank']);
                 fputcsv($fp, $line);

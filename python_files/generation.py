@@ -332,39 +332,79 @@ if(option == 786):
 	        csv_out.writerow(row)
 
 #common neighbours
-if(option ==53):
-	try:
-		g = mo_obj.common_neighbours(sys.argv[2],sys.argv[3],sys.argv[4])
-		print type(g)
-		src = sys.argv[3]
-		dst = sys.argv[4]
+if(option == 53):
+	prediction = mo_obj.common_neighbours(sys.argv[2],sys.argv[5], sys.argv[6])
+	new_list = []
+	new_list1 = []
+	j=0
+	max = 0
+	for i in prediction:
+		new_list.append(list(i))
+		if(new_list[j][2] > max):
+			max = max + 1;
+		new_list[j][2] = max
+		j = j + 1
 
-		# query="#roshan"
-		# dir_name = "osint/"
-		# path = "/var/www/html/front-end/storage/"+dir_name
-		# print path
 
-		query=sys.argv[3]
-		dir_name = sys.argv[4]+"/"
-		os.chdir("storage");
-		path = os.getcwd()+"/"+dir_name;
+	print "After Processing"
+	for i in new_list:
+		new_list1.append(tuple(i))
+	print new_list1
+	
+	src = sys.argv[3]
+	query=sys.argv[3]
+	dir_name =sys.argv[4]+"/"
 
-		if((os.path.exists(path))):
-			print "directory already exists writing to existing directory"
-		else:
-			os.mkdir(path)
-			print "directory created successfully"
+	os.chdir("storage");
+	path = os.getcwd()+"/"+dir_name;
 
-		filename=path+query+"common_neighbours"+src+dst+".csv"
-		print filename
+	if((os.path.exists(path))):
+		pass
+	else:
+		os.mkdir(path)
+		
+	filename=path+query+"linkprediction.csv"
+	with open(filename,'w') as csv_file:
+	    csv_out=csv.writer(csv_file)
+	    for row in new_list1:
+	        csv_out.writerow(row)
 
-		with open(filename,'w') as csv_file:
-			writer = csv.writer(csv_file)
-			writer.writerows([g])
-	except:
-		print "Error"
-		sys.exit()
+if(option == 1007):
+	prediction = mo_obj.resource_allocation_index(sys.argv[2],sys.argv[5], sys.argv[6])
+	new_list = []
+	new_list1 = []
+	j=0
+	max = 0
+	for i in prediction:
+		new_list.append(list(i))
+		if(new_list[j][2] > max):
+			max = max + 1;
+		new_list[j][2] = max
+		j = j + 1
 
+
+	print "After Processing"
+	for i in new_list:
+		new_list1.append(tuple(i))
+	print new_list1
+	
+	src = sys.argv[3]
+	query=sys.argv[3]
+	dir_name =sys.argv[4]+"/"
+
+	os.chdir("storage");
+	path = os.getcwd()+"/"+dir_name;
+
+	if((os.path.exists(path))):
+		pass
+	else:
+		os.mkdir(path)
+		
+	filename=path+query+"linkprediction.csv"
+	with open(filename,'w') as csv_file:
+	    csv_out=csv.writer(csv_file)
+	    for row in new_list1:
+	        csv_out.writerow(row)
 
 #degree centrality : Sorted in descending  order 
 if(option == 71):

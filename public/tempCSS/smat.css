@@ -13,6 +13,8 @@
     --color-text-dark: #4c545cd8;
     --color-blue: #011627;
     --dark-text: #313131;
+    --color-green: #31A745;
+    --color-lightGray: #e5e5e5;
 }
 .bg-normal{
     background-color: var(--color-normal);
@@ -32,7 +34,7 @@
     opacity: 50%;
 }
 #tweets-modal-div{
-    height:500px;
+    max-height:500px;
 }
 @font-face {
     font-family: Roboto;

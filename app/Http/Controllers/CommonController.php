@@ -1251,4 +1251,14 @@ class CommonController extends Controller
         $ut_obj->write_to_file($file_type='csv', $file_path='2/test_narendramodi_hashtag.csv', $edges, $token=null, $userID=2);
         echo json_encode(array('res'=>$edges));
     }
+
+
+
+    public function create_table_keyspace(Request $request){
+        $keyspace_name = $request->input('projectName');
+        $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
+        shell_exec($command);
+        // insert into mysql
+        echo json_encode(array("res"=>"success"));
+    }
 }
