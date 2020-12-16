@@ -143,8 +143,8 @@ def fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, keyspace_name, query, date,
 
 # get input date from which we should start
 def main():	
-	sessionNewKS = create_connection('subroottest', 'subroottest', ['172.16.117.201', '172.16.117.152', '172.16.117.157', '172.16.117.204'])
-	sessionGlobalKS = create_connection('cassandra', 'cassandra', ['172.16.117.201', '172.16.117.152', '172.16.117.157', '172.16.117.204'])
+	sessionNewKS = create_connection('subroottest', 'subroottest', ['172.16.117.201', '172.16.117.152','172.16.117.204'])
+	sessionGlobalKS = create_connection('cassandra', 'cassandra', ['172.16.117.201', '172.16.117.152', '172.16.117.204'])
 	# take arguments
 	global_keyspace_name = "processed_keyspace"
 	new_keyspace_name = sys.argv[1]

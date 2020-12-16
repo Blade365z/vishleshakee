@@ -8,6 +8,7 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\Home as Hm;
 use Illuminate\Http\Request;
 use App\CityState;
+use App\LocationCode;
 
 class LocationMap extends Controller
 {
@@ -235,12 +236,15 @@ class LocationMap extends Controller
         $location = explode ("^", $temp)[1];
         // echo $location[0];
 
-        $trigger = new DBmodel;
-        $statement = "SELECT code from location_code WHERE location ='" . $location . "'";
-        $result_code = $trigger->execute_query($statement, null, null);
-        foreach ($result_code as $c) {
-            $code = $c['code'];
-        }
+        $locationCodeObj = LocationCode::where($location)->firstOrFail();
+        $code = $locationCodeObj["code"];
+
+        // $trigger = new DBmodel;
+        // $statement = "SELECT code from location_code WHERE location ='" . $location . "'";
+        // $result_code = $trigger->execute_query($statement, null, null);
+        // foreach ($result_code as $c) {
+        //     $code = $c['code'];
+        // }
 
         if ($code == 0) {$locationType = "city";}
         elseif ($code == 1) {$locationType = "state";}

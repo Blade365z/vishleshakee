@@ -27,7 +27,7 @@ import { get_tweets_info_AjaxRequest, generate_tweets_div, TweetsGenerator } fro
 import { getTweetInfo, getFreqDataForTweets, getTweetsForSource, getDatesDist } from './helper.js';
 import { makeSmatReady } from '../utilitiesJS/smatExtras.js';
 import { getCurrentDate, getRangeType, dateProcessor, getDateRange } from '../utilitiesJS/smatDate.js';
-import { drawFreqDataForTweet } from './chartHelper.js';
+import { drawFreqDataForTweet, drawFreqDataForTweetMonth } from './chartHelper.js';
 import { getTweetIDsFromController } from '../home/helper.js';
 
 
@@ -84,7 +84,7 @@ jQuery(function () {
                     createTweetAnalysis(arr[0], arr[3], arr[4], 'trackAnalysisMain', raw.author_profile_image, raw.author, objTemp, arr[1], true);
                 });
 
-            }else{
+            } else {
                 getTweetInfo(arr[0]).then(raw => {
                     createTweetAnalysis(arr[0], arr[3], arr[4], 'trackAnalysisMain', raw.author_profile_image, raw.author, response.data, arr[1], false);
                 });
@@ -134,31 +134,134 @@ jQuery(function () {
             let arrTemp = response.data
         });
     });
-    $('body').on('click', '#moreBtn', async function () {
-        let arrTmp = tweets.prototype.flat();
-        // console.log(arrTmp)
-    });
 
-    $('body').on('click', 'div .trackDateCard', function () {
+    $('body').on('click', 'div .trackDateCard , .datesOptionalCard ', function () {
         let valueArr = $(this).attr('value');
         valueArr = valueArr.split(/[|]/).filter(Boolean);
         if (valueArr[3]) {
             dateCardTriggered(valueArr[1], valueArr[0], valueArr[2], true, valueArr[3]);
         } else {
             dateCardTriggered(valueArr[1], valueArr[0], valueArr[2]);
-
         }
-
     })
+
+    $('body').on('click', 'div  .datesOptionalCard ', function () {
+        let valueArr = $(this).attr('value');
+        valueArr = valueArr.split(/[|]/).filter(Boolean);
+        $('.datesOptionalCard').removeClass('activeDate')
+        $(this).addClass('activeDate')
+        if (valueArr[3]) {
+            dateCardTriggered(valueArr[1], valueArr[0], valueArr[2], true, valueArr[3]);
+        } else {
+            dateCardTriggered(valueArr[1], valueArr[0], valueArr[2]);
+        }
+    })
+
+
+
     //trackCategoryBox
     $('body').on('click', 'div .trackCategoryBox', function () {
         let valueArr = $(this).attr('value');
         valueArr = valueArr.split(/[|]/).filter(Boolean);
         getRawTweets(valueArr[0], valueArr[1], valueArr[2])
-
-        // 
-
     });
+
+    $('body').on('click', 'div .seeChart', function () {
+        $('#trackChartModal').modal('show');
+        //get date & group by type . 
+        //if month -> process it
+        /*
+         {
+            [0]=>Date/Month 
+            [1]=>Count
+         } 
+        */
+        let arr = $(this).attr('value');
+        arr = arr.split(/[|]/).filter(Boolean);
+        if (arr[3] === 'day') {
+            getFreqDataForTweets(arr[0], arr[1], arr[2], 'retweet').then(response => {
+                if (response.data.length < 1) {
+                    $('#retweetTabContent').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>');
+                } else {
+                    drawFreqDataForTweet(response, 'retweetTabContent', arr[0], 'retweet');
+                }
+
+            });
+            getFreqDataForTweets(arr[0], arr[1], arr[2], 'QuotedTweet').then(response => {
+                if (response.data.length < 1) {
+                    $('#quotedTabContent').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>');
+                } else {
+                    drawFreqDataForTweet(response, 'quotedTabContent', arr[0], 'retweet');
+                }
+
+            });
+            getFreqDataForTweets(arr[0], arr[1], arr[2], 'Reply').then(response => {
+                if (response.data.length < 1) {
+                    $('#replyTabContent').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>');
+                } else {
+                    drawFreqDataForTweet(response, 'replyTabContent', arr[0], 'retweet');
+                }
+
+            });
+
+        } else {
+
+            getDatesDist(arr[0], arr[1], arr[2], 'retweet').then(response => {
+                if (response.data.length < 1) {
+                    $('#retweetTabContent').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>');
+                } else {
+                    let objTemp = {}
+                    response.data.forEach(element => {
+                        if (objTemp[element[2]]) {
+                            objTemp[element[2]] = objTemp[element[2]]+ element[1];
+                        } else {
+    
+                            objTemp[element[2]] =  element[1];
+                        }
+                    });
+                    drawFreqDataForTweetMonth(objTemp, 'retweetTabContent', arr[0], 'retweet',true);
+                }
+                
+            })
+            getDatesDist(arr[0], arr[1], arr[2], 'QuotedTweet').then(response => {
+                if (response.data.length < 1) {
+                    $('#quotedTabContent').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>');
+                } else {
+                    let objTemp = {}
+                    response.data.forEach(element => {
+                        if (objTemp[element[2]]) {
+                            objTemp[element[2]] = objTemp[element[2]]+ element[1];
+                        } else {
+    
+                            objTemp[element[2]] =  element[1];
+                        }
+                    });
+                    drawFreqDataForTweetMonth(objTemp, 'quotedTabContent', arr[0], 'retweet',true);
+                }
+                
+            })
+
+            getDatesDist(arr[0], arr[1], arr[2], 'Reply').then(response => {
+                if (response.data.length < 1) {
+                    $('#replyTabContent').html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>');
+                } else {
+                    let objTemp = {}
+                    response.data.forEach(element => {
+                        if (objTemp[element[2]]) {
+                            objTemp[element[2]] = objTemp[element[2]]+ element[1];
+                        } else {
+    
+                            objTemp[element[2]] =  element[1];
+                        }
+                    });
+                    drawFreqDataForTweetMonth(objTemp, 'replyTabContent', arr[0], 'Reply',true);
+                }
+                
+            })
+
+        }
+
+    })
 
     $('#flux').on('scroll', function () {
         if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
@@ -351,7 +454,7 @@ const drawconnectingboxes = (offset, tweetID, data, profilePic = null, author = 
             counter += 1;
         }
     } else {
-       
+
         for (let i = 0; i < data.length; i++) {
             //"i" used as level as well
             $('#trackDates-0').append('<div id="dateLevel-' + tweetID + '-' + i + '" style="display: block;"><svg height="50"><line class="trackDateConnecter" x1="163.5" y1="0" x2="163.5" y2="50" stroke="grey" stroke-width="2" id="dateLine-' + tweetID + '-' + i + '"></line></svg><div class="card trackDateCard shadow" value="' + data[i][0] + '|' + tweetID + '|' + i + '"  id="dateCard-' + tweetID + '-' + offset + '-' + i + '"><div class="card-body "  ><div class="trackDateTitle text-center font-weight-bold"  >' + data[i][0] + '</div><div class="trackCount text-center ">' + data[i][1] + ' tweets </div></div></div></div>');
@@ -361,7 +464,7 @@ const drawconnectingboxes = (offset, tweetID, data, profilePic = null, author = 
 
 }
 
-const drawBoxesForCategories = (offset, tweetID, date, isGroupedByMonthFlag = false, month = null) => {
+const drawBoxesForCategories = async (offset, tweetID, date, isGroupedByMonthFlag = false, month = null) => {
     let types = ['retweet', 'QuotedTweet', 'Reply'];
     //prepare boxes here$
     // $('#somediv').html( )
@@ -375,8 +478,10 @@ const drawBoxesForCategories = (offset, tweetID, date, isGroupedByMonthFlag = fa
         let dateArr = date.split(/[*]/).filter(Boolean);
         fromTmp = dateArr[0], toTmp = dateArr[dateArr.length - 1];
 
+
     } else {
         fromTmp = date, toTmp = date;
+
     }
     types.forEach(type => {
         getFreqDataForTweets(tweetID, fromTmp, toTmp, type).then(response => {
@@ -407,18 +512,20 @@ const createTweetAnalysis = (tweetID, from, to, div, profilePic, author, datesDa
     if (allocatedIDRecords[tweetID] && allotedID == allocatedIDRecords[tweetID][0]['allotedID']) {
         currentlyWatching[allocatedIDRecords[tweetID][0]['allotedID']] = tweetID;
     }
-    
+    let rangeType = isGroupedByMonthFlag ? 'month' : 'day';
+
     // console.log('check2',analysisHistory)
-    $('#' + div).html('<div class="p-3  shadow mr-auto ml-auto" style="border-radius:24px;"><div class="row justify-content-left  px-3 pl-5" id="xyz"> </div><div id="connect" style="height:2px;"></div><div class="row justify-content-center "> <div class="col-sm-3" ><div id="referenceLine-' + allotedID + '"><svg height="50"><line class="trackDateConnecter" x1="163.5" y1="0" x2="163.5" y2="50" stroke="grey" stroke-width="2" ></line></svg> </div> <div class="trackDateList" id="trackDates-' + allotedID + '"> </div> </div><div class="col-sm-3" id="trackCategoryInfo-' + allotedID + '" ></div><div class="col-sm-5"><div class="mt-4" id="dateInputTrack-' + allotedID + '" ></div><div class="tweetRawTrackDiv bg-white shadow p-3"  id="trackRawData-' + allotedID + '" style="border-radius:24px;"></div></div></div></div>');
-
-
-
-   
+    $('#' + div).html('<div class="p-3  shadow mr-auto ml-auto" style="border-radius:24px;"><div class="row justify-content-center  px-3 pl-5" id="xyz"> </div><div id="connect" style="height:2px;"></div><div class="row justify-content-center "> <div class="col-sm-3" ><div id="referenceLine-' + allotedID + '"><svg height="50"><line class="trackDateConnecter" x1="163.5" y1="0" x2="163.5" y2="50" stroke="grey" stroke-width="2" ></line></svg> </div> <div class="trackDateList" id="trackDates-' + allotedID + '"> </div> </div><div class="col-sm-3"> <div id="datesOptional-' + allotedID + '" >  </div> <div  id="trackCategoryInfo-' + allotedID + '"  > </div> <div id="seeChartDiv-' + allotedID + '"></div> </div><div class="col-sm-5"><div class="mt-4" id="dateInputTrack-' + allotedID + '" ></div><div class="tweetRawTrackDiv bg-white shadow p-3"  id="trackRawData-' + allotedID + '" style="border-radius:24px;"></div></div></div></div>');
     printTweetHierarchy(analysisHistory[allotedID], 'xyz', allotedID).then(response => {
+        $('#seeChartDiv-' + allotedID).append('<div class="mt-3"><button class="smat-rounded btn btn-block btn-primary seeChart" id="seeChart-' + tweetID + '-' + allotedID + '" value="' + tweetID + '|' + from + '|' + to + '|' + rangeType + '">Distribution chart</button></div>')
+
         drawDateBox(allotedID, tweetID, from, to, isGroupedByMonthFlag);
         drawconnectingboxes(allotedID, tweetID, datesData, profilePic, author, isGroupedByMonthFlag);
         drawHierarchyLine(tweetID, allotedID);
-        dateCardTriggered(tweetID, from, 0)
+        let month = '';
+        month = isGroupedByMonthFlag ? Object.keys(datesData)[0] : '';
+        dateCardTriggered(tweetID, from, 0, isGroupedByMonthFlag, month)
+
     });
 
 
@@ -469,12 +576,29 @@ const dateCardTriggered = (tweetID, date, level, isGroupedByMonthFlag = false, m
     $('#dateCard-' + tweetID + '-' + offset + '-' + level).addClass('activeDate');
     if (isGroupedByMonthFlag) {
         drawBoxesForCategories(offset, tweetID, date, true, month);
+        printDatesOptional(tweetID, date, level, month, 'datesOptional-' + offset);
+
     } else {
         drawBoxesForCategories(offset, tweetID, date);
     }
 
 
 }
+const printDatesOptional = (tweetID, date, level, month, div) => {
+
+    let dateArr = date.split(/[*]/).filter(Boolean);
+    $('#' + div).html('<div class="card mt-4 shadow"><div class="card-body"><div><p class="text-dark text-left mb-0 text-center">Tweets arived in <b>' + month + '</b> on:</p></div><div class="dateOptionalList px-2 "><ul class="list-group list-group-flush" id="datesOptionalList-' + allocatedIDRecords[tweetID][0]['allotedID'] + '"></ul> </div></div></div>');
+    console.log(level);
+    $('#datesOptionalList-' + allocatedIDRecords[tweetID][0]['allotedID']).html('');
+    dateArr.forEach(element => {
+        $('#datesOptionalList-' + allocatedIDRecords[tweetID][0]['allotedID']).append('<div class="datesOptionalCard  mt-1 border p-1 " value="' + element + '|' + tweetID + '|' + level + '"  style="border-radius:24px;"><li class="  text-center">' + element + '</li><div>');
+
+    });
+    // $('#'+div).html('<div class="card"><div class="card-body"><div><p class="text-dark">Tweets arived on '++'</p></div><div></div></div></div>');
+
+}
+
+
 
 const getRawTweets = async (tweetID, date, type) => {
     $('.trackCategoryBox').removeClass('activeCategory');

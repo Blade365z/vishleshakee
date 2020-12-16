@@ -15,9 +15,15 @@ ul {
 .trackDateCard{
    color:var(--color-text);
 }
-.trackDateCard:hover{
+
+.trackDateCard:hover , .datesOptionalCard:hover{
    background-color: var(--color-lightGray);
    cursor:pointer;
+}
+.dateOptionalList{
+   max-height:130px;
+   overflow-y: auto;
+   overflow-x: hidden;
 }
 .trackDateList{
    overflow-y: auto;
@@ -53,4 +59,8 @@ ul {
 .openTweetRaw:hover{
    opacity: 50% !important;
    cursor:pointer;
+}
+
+.trackChartDiv{
+   height:350px;
 }

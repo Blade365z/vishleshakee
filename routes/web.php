@@ -286,3 +286,7 @@ Route::get('/ShowProject', function () {
 
 // log file route
 Route::post('log', 'LogController@write_to_log_file');
+
+
+//check for data streaming status
+Route::get('checkStatus', 'CommonController@check_for_cassandra_data_streaming_status');

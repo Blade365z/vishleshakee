@@ -43,6 +43,7 @@ if (localStorage.getItem('smat.me')) {
 }
 
 jQuery(function () {
+    $('[data-toggle="popover"]').popover(); 
     if(incoming){
         //TODO::Redirection 
         var networkType;        

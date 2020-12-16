@@ -51,7 +51,7 @@
  
         <div id="naInputPanel">
             <div class="form-group   my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white" id="naQueryInputBox">
-                <input type="text" class="form-control typeahead" name="query" id="queryNA" placeholder="Query" style="border:0px;" autocomplete="OFF" required>
+                <input type="text" class="form-control typeahead" name="query" id="queryNA" placeholder="Query" style="border:0px;" autocomplete="OFF" data-container="body" data-trigger="focus" data-html="true" data-toggle="popover" data-placement="bottom" data-content="Query by :- <b>Hashtag</b> ( use'#',example: #COVID19 ) or <b> Mention</b> ( use'@',example: @narendramodi  ) or <b> Keyword</b> (example: happy , select appropriate network choice with first entity type being Keyword) or <b> User </b> (example: Bob, , select appropriate network choice with first entity type being User ) "  required>
             </div>
 
             <div class="form-group  dateinputForm my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white">

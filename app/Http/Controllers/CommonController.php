@@ -1261,4 +1261,26 @@ class CommonController extends Controller
         // insert into mysql
         echo json_encode(array("res"=>"success"));
     }
+
+
+   
+    public function check_for_cassandra_data_streaming_status(){
+        $db_object = new DBmodel;
+        //to  get recent (time - 40sec)*********
+        $current_datetime_obj = new DateTime();
+        $current_date = $current_datetime_obj->format('Y-m-d');
+        $current_datetime = $current_datetime_obj->format('Y-m-d H:i:s');
+        $r = (40 + (int) ($current_datetime_obj->format('s')) % 10);
+        $t = '-' . strval($r) . ' seconds';
+        $start_time = date('H:i:s', strtotime($t, strtotime($current_datetime)));
+        // *******************************
+        $statement_10sec = "SELECT count_list from token_count WHERE created_date='" . $current_date . "' AND class=0 AND created_time = '".$start_time."' limit 10";
+        $result_from_db = $db_object->execute_query($statement_10sec, null, null);
+        $ar_sum = 0;
+        foreach ($result_from_db as $row) {
+            $count_list = $row['count_list']->values();
+            $ar_sum += array_sum($count_list);
+        }
+        echo json_encode($ar_sum);
+    }
 }

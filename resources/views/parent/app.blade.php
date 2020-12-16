@@ -21,6 +21,7 @@
         @include("inc.selectProjectModal")
         @include('inc.publicTweets')
         @include('inc.helpHA')
+        @include("inc.trackChartModal")
         @include('inc.feedbackmodal')
         @include('inc.userSearchModal')
         @yield('content')
