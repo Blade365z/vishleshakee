@@ -1,7 +1,7 @@
 //void main
 import { roshan } from './visualizer.js';
 import {
-    render_graph, union, intersection, exportnetwork, selected_graph_ids, render_centrality_graph,
+    chartBuilder,render_graph, union, intersection, exportnetwork, selected_graph_ids, render_centrality_graph,
     sparkUpload, get_network, writedelete, difference, shortestpaths, community_detection, centrality, linkprediction,
     render_linkprediction_graph, render_shortestpath_graph, render_community_graph1, draw_graph, update_view_graph_for_link_prediction,
     render_graph_community, render_union_graph, render_graph_union, render_intersection_diff_graph, render_intersection_difference,
@@ -35,6 +35,7 @@ var currentViewTAB="centralityTab";
 var checkSpartStatusInterval_centrality;
 var userID;
 var k_value;
+var summary_flag = true;
 if (localStorage.getItem('smat.me')) {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     userID = userInfoTemp['id'];
@@ -43,6 +44,9 @@ if (localStorage.getItem('smat.me')) {
 }
 
 jQuery(function () {
+    $('.analysis_summary_div').hide();
+    $("#naSummary").css("height", "0px");
+
     $('[data-toggle="popover"]').popover(); 
     if(incoming){
         //TODO::Redirection 
@@ -206,6 +210,8 @@ jQuery(function () {
                 return;
             }
             render_centrality_graph(args[6], args[2], args[5],currentNetworkEngine).then(response => {
+                chartBuilder(response["chartData"]);
+                
                 $('.analysis_summary_div').html('');
                 $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node Rankings (Decreasing Order) </th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
                 for (var i = 0; i < response["nodes"].length; i++) {
@@ -325,6 +331,8 @@ jQuery(function () {
         var input = $(this).text();
         node_highlighting(input);
     });
+
+    
 
     //mala
     // $('body').on('click', 'div .deleteBtn', function () {
@@ -527,16 +535,16 @@ const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTyp
     queryDictionaryNetworkName[filename] = naTypeTemp;
 
     if(status == "normal"){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> From: ' + fromDateTemp + ' </p><p class="   smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > To:' + toDateTemp + ' </p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Nodes: ' + noOfNodesTemp + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > Type: ' + naTypeTemp + '</p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Status: Ready</p></div></div></div></div>');
+        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> From: ' + fromDateTemp + ' </p><p class="   smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > To:' + toDateTemp + ' </p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Nodes: ' + noOfNodesTemp + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > Type: ' + naTypeTemp + '</p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Status: Ready</p></div></div></div></div>');
         currentOperation=null;
     }else if((status == "union")||(status == "intersection")||(status == "difference")){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
+        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
         currentOperation=null;
     }else if(status == "afterdeletion"){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
+        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
         currentOperation=null;
     }else if(status == "fileupload"){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
+        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
         currentOperation=null;
     }
 
@@ -568,6 +576,25 @@ $("#naCards").on("click", "#deleteCard", function () {
 $("#messagebox").on("click","#infopanel #deleteinfoCard", function () {
     $(this).parent().remove();
 });
+
+$("#show_summary_button").on("click",function () {
+
+    if(summary_flag ===true){
+        $("#card_summary").hide();
+        $("#card-division").removeClass("col-sm-7");
+        $("#card-division").addClass("col-sm-12");
+        $("#show_summary_button").text("Show Summary")
+        summary_flag = false;
+        }
+    else{
+        $("#card_summary").show();
+        $("#card-division").removeClass("col-sm-12");
+        $("#card-division").addClass("col-sm-7");
+        $("#show_summary_button").text("Hide Summary");
+        summary_flag = true;
+    }
+});
+
 
 function padNumber(d) {
     return (d < 10) ? d.toString() : d.toString();
@@ -635,6 +662,7 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
     centrality(url, data, currentNetworkEngine).then(response => {
         if (currentNetworkEngine == "networkx") {
             render_centrality_graph(data["input"], "networkDivid", data["algo_option"],currentNetworkEngine).then(response => {
+                chartBuilder(response["chartData"]);
                 $('.analysis_summary_div').html('');
                 $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node Rankings (Decreasing Order)</th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
                 for (var i = 0; i < response["nodes"].length; i++) {

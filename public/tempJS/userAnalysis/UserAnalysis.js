@@ -35,6 +35,7 @@ var suggestionsGlobal, suggInputBoxBuffer = [];
 
 //Logic Implementation 
 jQuery(function () {
+    $('[data-toggle="popover"]').popover(); 
     $('#tableInitialTitle,#tableInitialTitleAdv , #userSuggestions').html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
 
 
@@ -501,7 +502,7 @@ Please NOTE :
 */
 let freqParentDiv = 'freqContentUA';
 export const frequencyDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null) => {
-    console.log(query);
+ 
     let chartType = 'freq-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();

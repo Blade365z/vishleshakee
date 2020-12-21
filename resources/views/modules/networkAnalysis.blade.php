@@ -39,6 +39,18 @@
        top:50px;
     }
 
+    input[type=checkbox] {
+    zoom: 1.5;
+    }
+
+    .analysis_chart_div {
+    width: 100%;
+    height: 200px;
+    }
+    #tableBody{
+        height:100%;
+    }
+
   </style>
 
 <div class="smat-mainHeading ">
@@ -51,19 +63,19 @@
  
         <div id="naInputPanel">
             <div class="form-group   my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white" id="naQueryInputBox">
-                <input type="text" class="form-control typeahead" name="query" id="queryNA" placeholder="Query" style="border:0px;" autocomplete="OFF" data-container="body" data-trigger="focus" data-html="true" data-toggle="popover" data-placement="bottom" data-content="Query by :- <b>Hashtag</b> ( use'#',example: #COVID19 ) or <b> Mention</b> ( use'@',example: @narendramodi  ) or <b> Keyword</b> (example: happy , select appropriate network choice with first entity type being Keyword) or <b> User </b> (example: Bob, , select appropriate network choice with first entity type being User ) "  required>
+                <input type="text" class="form-control typeahead" name="query" value="#Covid" id="queryNA" placeholder="Query" style="border:0px;" autocomplete="OFF" data-container="body" data-trigger="focus" data-html="true" data-toggle="popover" data-placement="bottom" data-content="Query by :- <b>Hashtag</b> ( use'#',example: #COVID19 ) or <b> Mention</b> ( use'@',example: @narendramodi  ) or <b> Keyword</b> (example: happy , select appropriate network choice with first entity type being Keyword) or <b> User </b> (example: Bob, , select appropriate network choice with first entity type being User ) "  required>
             </div>
 
             <div class="form-group  dateinputForm my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white">
                 <i class="far fa-calendar-alt mx-2 text-normal " style="margin-top:11px;"></i>
-                <input type="text" class="form-control datepicker-here " name="fromDate" id="fromDateNA" placeholder="From Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
+                <input type="text" value="2020-12-01" class="form-control datepicker-here " name="fromDate" id="fromDateNA" placeholder="From Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
             </div>
             <div class="form-group dateinputForm my-0  mr-2 border smat-rounded d-flex px-2 py-1  bg-white">
                 <i class="far fa-calendar-alt mx-2 text-normal" style="margin-top:11px;"></i>
-                <input type="text" class="form-control datepicker-here " name="toDate" id="toDateNA" placeholder="To Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
+                <input type="text" value="2020-12-10" class="form-control datepicker-here " name="toDate" id="toDateNA" placeholder="To Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
             </div>
             <div class="form-group  my-0  mr-2 border dateinputForm  smat-rounded d-flex px-2 py-1  bg-white">
-                <input type="number" class="form-control" name=" nodes" id="nodesNA" placeholder="Number of Nodes" style="border:0px;" autocomplete="OFF" required>
+                <input type="number" class="form-control" name=" nodes" value="50" id="nodesNA" placeholder="Number of Nodes" style="border:0px;" autocomplete="OFF" required>
             </div>
             <div class="form-group  my-0  mr-2 border smat-rounded d-flex px-2 py-1  bg-white">
                 <select class="form-control" name="NAType" id="typeNA">
@@ -148,7 +160,7 @@
 
     <div class="smat-tabs" id="net-smat-tabs" style="display: none">
 
-        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
             <li class="nav-item naTabs">
                 <a class="nav-link active smat-rounded " id="netTabNA" data-toggle="pill" href="#netContentNA" role="tab" aria-controls="netContentNA" aria-selected="true">Network</a>
             </li>
@@ -183,35 +195,7 @@
     
     
     <div class="row" id="net-analysis-summary" style="display: none">
-        <div class="col-sm-3">
-            <div class="card shadow">
-                <div class="card-body">
-                    <div>
-                        <h4 class="m-0  font-weight-bold text-dark subject">  </h4>
-                        {{-- <p class="m-0 text-dark "> From: <span class="font-weight-bold from_date"> </span> &nbsp To: <span class="font-weight-bold to_date"> </span> </p> --}}
-                        <p class="m-0  text-dark"> </p>
-
-
-                    </div>
-                    <div class="bg-smat mt-1">
-                        <h1 class="m-0 text-dark nos_of_nodes"> -</h1>
-                        <p class="smat-normal-text" style="margin-top:-10px;margin-bottom:0px;"> Total number of Nodes </p>
-                        <h1 class="m-0 text-dark nos_of_edges"> -</h1>
-                        <p class="smat-normal-text" style="margin-top:-10px;margin-bottom:0px;"> Total number of Edges </p>
-
-                    </div>
-                </div>
-            </div>
-            <div class="card shadow mt-4">
-            <h4 class="mt-2  text-center font-weight-bold text-dark">Summary Information</h4>
-                <div class="card-body " id='naSummary' style="overflow-x:auto;overflow-y:auto"> 
-                <div class="analysis_summary_div" >
-                            
-                </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-9" id="card-division" style="display: none">
+        <div class="col-sm-8" id="card-division" style="display: none">
             <div class="card shadow">
                 <div class="card-body">
                     <div class="">
@@ -240,6 +224,11 @@
                                                 <option  class="engineSelectorOption" value="spark">Spark</option>
                                             </select>
                                         </div>
+                                    </li>
+                                    <li class=" ">
+                                      
+                                        <button class="btn btn-primary mx-2 smat-rounded    " id="show_summary_button">Hide summary </button>
+                                  
                                     </li>
                                 </ul>
                                 <div class="tab-content " id="pills-tabContent">
@@ -427,6 +416,46 @@
                 </div>
             </div>
         </div>
+        <div class="col-sm-4 card shadow" id="card_summary" >
+            <div class="card">
+                <div class="card-body">
+                    <div>
+                        <h4 class="m-0  font-weight-bold text-dark subject">  </h4>
+                        {{-- <p class="m-0 text-dark "> From: <span class="font-weight-bold from_date"> </span> &nbsp To: <span class="font-weight-bold to_date"> </span> </p> --}}
+                        <p class="m-0  text-dark"> </p>
+
+
+                    </div>
+                    <div class="bg-smat mt-1">
+                        <h1 class="m-0 text-dark nos_of_nodes"> -</h1>
+                        <p class="smat-normal-text" style="margin-top:-10px;margin-bottom:0px;"> Total number of Nodes </p>
+                        <h1 class="m-0 text-dark nos_of_edges"> -</h1>
+                        <p class="smat-normal-text" style="margin-top:-10px;margin-bottom:0px;"> Total number of Edges </p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <h4 class="mt-2  text-center font-weight-bold text-dark">Summary Information</h4>
+                <div class="card-body" id="chartDiv" style="overflow-x:auto;overflow-y:auto;"> 
+                <div class="analysis_chart_div shadow">
+                            
+                </div>
+                </div>
+                <h4 class="mt-2  text-center font-weight-bold text-dark">Top 5 nodes</h4>
+                <div class="card-body" id="infoDiv" style="overflow-x:auto;overflow-y:auto;">
+                <div class="analysis_info_div shadow">
+                            
+                </div>
+                </div>
+                <div class="card-body " id='naSummary' style="overflow-x:auto;overflow-y:auto"> 
+                <div class="analysis_summary_div" >
+                            
+                </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </div>
 
@@ -492,4 +521,10 @@
 <link href="public/tempCSS/vis.css" rel="stylesheet" />
 <script type="text/javascript" src="public/tempJS/networkAnalysis/vis.js"></script>
 <script type="module" src="public/tempJS/networkAnalysis/NetworkAnalysis.js"></script>
+
+<!-- Need to Replace -->
+<script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+<script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+
 @endsection

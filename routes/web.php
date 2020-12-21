@@ -223,6 +223,8 @@ Route::group(['prefix' => 'LM'], function () {
     Route::post('/getTweetInfo', 'LocationMap@location_tweet');
     Route::post('/getTweetInfoHome', 'LocationMap@location_tweet_home');
     Route::post('/getLocationNames', 'LocationMap@getLocationNames');
+    Route::post('/tweet_info_for_tracking', 'LocationMap@tweet_info_for_tracking');
+    
     
     
 

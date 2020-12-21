@@ -1,3 +1,5 @@
+import { displayErrorMsg, makeSmatReady } from '../utilitiesJS/smatExtras.js';
+
 //API HEADERS for the http api requests
 var HeadersForApi = {
     "Content-Type": "application/json",
@@ -272,8 +274,9 @@ export const getCompleteMap = (id,op) => {
     $('.legend_info').css({'background':'white','border-radius': '5%','padding': '5px'});
     if(location_tweet_count==0)
     {
-        $('#'+id).css('height', '20px');
-        $('#'+id).html(`<div style="height: 20px; background:white"><div class="text-center ">No Map Data Found.</div></div>`);
+        // displayErrorMsg(id,'error','No Location Found',false);
+        $('#'+id).css('height', '50px');
+        $('#'+id).html(`<div style="height: 50px;font-size:1.6em;"><div class="text-center ">No Map Data Found.</div></div>`);
         
 
     }

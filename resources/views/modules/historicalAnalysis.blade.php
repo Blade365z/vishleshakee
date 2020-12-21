@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="public/leaflet/markerCluster/MarkerCluster.Default.css">
     <link rel="stylesheet" href="public/leaflet/leaflet.css">
     <link rel="stylesheet" href="public/leaflet/leaflet_modal.css">
-
+ 
     <div class="smat-mainHeading ">
         Historical Analysis
         <h5><span class="float-right" id="selected_project_name_id"></span></h5>

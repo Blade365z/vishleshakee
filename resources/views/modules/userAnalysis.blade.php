@@ -16,7 +16,7 @@
                     id="uaSearchInput">
                     <i class="fa fa-search px-1 pt-2" aria-hidden="true" style="margin-top:5px"></i>
                     <input type="text" class="form-control" name="query" id="queryUASearch" placeholder="Search by an User"
-                        style="border:0px;" autocomplete="OFF" required>
+                        style="border:0px;" autocomplete="OFF"  data-container="body" data-trigger="focus" data-html="true" data-toggle="popover" data-placement="bottom" data-content="Search user using the characters only <b> ('@' required)</b>, For example:- <b>Narendra</b> " required>
                 </div>
 
 

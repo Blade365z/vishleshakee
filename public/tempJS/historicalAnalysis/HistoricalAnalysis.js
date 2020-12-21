@@ -103,17 +103,15 @@ jQuery(function () {
     $('#querySugg').html('<div class="text-center pt-5 mt-5" ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     makeSuggestionsReady('haQueryInputBox', 50).then(response => {
         suggestionsGlobal = response;
-
         showSuggestions(suggestionsGlobal, 'querySugg');
-        if (suggInputBoxBuffer.length > 0) {
+        if (suggestionsGlobal.length > 0) {
             suggInputBoxBuffer.forEach(element => {
                 makeDropDownReady(response, 'input-' + element, 'suggestion');
             });
 
         }else{
-            displayErrorMsg('querySugg','error','No Trending data',false);
+            displayErrorMsg('querySugg','error','No data',false);
         }
-
     });
 
 
@@ -269,6 +267,8 @@ jQuery(function () {
         let rangeType = getRangeType(fromDate, toDate);
 
         get_tweet_location(query, fromDate, toDate, rangeType, null).then(response => {
+            console.log("wwww");
+            console.log(response);
             getCompleteMap('result-div-map', response);
         });
 
@@ -951,6 +951,9 @@ const showSuggestions = (data, div) => {
         $('#' + div).append('<button type="button" class="btn btn-light m-1 suggHashtags" ><p class="hashtags m-0">' + element + '</p></button>');
     });
 }
+
+
+
 export const checkRecords = () => {
     let advCount = 0, normalCount = 0;
     Object.keys(searchRecords).forEach(function (key) {

@@ -175,7 +175,9 @@ body {
 .smat-list {
     list-style: none !important;
 }
-
+.smatMsg{
+    margin-top:30%;
+}
 .smat-select {
     padding: 6px;
     border: 0px;

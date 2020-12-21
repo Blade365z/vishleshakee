@@ -303,6 +303,7 @@ class networkAnalysisController extends Controller
         $unique_node_temp_arr = array();
         $final_node_arr = array();
         $edges_temp_arr = array();
+        $chartData = array();
 
         if ($request->input('engine') == "networkx") {
             $multiplier = 300;
@@ -318,14 +319,18 @@ class networkAnalysisController extends Controller
                     $user_name = $uid_info_arr->{"author_screen_name"};
                     $profile_image_link = $uid_info_arr->{"profile_image_url_https"};
                 }
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $user_name, "shape" => 'circularImage', "image" => $profile_image_link, "size" =>($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999"));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $user_name, "shape" => 'circularImage', "image" => $profile_image_link, "size" =>($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
                } else if (substr($one_list[0], 0, 1) == "#") {
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/hashtag.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999"));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/hashtag.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
             } else if (substr($one_list[0], 0, 1) == "@") {
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/roshanmention.jpg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999"));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/roshanmention.jpg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
             } else if (substr($one_list[0], 0, 1) == "*") {
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/keyword.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999"));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/keyword.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
             }
+
+            array_push($chartData,array("key"=>$one_list[0],"value"=>$one_list[1]));
+
+
         }
         // unique edges generation
         $network_arr = array_slice($network_arr, 1, sizeof($network_arr));
@@ -343,6 +348,7 @@ class networkAnalysisController extends Controller
         }
         $final_result["nodes"] = $final_node_arr;
         $final_result["edges"] = $edges_temp_arr;
+        $final_result["chartData"] = $chartData;
         return json_encode($final_result);
     }
 

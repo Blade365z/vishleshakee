@@ -6,11 +6,18 @@ ul {
    list-style-type: none;
  }
  
-.trackDateTitle , .trackCategoryTitle{
+.trackDateTitle {
    font-size:1.6em;
 }
+.trackCategoryTitle{
+   font-size:1.3em;
+
+}
+.trackWeekTitle{
+   font-size:1.3em;
+}
 .trackCount , .trackCategoryCount{
-   font-size:1em;
+   font-size:1.34em;
 }
 .trackDateCard{
    color:var(--color-text);
@@ -28,10 +35,16 @@ ul {
 .trackDateList{
    overflow-y: auto;
    overflow-x: hidden;
-   height:600px;
+   height:500px;
 
 
 }
+.seeTweet:hover{
+   cursor: pointer;
+   background-color: darkgray;
+
+}
+
 .trackCategoryBox{
    border-radius:24px;
 
@@ -53,8 +66,12 @@ ul {
    color:white ;
 }
 .activeCategory{
-   background-color: var(--color-green);
-   color:white ;
+   background-color: var(--color-active);
+   color:white !important;
+}
+
+.activeCategory .text-primary{
+   color:white !important;
 }
 .openTweetRaw:hover{
    opacity: 50% !important;
@@ -62,5 +79,9 @@ ul {
 }
 
 .trackChartDiv{
-   height:350px;
+   height:400px;
+}
+
+.noTrackFoundCard{
+   width:400px;
 }

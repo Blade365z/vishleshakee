@@ -117,3 +117,28 @@ export const  getDateInFormat = (javascript_date_obj, format = 'Y-m-d', utc = fa
     return tmpDate;
 }
 
+
+
+export const dateToWeek = (date) => {
+     date = new Date(date);
+    let adjustedDate = date.getDate()+date.getDay();
+    let prefixes = ['0', '1', '2', '3', '4', '5'];
+    return (parseInt(prefixes[0 | adjustedDate / 7])+1);
+}
+
+
+export const ordinal_suffix_of=(i)=> {
+    var j = i % 10,
+        k = i % 100;
+    if (j == 1 && k != 11) {
+        return i + "st";
+    }
+    if (j == 2 && k != 12) {
+        return i + "nd";
+    }
+    if (j == 3 && k != 13) {
+        return i + "rd";
+    }
+    return i + "th";
+}
+

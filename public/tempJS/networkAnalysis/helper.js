@@ -13,6 +13,78 @@ var network_global;
 var global_edges;
 var deletedNodes = [];
 
+export const chartBuilder = async(data)=> {
+
+    $(".analysis_info_div").empty();
+    $(".analysis_info_div").append(`<ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[0].key+`
+        <span class="badge badge-primary badge-pill">`+data[0].value+`</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[1].key+`
+        <span class="badge badge-primary badge-pill">`+data[1].value+`</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[2].key+`
+        <span class="badge badge-primary badge-pill">`+data[2].value+`</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[3].key+`
+        <span class="badge badge-primary badge-pill">`+data[3].value+`</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[4].key+`
+        <span class="badge badge-primary badge-pill">`+data[4].value+`</span>
+        </li>
+    </ul>`);
+        /**
+     * ---------------------------------------
+     * This demo was created using amCharts 4.
+     * 
+     * For more information visit
+     * https://www.amcharts.com/
+     * 
+     * Documentation is available at:
+     * https://www.amcharts.com/docs/v4/
+     * ---------------------------------------
+     */
+
+    // Themes begin
+    am4core.useTheme(am4themes_animated);
+    // Themes end
+
+    // Create chart instance
+    var chart = am4core.create("analysis_chart_div", am4charts.XYChart);
+
+    // Add data
+    chart.data = data;
+
+    // Create axes
+
+    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "key";
+    categoryAxis.renderer.grid.template.location = 0;
+    categoryAxis.renderer.minGridDistance = 30;
+
+    categoryAxis.renderer.labels.template.adapter.add("dy", function(dy, target) {
+    if (target.dataItem && target.dataItem.index & 2 == 2) {
+        return dy + 25;
+    }
+    return dy;
+    });
+    categoryAxis.renderer.labels.template.disabled = true;
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+    // Create series
+    var series = chart.series.push(new am4charts.ColumnSeries());
+    series.dataFields.valueY = "value";
+    series.dataFields.categoryX = "key";
+    series.name = "value";
+    series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+    series.columns.template.fillOpacity = .8;
+
+    var columnTemplate = series.columns.template;
+    columnTemplate.strokeWidth = 2;
+    columnTemplate.strokeOpacity = 1;
+}
+
 function getmystoragedir(){
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     let userID = userInfoTemp['id'];

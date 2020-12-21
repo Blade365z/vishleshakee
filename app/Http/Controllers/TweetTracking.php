@@ -47,6 +47,9 @@ class TweetTracking extends Controller
         $ut_obj = new Utilities;
         $final_result = array();
         $temp_arr = array();
+        $monthsArr = [ "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December" ];   
+
 
         $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $source_tweet_id, $distribution_type, 'tweet_track');
         $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
@@ -57,9 +60,11 @@ class TweetTracking extends Controller
                 $t = $row['datetime'];
                 $datetime1 = $ut_obj->get_date_time_from_cass_date_obj($t, "Y-m-d") . ' 00:00:00';
                 $total_count += 1;
+                $month=$monthsArr[explode("-",$datetime1)[1]-1];
+                $week=$this->weekOfMonth($datetime1);
             }
             if ($total_count > 0) {
-                array_push($temp_arr, array($datetime1, $total_count));
+                array_push($temp_arr,array($datetime1,$total_count,$month ,$week));
             }
 
         }
@@ -105,10 +110,11 @@ class TweetTracking extends Controller
                 $datetime1 = $ut_obj->get_date_time_from_cass_date_obj($t, "Y-m-d");
                 $total_count += 1;
                 $month=$monthsArr[explode("-",$datetime1)[1]-1];
+                $week=$this->weekOfMonth($datetime1);
                 }
             }
             if ($total_count > 0) {
-                array_push($temp_arr, array($datetime1,$total_count,$month ));
+                array_push($temp_arr, array($datetime1,$total_count,$month ,$week));
                 // $temp_arr[$type] = $datetime1;
             }
 
@@ -119,6 +125,15 @@ class TweetTracking extends Controller
 
         return json_encode($final_result);
     }
+    public function weekOfMonth($date) {
+        $firstOfMonth = date("Y-m-01", strtotime($date));
+        $res = intval(date("W", strtotime($date))) - intval(date("W", strtotime($firstOfMonth)));
+        if($res ==0){
+            $res=$res+1;
+        }
+         return $res;
+    }
+
     public function get_tweet_idlist_for_track_type_sourceid(Request $request)
     {
         $request->validate([
@@ -155,3 +170,5 @@ class TweetTracking extends Controller
         return $final_result;
     }
 }
+
+

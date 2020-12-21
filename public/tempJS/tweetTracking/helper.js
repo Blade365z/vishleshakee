@@ -73,3 +73,13 @@ export const getTweetsForSource = async (id, to, from = null, type) => {
     return data.data;
 }
 
+
+export const getTweetsPlotDataForMap = async (arr) => {
+    let response = await fetch('LM/tweet_info_for_tracking', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: JSON.stringify({arr})
+    });
+    let data = await response.json()
+    return data;
+}

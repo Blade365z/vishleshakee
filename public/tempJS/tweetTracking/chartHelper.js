@@ -7,17 +7,18 @@ PLEASE NOT THERE ARE TYPES::
 2.quotedtweet
 */
 
-import {getTweetsForSource} from './helper.js';
+import { getTweetsForSource } from './helper.js';
 import { getDateInFormat } from '../utilitiesJS/smatDate.js';
-import {TweetsGenerator} from '../utilitiesJS/TweetGenerator.js'
-
-export const drawFreqDataForTweet = (data, div, id, type,isGroupedByMonthFlag) => {
+import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js'
+import { ordinal_suffix_of } from '../utilitiesJS/smatDate.js';
+export const drawFreqDataForTweet = (data, div, id, type, groupByType, offset) => {
     // Create chart instance
+
     am4core.useTheme(am4themes_animated);
-    var chart = am4core.create(div, am4charts.XYChart);
+    var chart = am4core.create(div + '-' + offset, am4charts.XYChart);
     // Add data
     var dataTemp = [];
-    if(isGroupedByMonthFlag){
+    if (groupByType == 'month') {
         for (const [key, freq] of Object.entries(data)) {
             console.log(freq);
             dataTemp.push({
@@ -25,7 +26,7 @@ export const drawFreqDataForTweet = (data, div, id, type,isGroupedByMonthFlag) =
                 count: freq[1]
             });
         }
-    }else{
+    } else {
         for (const [key, freq] of Object.entries(data['data'])) {
             dataTemp.push({
                 date: new Date(freq[0]),
@@ -33,7 +34,7 @@ export const drawFreqDataForTweet = (data, div, id, type,isGroupedByMonthFlag) =
             });
         }
     }
-    
+
     chart.data = dataTemp;
     // Create axes
     var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
@@ -77,73 +78,87 @@ export const drawFreqDataForTweet = (data, div, id, type,isGroupedByMonthFlag) =
     // //Handling Click Events 
     series.columns.template.events.on("hit", function (ev) {
         let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
-        var date = getDateInFormat(datetime_obj['date'], 'Y-m-d'); 
-        getTweetsForSource(id,date,null,type).then(response => {
+        var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
+        getTweetsForSource(id, date, null, type).then(response => {
             $('#tweetsModal').modal('show');
-            TweetsGenerator(response.data,6,'tweets-modal-div',null,null,true,null);
+            TweetsGenerator(response.data, 6, 'tweets-modal-div', null, null, true, null);
         })
     });
 }
 
 
-export const drawFreqDataForTweetMonth = (data, div, id, type,isGroupedByMonthFlag) => {
+export const drawFreqDataForTweetMonth = (data, div, id, type, groupByType, offset) => {
 
-// Themes begin
-am4core.useTheme(am4themes_animated);
-// Themes end
+    // Themes begin
+    am4core.useTheme(am4themes_animated);
+    // Themes end
 
-// Create chart instance
-var chart = am4core.create(div, am4charts.XYChart);
-chart.scrollbarX = new am4core.Scrollbar();
+    // Create chart instance
+    var chart = am4core.create(div + '-' + offset, am4charts.XYChart);
+    chart.scrollbarX = new am4core.Scrollbar();
 
-// Add data
-var  dataTemp=[];
-for (const [key, freq] of Object.entries(data)) {
-    console.log(freq);
-    dataTemp.push({
-        country: key,
-        visits: freq
-    });
-}
-chart.data = dataTemp;
-// Create axes
-var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-categoryAxis.dataFields.category = "country";
-categoryAxis.renderer.grid.template.location = 0;
-categoryAxis.renderer.minGridDistance = 30;
-categoryAxis.renderer.labels.template.horizontalCenter = "right";
-categoryAxis.renderer.labels.template.verticalCenter = "middle";
-categoryAxis.renderer.labels.template.rotation = 270;
-categoryAxis.tooltip.disabled = true;
-categoryAxis.renderer.minHeight = 110;
+    // Add data
+    var dataTemp = [];
+    if (groupByType == 'month') {
+        for (const [key, freq] of Object.entries(data)) {
+            dataTemp.push({
+                country: key,
+                visits: freq
+            });
+        }
+    } else {
+        for (const [yearIndex, month] of Object.entries(data)) {
+            for (const [monthIndex, weeks] of Object.entries(month)) {
+                for (const [key, value] of Object.entries(weeks)) {
+            
+                    dataTemp.push({
+                        country: monthIndex.slice(0,3)+', '+ordinal_suffix_of(key)+' week',
+                        visits: value[1]
+                    });            
+                }
+            }
+        }
+      
+    }
+    chart.data = dataTemp;
+    // Create axes
+    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "country";
+    categoryAxis.renderer.grid.template.location = 0;
+    categoryAxis.renderer.minGridDistance = 30;
+    categoryAxis.renderer.labels.template.horizontalCenter = "right";
+    categoryAxis.renderer.labels.template.verticalCenter = "middle";
+    categoryAxis.renderer.labels.template.rotation = 270;
+    categoryAxis.tooltip.disabled = true;
+    categoryAxis.renderer.minHeight = 110;
 
-var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-valueAxis.renderer.minWidth = 30;
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.renderer.minWidth = 30;
 
-// Create series
-var series = chart.series.push(new am4charts.ColumnSeries());
-series.sequencedInterpolation = true;
-series.dataFields.valueY = "visits";
-series.dataFields.categoryX = "country";
-series.tooltipText = "[{categoryX}: bold]{valueY}[/]";
-series.columns.template.strokeWidth = 0;
-series.columns.template.fill = am4core.color("#4280B7");
+    // Create series
+    var series = chart.series.push(new am4charts.ColumnSeries());
+    series.sequencedInterpolation = true;
+    series.dataFields.valueY = "visits";
+    series.dataFields.categoryX = "country";
+    series.tooltipText = "[{categoryX}: bold]{valueY}[/]";
+    series.columns.template.strokeWidth = 0;
+    series.columns.template.fill = am4core.color("#4280B7");
 
-series.tooltip.pointerOrientation = "vertical";
+    series.tooltip.pointerOrientation = "vertical";
 
-series.columns.template.column.cornerRadiusTopLeft = 10;
-series.columns.template.column.cornerRadiusTopRight = 10;
-series.columns.template.column.fillOpacity = 1.0;
+    series.columns.template.column.cornerRadiusTopLeft = 10;
+    series.columns.template.column.cornerRadiusTopRight = 10;
+    series.columns.template.column.fillOpacity = 1.0;
 
-// on hover, make corner radiuses bigger
-var hoverState = series.columns.template.column.states.create("hover");
-hoverState.properties.cornerRadiusTopLeft = 0;
-hoverState.properties.cornerRadiusTopRight = 0;
-hoverState.properties.fillOpacity = 1;
-chart.scrollbarX.background.fill = am4core.color("#4280B7");
+    // on hover, make corner radiuses bigger
+    var hoverState = series.columns.template.column.states.create("hover");
+    hoverState.properties.cornerRadiusTopLeft = 0;
+    hoverState.properties.cornerRadiusTopRight = 0;
+    hoverState.properties.fillOpacity = 1;
+    chart.scrollbarX.background.fill = am4core.color("#4280B7");
 
 
-// Cursor
-chart.cursor = new am4charts.XYCursor();
+    // Cursor
+    chart.cursor = new am4charts.XYCursor();
 
 }
