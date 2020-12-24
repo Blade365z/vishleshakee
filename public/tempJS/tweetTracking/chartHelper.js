@@ -69,6 +69,7 @@ export const drawFreqDataForTweet = (data, div, id, type, groupByType, offset) =
     series.columns.template.width = am4core.percent(50);
     series.columns.template.column.cornerRadiusTopLeft = 10;
     series.columns.template.column.cornerRadiusTopRight = 10;
+    series.columns.template.width = am4core.percent(15);
     // Create scrollbars
     chart.cursor = new am4charts.XYCursor();
     chart.scrollbarX = new am4core.Scrollbar();
@@ -149,7 +150,7 @@ export const drawFreqDataForTweetMonth = (data, div, id, type, groupByType, offs
     series.columns.template.column.cornerRadiusTopLeft = 10;
     series.columns.template.column.cornerRadiusTopRight = 10;
     series.columns.template.column.fillOpacity = 1.0;
-
+    series.columns.template.width = am4core.percent(15);
     // on hover, make corner radiuses bigger
     var hoverState = series.columns.template.column.states.create("hover");
     hoverState.properties.cornerRadiusTopLeft = 0;

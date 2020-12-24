@@ -44,8 +44,7 @@ var allocatedIDRecords = [];
 //Logic
 jQuery(function () {
 
-
-
+    $('#mainQuery').fadeIn('slow')
 
     makeSmatReady();
     $('body').on('click', 'div .username', function () {
@@ -256,53 +255,56 @@ jQuery(function () {
 const tracker = async (searhIDTemp) => {
     // This code this written to bring down the time complexity from a quadratic time complexity to linear.
     let foundSourceFlag = 0;
-    let maximumDependenceLevel = 3 //i.e : 0 to 2 --> 3 steps
+    let maximumDependenceLevel = 15 //i.e : 0 to 2 --> 3 steps
     let type = '', tid;
-    let counter = 0;
-    for (let i = 0; i <= maximumDependenceLevel; i++) {
+   
+   let i=0;
+    while(foundSourceFlag==0){
         await getTweetInfo(searhIDTemp).then(response => {
             tid = response.tid;
+            if(response.message){
+                foundSourceFlag=1;
+               displayErrorMsg('trackAnalysisMain','error','No Tracking Data Found',false);
+               $('#trackAnalysisMain').fadeIn("slow")
+            }
             if (response.type === 'Tweet') {
                 foundSourceFlag = 1;
                 type = 'Tweet';
                 sourceTweet = tid;
-                historyJSON[tid] = { 'id': tid, 'type': type, 'source': null, 'priority': counter };
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': null, 'priority': i };
             }
             else if (response.type === 'retweet') {
                 type = 'retweet';
-                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.retweet_source_id, 'priority': counter };
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.retweet_source_id, 'priority': i };
                 searhIDTemp = response.retweet_source_id;
             } else if (response.type === "QuotedTweet") {
                 type = 'QuotedTweet';
-                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.quoted_source_id, 'priority': counter };
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.quoted_source_id, 'priority': i };
                 searhIDTemp = response.quoted_source_id;
             } else if (response.type === "Reply") {
                 type = 'Reply';
-                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.replyto_source_id, 'priority': counter };
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.replyto_source_id, 'priority': i };
                 searhIDTemp = response.replyto_source_id;
             }
 
         });
-        if (foundSourceFlag == 1) {
-            break;
-        }
-    counter+=1;
+    
+        i+=1;
     }
     analysisHistory.push(historyJSON);
 
-    getTweetInfo(historyJSON[sourceTweet]['id']).then(tweetRawData => {
+     getTweetInfo(historyJSON[sourceTweet]['id']).then(tweetRawData => {
         if (tweetRawData) {
             let dateArr = tweetRawData.datetime.split(' ');
             fromDate = dateArr[0];
             toDate = getCurrentDate();
             getDatesDist(sourceTweet, fromDate, toDate, 'all').then(response => {
-                // console.log(response);
+                
                 createTweetAnalysis(sourceTweet, fromDate, toDate, 'trackAnalysisMain', tweetRawData.author_profile_image, tweetRawData.author, response.data, null, 'day', response.data);
 
             })
         }
     });
-
 }
 const printTweetOnDiv = (data, offset, type) => {
     adjustLines();
@@ -479,6 +481,13 @@ const drawBoxesForCategories = async (offset, tweetID, date, groupByType, month 
 
 
 const createTweetAnalysis = (tweetID, from, to, div, profilePic, author, datesData, allotedIDargs = null, groupByType = null, originalDateData = null) => {
+    $('#trackAnalysisMain').css('display','none')
+    let checkFlag=0;
+        if(originalDateData.length==1 && originalDateData[0][1]==1){
+            checkFlag=1;
+            console.log('error');
+        }
+        
     let allotedID;
     if (allotedIDargs != null) {
         allotedID = allotedIDargs;
@@ -493,12 +502,12 @@ const createTweetAnalysis = (tweetID, from, to, div, profilePic, author, datesDa
     let rangeType = groupByType;
 
     let chartDom = '<div class="mt-2"><div class="mb-1">Frequency Distribution of <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet</span></div><ul class="nav nav-pills mb-2"  role="tablist"><li class="nav-item"><a class="nav-link active smat-rounded " id="retweetTab-' + allotedID + '" data-toggle="pill" href="#retweetTabContent-' + allotedID + '" role="tab" aria-controls="retweetTabContent-' + allotedID + '" aria-selected="true">Retweet Frequency</a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="quotedTab-' + allotedID + '" data-toggle="pill" href="#quotedTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Quoted Frequency </a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="replyTab-' + allotedID + '" data-toggle="pill" href="#replyTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Reply Frequency </a></li></ul></div><div class="tab-content" id="pills-tabContent"><div class="tab-pane fade show active  trackChartDiv" id="retweetTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="retweetTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="quotedTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="quotedTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="replyTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="replyTabContent-' + allotedID + '"></div> </div>';
-
+    $('#trackAnalysisMain').fadeIn("slow")
     $('#' + div).html('');
     $('#' + div).html('<div class="my-3 pb-4  shadow"><div class="row "><div class="col-sm-8"><div class="row justify-content-center pt-4  px-3 pl-1" id="xyz"> </div></div><div class="col-sm-4">  <div class="mt-4 pr-4" id="dateInputTrack-' + allotedID + '" ></div>  </div></div><div id="connect" style="height:2px;"></div><div id="notFound-' + allotedID + '"></div><div id="analysisDOM-' + allotedID + '"></div>');
     drawDateBox(allotedID, tweetID, from, to, groupByType);
     printTweetHierarchy(analysisHistory[allotedID], 'xyz', allotedID).then(response => {
-        if (datesData.length < 1) {
+        if (datesData.length < 1 || checkFlag==1) {
             displayNoTrackFoundForTracking(tweetID, allotedID, from, to)
         } else {
             $('#analysisDOM-' + allotedID).html('<div class="row justify-content-center"><div class="col-sm-3"> <div id="referenceLine-' + allotedID + '" style="display:none;"></div> <div class="trackDateList px-4" id="trackDates-' + allotedID + '"> </div>  </div> <div class="col-sm-3"> <div id="secondCol-' + allotedID + '"> <div id="datesOptional-' + allotedID + '" >  </div> <div  id="trackCategoryInfo-' + allotedID + '"  > </div> </div></div><div class="col-sm-6 pr-5"> <div class=" text-dark text-center">Showing <b class="font-weight-bold" id="currentlyShowingTweetType-' + allotedID + '"></b> for the tweet posted by <b>' + author + '</b> </div><div class="tweetRawTrackDiv bg-white shadow p-3 "  id="trackRawData-' + allotedID + '" style="border-radius:24px;"></div>   </div> </div> <div class="row chartBoxDiv justify-content-center mt-2"> <div class="col-sm-6 "><div>' + chartDom + '</div></div><div class="col-sm-5 "><div class="mb-1">Locations of users(if shared) reposting <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet</span></div><div class="h-100" id="trackMap-'+allotedID+'"></div> </div>    </div> </div>');
@@ -506,11 +515,15 @@ const createTweetAnalysis = (tweetID, from, to, div, profilePic, author, datesDa
             drawHierarchyLine(tweetID, allotedID);
             if (groupByType == 'month') {
                 // alert(month);
-                console.log(datesData);
-                dateCardTriggered(tweetID, from, 0, groupByType, Object.keys(datesData[Object.keys(datesData)[0]])[0])
+                let firstYear = Object.keys(datesData)[0];
+                let firstMonth =  Object.keys(datesData[Object.keys(datesData)[0]])[0]
+                dateCardTriggered(tweetID, datesData[firstYear][firstMonth][0], 0, groupByType, Object.keys(datesData[Object.keys(datesData)[0]])[0])
 
             } else if (groupByType == 'week') {
-                dateCardTriggered(tweetID, from, 0, groupByType, Object.keys(datesData[Object.keys(datesData)[0]])[0], Object.keys(datesData[Object.keys(datesData)[0]][Object.keys(datesData[Object.keys(datesData)[0]])[0]])[0]);
+                let firstYear = Object.keys(datesData)[0];
+                let firstMonth =  Object.keys(datesData[Object.keys(datesData)[0]])[0]
+                let firstWeek = Object.keys(datesData[Object.keys(datesData)[0]][Object.keys(datesData[Object.keys(datesData)[0]])[0]])[0];
+                dateCardTriggered(tweetID, datesData[firstYear][firstMonth][firstWeek][0], 0, groupByType, firstMonth, firstWeek);
 
 
             } else if (groupByType == 'day') {
@@ -644,7 +657,6 @@ const makeFreqDistChart = (tweetID, from, to, groupByType = null, offset) => {
     }
 }
 const printTweetHierarchy = async (json, div, offset) => {
-    console.log('lol',json);
     // $('#' + div).html('<div class="d-flex justify-content-center hierarchyDiv" id="heirarychyMain-' + offset + '"><div class="" id="heirarychyChild-' + offset + '-2"  ></div><div class="" id="heirarychyChild-' + offset + '-3"  ></div><div class="" id="heirarychyChild-' + offset + '-4"  ></div></div>')
 
     let separator1 = '<div class="pt-4 separator" id="separator1-' + offset + '">----------</div>';
@@ -668,11 +680,10 @@ const printTweetHierarchy = async (json, div, offset) => {
         DOM+='<div class="" id="heirarychyChild-' + offset + '-'+i+'"></div>';
     }
     DOM+='</div>'
-    console.log(DOM);
     $('#' + div).html(DOM);
     for (let key in json) {
         await getTweetInfo(key).then(response => {
-            // sourceTag = json[key]['priority'] < 2 ? '<div class="text-center" style="margin-top:-17px;" ><span class="badge badge-danger " > Source Tweet</span></div>' : '';
+            sourceTag = json[key]['priority'] == highestPriority  ? '<div class="text-center" style="margin-top:-17px;" ><span class="badge badge-danger " > Source Tweet</span></div>' : '';
             relationship = '<div class="pt-4"   ><button class="btn btn-sm btn-primary p-1 relationshipNode" data-container="body" data-trigger="focus" data-html="true" data-toggle="popover" data-placement="top" data-content="The tweet posted by <b>' + response.author + '</b> is a ' + tweetTypeDictShort[json[key]['type']] + '  of  <b>' + sourceAuthor + '</b>"  style="display:none;">' + tweetTypeDictShort[json[key]['type']]  + '</button></div>';
             mainNode = '<div class="trackHierarchyNode" id="node-' + key + '-' + offset + '">' + sourceTag + '<div class="profilePictureDiv trackProfilePic p-1 text-center " value="' + key + '"><img class="openTweetRaw" src="' + response.author_profile_image + '" style="height:55px;border-radius:50%"  value="' + key + '"/> </div><div class=" text-truncate">' + response.author + '</div> <div class="badge badge-primary p-1 seeTweet" value=' + key + '>See Tweet</div></div>';
             if (json[key]['priority'] < highestPriority) {
@@ -743,7 +754,6 @@ const getRawTweets = async (tweetID, date, type) => {
         var responseArray = await Promise.all(dateArr.map(function (x) {
             return getTweetsForSource(tweetID, x, null, type);
         }));
-        console.log(responseArray);
         if (responseArray.flat().length < 1) {
             displayErrorMsg('trackRawData-' + offset, 'error', 'No Tweets Found', false);
         } else {
@@ -820,7 +830,7 @@ const processDataForWeek = async (rawData) => {
         } else {
             objTemp[year] = { [element[2]]: { [element[3]]: [element[0], element[1]] } }
         }
-        console.log(objTemp);
+     
     });
     return objTemp;
 }
@@ -864,3 +874,6 @@ getTweetsPlotDataForMap(idArray).then(response=>{
     getCompleteMap("result-div-map", response);
 });
 }
+
+//--------------------------------------
+

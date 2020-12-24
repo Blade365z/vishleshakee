@@ -68,11 +68,11 @@
 
             <div class="form-group  dateinputForm my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white">
                 <i class="far fa-calendar-alt mx-2 text-normal " style="margin-top:11px;"></i>
-                <input type="text" value="2020-12-01" class="form-control datepicker-here " name="fromDate" id="fromDateNA" placeholder="From Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
+                <input type="text" value="2020-12-22" class="form-control datepicker-here " name="fromDate" id="fromDateNA" placeholder="From Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
             </div>
             <div class="form-group dateinputForm my-0  mr-2 border smat-rounded d-flex px-2 py-1  bg-white">
                 <i class="far fa-calendar-alt mx-2 text-normal" style="margin-top:11px;"></i>
-                <input type="text" value="2020-12-10" class="form-control datepicker-here " name="toDate" id="toDateNA" placeholder="To Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
+                <input type="text" value="2020-12-23" class="form-control datepicker-here " name="toDate" id="toDateNA" placeholder="To Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
             </div>
             <div class="form-group  my-0  mr-2 border dateinputForm  smat-rounded d-flex px-2 py-1  bg-white">
                 <input type="number" class="form-control" name=" nodes" value="50" id="nodesNA" placeholder="Number of Nodes" style="border:0px;" autocomplete="OFF" required>
@@ -195,7 +195,7 @@
     
     
     <div class="row" id="net-analysis-summary" style="display: none">
-        <div class="col-sm-8" id="card-division" style="display: none">
+        <div class="col-sm-12" id="card-division" style="display: none">
             <div class="card shadow">
                 <div class="card-body">
                     <div class="">
@@ -227,7 +227,7 @@
                                     </li>
                                     <li class=" ">
                                       
-                                        <button class="btn btn-primary mx-2 smat-rounded    " id="show_summary_button">Hide summary </button>
+                                        <button class="btn btn-primary mx-2 smat-rounded    " id="show_summary_button">Show Summary </button>
                                   
                                     </li>
                                 </ul>
@@ -409,41 +409,37 @@
                     </div>
 
                     <div class=" ml-auto d-flex">
-                            <Button class="btn smat-btn smat-rounded mx-2" id="usenetwork"><span>Use Network</span></Button> <br/> <br/>
+                            <Button class="btn btn-primary smat-rounded mx-2" id="usenetwork"><span>Use Network</span></Button> <br/> <br/>
                             {{-- <Button class="btn smat-btn smat-rounded mx-2"><span>Expand Network</span></Button> <br/> <br/> --}}
-                            <Button class="btn smat-btn smat-rounded mx-2" id="export"><span>Export Network</span></Button> <br/> <br/>
+                            <Button class="btn btn-primary smat-rounded mx-2" id="export"><span>Export Network</span></Button> <br/> <br/>
                         </div>
                 </div>
             </div>
         </div>
-        <div class="col-sm-4 card shadow" id="card_summary" >
-            <div class="card">
-                <div class="card-body">
-                    <div>
-                        <h4 class="m-0  font-weight-bold text-dark subject">  </h4>
-                        {{-- <p class="m-0 text-dark "> From: <span class="font-weight-bold from_date"> </span> &nbsp To: <span class="font-weight-bold to_date"> </span> </p> --}}
+        <div class="col-sm-4 card shadow" id="card_summary"  style="display:none;">
+        <div class="mt-2">
+                        <h4 class="m-0 text-center  font-weight-bold text-dark subject">  </h4>
                         <p class="m-0  text-dark"> </p>
 
 
                     </div>
-                    <div class="bg-smat mt-1">
-                        <h1 class="m-0 text-dark nos_of_nodes"> -</h1>
-                        <p class="smat-normal-text" style="margin-top:-10px;margin-bottom:0px;"> Total number of Nodes </p>
-                        <h1 class="m-0 text-dark nos_of_edges"> -</h1>
-                        <p class="smat-normal-text" style="margin-top:-10px;margin-bottom:0px;"> Total number of Edges </p>
+        <div class="d-flex mt-3">
+            <div class=""> 
+                   <p class="m-0"> Number of Nodes: </p>
+                   <span class="m-0 pull-text-top  text-dark nos_of_nodes" style="font-size: xx-large;"></span>
 
-                    </div>
-                </div>
             </div>
-            <div class="card mt-4">
-                <h4 class="mt-2  text-center font-weight-bold text-dark">Summary Information</h4>
-                <div class="card-body" id="chartDiv" style="overflow-x:auto;overflow-y:auto;"> 
-                <div class="analysis_chart_div shadow">
-                            
-                </div>
-                </div>
-                <h4 class="mt-2  text-center font-weight-bold text-dark">Top 5 nodes</h4>
-                <div class="card-body" id="infoDiv" style="overflow-x:auto;overflow-y:auto;">
+            <div class="ml-auto"> 
+                   <p class=" m-0"> Number of Edges: </p>
+                   <span class="m-0 pull-text-top  text-dark nos_of_edges" style="font-size: xx-large;"></span>
+            </div>
+        </div> 
+        <div id="analysis_summary_charts" style="height:550px">
+            <!-- <div class="shadow analysis_chart_div" id="chartDiv" style="overflow-x:auto;overflow-y:auto;">
+
+            </div>
+            <div class="card mt-0" style=" margin-top:10px !important">
+                <div class="card-body" id="infoDiv" style="overflow-x:auto;overflow-y: scroll;height: 310px;">
                 <div class="analysis_info_div shadow">
                             
                 </div>
@@ -453,7 +449,8 @@
                             
                 </div>
                 </div>
-            </div>
+            </div> -->
+        </div>
         </div>
         
     </div>

@@ -162,8 +162,8 @@ Route::group(['prefix' => 'HA'], function () {
 Route::group(['prefix' => 'na'], function () {
     Route::get('generateNetwork', 'networkAnalysisController@generateNetwork');
     Route::post('graph_view_data_formator', 'networkAnalysisController@graph_view_data_formator_for_rendering_in_visjs');
-    Route::get('readcsv', 'networkAnalysisController@read_csv_file');
-    Route::get('readcsv', 'networkAnalysisController@read_csv_file');
+    Route::post('readcsv', 'networkAnalysisController@read_csv_file');
+    //Route::get('readcsv', 'networkAnalysisController@read_csv_file');
     Route::post('centrality_data_formator', 'networkAnalysisController@centrality_data_formator_for_rendering_in_visjs');
     Route::get('mysessionid', 'networkAnalysisController@mysessionid');
     // Route::get('centrality', 'networkAnalysisController@centrality');

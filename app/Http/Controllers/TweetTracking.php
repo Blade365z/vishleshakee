@@ -63,6 +63,7 @@ class TweetTracking extends Controller
                 $month=$monthsArr[explode("-",$datetime1)[1]-1];
                 $week=$this->weekOfMonth($datetime1);
             }
+
             if ($total_count > 0) {
                 array_push($temp_arr,array($datetime1,$total_count,$month ,$week));
             }

@@ -29,7 +29,7 @@ def create_connection():
 	# set up connection to cluster to ..............................................................3
 	username='subroottest'
 	password='subroottest'
-	ip_list=['172.16.117.201']
+	ip_list=['172.16.117.201', '172.16.117.204', '172.16.117.152']
 	port=9042
 	# #
 	auth_provider = PlainTextAuthProvider(username, password)
@@ -191,5 +191,5 @@ def main():
 
 
 if __name__ == '__main__':
-	logger = log("create")
+	# logger = log("create")
 	main()

@@ -306,12 +306,18 @@ class networkAnalysisController extends Controller
         $chartData = array();
 
         if ($request->input('engine') == "networkx") {
-            $multiplier = 300;
+            $multiplier = 120;
         } else {
             $multiplier = 0.15;
         }
         // unique edges generation
         $commonController_obj = new CommonController;
+
+        $sum = 0;
+        foreach($network_centrality_arr as $one_list){
+            $sum = $sum + exp($one_list[1]);
+        }
+
         foreach ($network_centrality_arr as $one_list) {
             if (substr($one_list[0], 0, 1) == "$") {
                 $uid_info_arr = json_decode($commonController_obj->get_user_info($one_list[0], false)); //converted string StdClass() object to StdClass() object;
@@ -319,16 +325,16 @@ class networkAnalysisController extends Controller
                     $user_name = $uid_info_arr->{"author_screen_name"};
                     $profile_image_link = $uid_info_arr->{"profile_image_url_https"};
                 }
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $user_name, "shape" => 'circularImage', "image" => $profile_image_link, "size" =>($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $user_name, "shape" => 'circularImage', "image" => $profile_image_link, "size" =>(exp($one_list[1])/$sum), "borderwidth" => 7, "border" => "#EA9999","raw"=>(exp($one_list[1])/$sum)));
                } else if (substr($one_list[0], 0, 1) == "#") {
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/hashtag.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/hashtag.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>(exp($one_list[1])/$sum)));
             } else if (substr($one_list[0], 0, 1) == "@") {
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/roshanmention.jpg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/roshanmention.jpg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>(exp($one_list[1])/$sum)));
             } else if (substr($one_list[0], 0, 1) == "*") {
-                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/keyword.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>$one_list[1]));
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/keyword.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>(exp($one_list[1])/$sum)));
             }
 
-            array_push($chartData,array("key"=>$one_list[0],"value"=>$one_list[1]));
+            array_push($chartData,array("key"=>$one_list[0],"value"=>(exp($one_list[1])/$sum)));
 
 
         }
@@ -552,6 +558,10 @@ class networkAnalysisController extends Controller
     {
         $network_arr = json_decode($this->read_csv_file($request));
         $network_community_arr = json_decode($this->read_json_file($request));
+
+        // var_dump($network_community_arr);
+
+        // echo(sizeof($network_community_arr));
         $final_result = array("nodes" => array(), "edges" => array());
         $unique_node_temp_arr = array();
         $final_node_arr = array();
@@ -564,11 +574,16 @@ class networkAnalysisController extends Controller
         $grp_no = 0;
         //unique node generation
         $commonController_obj = new CommonController;
+        $total_nos_community = 0;
         foreach ($network_community_arr as $one_community) {
-
+            $total_nos_community+=1;
+            $tempArr = array();
             $community_index = $community_index + 1;
             $community_members[$community_index] = array();
+            $processed_communities[$community_index] = array();
+            $interCommunityEdges[$community_index] = 0;
 
+            
             foreach ($one_community as $one_hash) {
                 if (!(array_key_exists($one_hash, $unique_node_temp_arr))) {
                     $unique_node_temp_arr[$one_hash] = 1;
@@ -580,8 +595,10 @@ class networkAnalysisController extends Controller
                             $profile_image_link = $uid_info_arr->{"profile_image_url_https"};
                         }
                         array_push($final_node_arr, array("id" => $one_hash, "label" => $user_name, "group" => $grp_no));
+                        array_push($processed_communities[$grp_no],$one_hash);
                     } else {
                         array_push($final_node_arr, array("id" => $one_hash, "label" => $one_hash, "group" => $grp_no));
+                        array_push($processed_communities[$grp_no],$one_hash);
                     }
                     array_push($community_members[$grp_no], $one_hash);
                 }
@@ -599,13 +616,19 @@ class networkAnalysisController extends Controller
                     break;
                 }
             }
-            if ($flag == true) {
+            if ($flag == true) {                
+                for($edgeCounter=0; $edgeCounter < $total_nos_community ; $edgeCounter++){
+                    if(in_array($hash_list[0],$processed_communities[$edgeCounter]) && in_array($hash_list[1],$processed_communities[$edgeCounter])){
+                        $interCommunityEdges[$edgeCounter] = $interCommunityEdges[$edgeCounter] + 1;
+                    }
+                }
                 array_push($edges_temp_arr, array("from" => $hash_list[0], "to" => $hash_list[1], "label" => $hash_list[2]));
             }
         }
         $final_result["nodes"] = $final_node_arr;
         $final_result["edges"] = $edges_temp_arr;
         $final_result["groups"] = $community_members;
+        $final_result["interCommunityEdges"] = $interCommunityEdges;
         return json_encode($final_result);
     }
 

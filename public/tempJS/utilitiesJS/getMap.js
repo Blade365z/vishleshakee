@@ -116,48 +116,7 @@ export const getCompleteMap = (id,op) => {
         }
     }
 
-    // var tweet_details;
-    // if(type = 'public'){
-    //     $.ajax({
-    //         type: "GET",
-    //         url: 'LM/mapTweet',
-    //         data:{interval,query},
-    //         async: false,
-    //         success: function (response) {
-    //                 tweet_details = response;
-                    
-    //         }
-    //     });
-    // }
-    // else if(type = 'user'){
-    //     $.ajax({
-    //         type: "GET",
-    //         url: 'LM/mapTweetUser',
-    //         data:{interval,query},
-    //         async: false,
-    //         success: function (response) {
-    //                 tweet_details = response;
-                    
-    //         }
-    //     });
-    // }
 
-    // else if(type = 'historical'){
-    //     $.ajax({
-    //         type: "GET",
-    //         url: 'LM/mapTweetHistorical',
-    //         data:{interval,query,fromDT,toDT},
-    //         async: false,
-    //         success: function (response) {
-    //                 tweet_details = response;
-                    
-    //         }
-    //     });
-    // }
-
-    // console.log(JSON.parse(tweet_details));
-    // var op = JSON.parse(tweet_details);
-    // console.log(op.length);
     var location_tweet_count = 0;
     for (var i = 0; i < op.length; i++) {
         if (op[i].Latitude != null) {
@@ -253,8 +212,7 @@ export const getCompleteMap = (id,op) => {
             group1.addTo(History_Map);
         }
     }
-    console.log(location_tweet_count);
-
+    
     var legend = L.control({position: 'bottomright'});
 
     legend.onAdd = function (History_Map) {

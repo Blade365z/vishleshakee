@@ -14,26 +14,27 @@ var global_edges;
 var deletedNodes = [];
 
 export const chartBuilder = async(data)=> {
+    var node_list = "";
+    for(let i=0; i<data.length;i++){
+        let round = data[i].value;
+        node_list = node_list+`<li class="list-group-item d-flex justify-content-between align-items-center text-truncate" style="font-size: large;"> <span class="font-weight-bold"> Rank: `+(i+1)+` </span><a href="#target" class="click_events">`+data[i].key+`</a>
+        <span class="badge badge-primary badge-pill">`+round+`</span>
+        </li>`;
+    }
+    $('#analysis_summary_charts').empty();
+    $("#analysis_summary_charts").append(`<div class="shadow analysis_chart_div" id="chartDiv" style="overflow-x:auto;overflow-y:auto;">
 
+            </div>
+            <div class="card mt-0" style=" margin-top:10px !important">
+                <div class="card-body" id="infoDiv" style="overflow-x:auto;overflow-y: scroll;height: 310px;">
+                <div class="analysis_info_div shadow">
+                            
+                </div>
+                </div>
+            </div>`);
     $(".analysis_info_div").empty();
-    $(".analysis_info_div").append(`<ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[0].key+`
-        <span class="badge badge-primary badge-pill">`+data[0].value+`</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[1].key+`
-        <span class="badge badge-primary badge-pill">`+data[1].value+`</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[2].key+`
-        <span class="badge badge-primary badge-pill">`+data[2].value+`</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[3].key+`
-        <span class="badge badge-primary badge-pill">`+data[3].value+`</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">`+data[4].key+`
-        <span class="badge badge-primary badge-pill">`+data[4].value+`</span>
-        </li>
-    </ul>`);
-        /**
+    $(".analysis_info_div").append(`<ul class="list-group">`+node_list+`</ul>`);
+    /**
      * ---------------------------------------
      * This demo was created using amCharts 4.
      * 
@@ -53,6 +54,7 @@ export const chartBuilder = async(data)=> {
     var chart = am4core.create("analysis_chart_div", am4charts.XYChart);
 
     // Add data
+    console.log(data);
     chart.data = data;
 
     // Create axes
@@ -79,7 +81,74 @@ export const chartBuilder = async(data)=> {
     series.name = "value";
     series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
     series.columns.template.fillOpacity = .8;
+    series.columns.template.events.on("over", function (ev) {
+       console.log(ev.target.tooltipDataItem.categories.categoryX);
+       node_highlighting(ev.target.tooltipDataItem.categories.categoryX);
+    });
+ 
+    var columnTemplate = series.columns.template;
+    columnTemplate.strokeWidth = 2;
+    columnTemplate.strokeOpacity = 1;
+}
 
+function barChartBuilder(div_name,chart_data,title_text){
+        /**
+     * ---------------------------------------
+     * This demo was created using amCharts 4.
+     * 
+     * For more information visit
+     * https://www.amcharts.com/
+     * 
+     * Documentation is available at:
+     * https://www.amcharts.com/docs/v4/
+     * ---------------------------------------
+     */
+
+    // Themes begin
+
+
+    am4core.useTheme(am4themes_animated);
+    // Themes end
+
+    // Create chart instance
+    var chart = am4core.create(div_name, am4charts.XYChart);
+
+    // Add data
+    chart.data = chart_data;
+    let title = chart.titles.create();
+    title.text = title_text;
+    title.fontSize = 15;
+    title.marginBottom = 20;
+
+    // Create axes
+
+    var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    categoryAxis.dataFields.category = "key";
+    categoryAxis.renderer.grid.template.location = 0;
+    categoryAxis.renderer.minGridDistance = 30;
+
+    categoryAxis.renderer.labels.template.adapter.add("dy", function(dy, target) {
+    if (target.dataItem && target.dataItem.index & 2 == 2) {
+        return dy + 25;
+    }
+    return dy;
+    });
+    categoryAxis.renderer.labels.template.disabled = true;
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+    // Create series
+    var series = chart.series.push(new am4charts.ColumnSeries());
+    series.dataFields.valueY = "value";
+    series.dataFields.categoryX = "key";
+    series.name = "value";
+    series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+    series.columns.template.fillOpacity = .8;
+    series.columns.template.events.on("over", function (ev) {
+       console.log(ev.target.tooltipDataItem.categories.categoryX);
+       node_highlighting(ev.target.tooltipDataItem.categories.categoryX);
+    });
+ 
     var columnTemplate = series.columns.template;
     columnTemplate.strokeWidth = 2;
     columnTemplate.strokeOpacity = 1;
@@ -290,10 +359,13 @@ export const community_detection = async (url,data,NAType) =>{
 
 export const render_community_graph1 = async (input) => {
     let dir_name = getmystoragedir();
+    console.log("Printing community params");
     let data = {
         input : input,
         dir_name : dir_name
     };
+
+    console.log(data);
 
     let response = await fetch('na/community_data_formator',{
         method : 'post',
@@ -306,8 +378,40 @@ export const render_community_graph1 = async (input) => {
 }
 
 export const render_graph_community = (res,id_value) =>{
+    $('#analysis_summary_charts').empty();
+    $("#analysis_summary_charts").append(`<div class="shadow analysis_chart_div" id="chartDiv" style="overflow-x:auto;overflow-y:auto;"></div>
+        <div class="shadow analysis_chart_div" id="chartDiv1" style="overflow-x:auto;overflow-y:auto;"></div>`);
+
+
     var nodes_arr = res["nodes"];
     var edges_arr = res["edges"];
+    console.log(res);
+    console.log(res["interCommunityEdges"]);
+    let temp_community_number = 0;
+    var data_node = []
+    $.each(res["groups"], function(key, value){
+        var temp = {};
+        temp["key"] = "Community_"+String(temp_community_number);
+        temp["value"] = value.length;
+        data_node.push(temp);
+        temp_community_number = temp_community_number+1;
+    });
+
+    let temp_edge_community_number = 0;
+    var data_edge = [];
+    
+    res["interCommunityEdges"].forEach(function(v){
+        var temp = {};
+        temp["key"] = "Community "+String(temp_edge_community_number);
+        temp["value"] = v;
+        data_edge.push(temp);
+        temp_edge_community_number = temp_edge_community_number+1;
+    });
+
+    barChartBuilder("chartDiv",data_node,"Nodes in each Communities");
+    barChartBuilder("chartDiv1",data_edge,"Edges in each Communities");
+
+    
 
     $('.analysis_summary_div').empty();
     // $('.analysis_summary_div').append('<table> <tr><th>Node</th><th>Score</th></tr>');
@@ -359,14 +463,14 @@ network_global.moveTo(scaleOption);
 
 export const node_highlighting = async(input) =>{
     
-    network_global.body.data.nodes._data[input].size = 100;
+    //network_global.body.data.nodes._data[input].size = 100;
     $.each(network_global.body.data.nodes._data, function(index, value) {
         if (value.id == input) {
-            network_global.body.data.nodes._data[input].size = 100;
             network_global.body.data.nodes._data[input].font.size = 150;
+            network_global.body.data.nodes._data[input].font.color = "red";
         } else {
-            network_global.body.data.nodes._data[value.id].size = 25;
-            network_global.body.data.nodes._data[value.id].font.size = 25;
+            network_global.body.data.nodes._data[value.id].font.size = 30;
+            network_global.body.data.nodes._data[input].font.color = "black";
         }
     });
 
@@ -630,7 +734,15 @@ export const draw_graph = (res,id_value) => {
         }
     });
 
-    var scaleOption = {scale:0.3};
+    network_global.on('hoverNode', function(properties) {
+            on_hover_change_color_of_neighbournodes(properties, nodes);
+    });
+
+    network_global.on('blurNode', function() {
+            on_hover_out_set_back(nodes);
+    });
+
+    var scaleOption = {scale:0.18};
     network_global.moveTo(scaleOption);
 }
 
@@ -1144,7 +1256,7 @@ var global_options = {
     },
     edges: {
         color: '#97C2FC',
-        length: 700,
+        length: 1500,
         width: 0.15,
         smooth: {
             type: 'continuous'
@@ -1340,4 +1452,70 @@ export const storeResultofSparkFromController = async (sparkID, query_list ,user
     });
     let output = await response.json();
     return output;
+}
+
+// This is a generic on_hover function should be used the same everywhere 
+export const on_hover_change_color_of_neighbournodes = async(properties, nodes) => {
+
+    let selected_node = properties["node"];
+
+    console.log("Printing Selected Node!");
+    console.log(selected_node);
+
+    let nodes_new = Object.keys(nodes._data);
+    let con_nodes = network_global.getConnectedNodes(selected_node);
+    for (let i = 0; i < nodes_new.length; i++) {
+        let node_index = nodes_new[i];
+        if (con_nodes.includes(node_index)) {
+            nodes._data[node_index].color = {
+                 border: 'red'
+                };
+            nodes._data[node_index].font = {
+                color: 'red',
+                face: 'courier',
+                size: 70
+            };
+        } else if (node_index == selected_node) {
+            console.log("The selected node is :");;
+            console.log(selected_node);
+            nodes._data[node_index].color = {
+                 border: 'green'
+            };
+            nodes._data[node_index].font = {
+                color: 'green',
+                face: 'courier',
+                size: 70
+            };
+        } else {
+            nodes._data[node_index].color = {
+                 border: 'white'
+            };
+           // nodes._data[node_index].color = "#EA9999"; //#307CE9
+            nodes._data[node_index].font = {
+                color: 'blue',
+                face: 'courier',
+                size: 10
+            };
+        }
+    }
+    let updated_nodes = Object.values(nodes["_data"]);
+    nodes.update(updated_nodes);
+}
+
+
+export const on_hover_out_set_back = async(nodes) => {
+
+    let nodes_new = Object.keys(nodes._data);
+
+    for (let i = 0; i < nodes_new.length; i++) {
+        nodes._data[nodes_new[i]].color = "#FFFFFF"; //#307CE9
+        nodes._data[nodes_new[i]].font = {
+            color: 'black',
+            face: 'courier',
+            size: 10
+        };
+    }
+
+    let updated_nodes = Object.values(nodes["_data"]);
+    nodes.update(updated_nodes);
 }

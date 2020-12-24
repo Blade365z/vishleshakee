@@ -35,7 +35,7 @@ var currentViewTAB="centralityTab";
 var checkSpartStatusInterval_centrality;
 var userID;
 var k_value;
-var summary_flag = true;
+var summary_flag = false;
 if (localStorage.getItem('smat.me')) {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     userID = userInfoTemp['id'];
@@ -46,6 +46,11 @@ if (localStorage.getItem('smat.me')) {
 jQuery(function () {
     $('.analysis_summary_div').hide();
     $("#naSummary").css("height", "0px");
+
+    $("body").on('mouseover', "li  .click_events", function() {
+        var input = $(this).text();
+        node_highlighting(input);
+    });
 
     $('[data-toggle="popover"]').popover(); 
     if(incoming){
@@ -327,11 +332,7 @@ jQuery(function () {
         $(".to_date").text(searchRecords[index - 1].to);
     })
 
-    $(".analysis_summary_div").on('click', ".click_events", function() {
-        var input = $(this).text();
-        node_highlighting(input);
-    });
-
+  
     
 
     //mala
@@ -579,9 +580,9 @@ $("#messagebox").on("click","#infopanel #deleteinfoCard", function () {
 
 $("#show_summary_button").on("click",function () {
 
-    if(summary_flag ===true){
+    if(summary_flag === true){
         $("#card_summary").hide();
-        $("#card-division").removeClass("col-sm-7");
+        $("#card-division").removeClass("col-sm-8");
         $("#card-division").addClass("col-sm-12");
         $("#show_summary_button").text("Show Summary")
         summary_flag = false;
@@ -589,7 +590,7 @@ $("#show_summary_button").on("click",function () {
     else{
         $("#card_summary").show();
         $("#card-division").removeClass("col-sm-12");
-        $("#card-division").addClass("col-sm-7");
+        $("#card-division").addClass("col-sm-8");
         $("#show_summary_button").text("Hide Summary");
         summary_flag = true;
     }

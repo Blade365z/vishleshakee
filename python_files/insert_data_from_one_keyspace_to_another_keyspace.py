@@ -125,10 +125,10 @@ def fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, keyspace_name, query, date,
 		for row in rows:
 			insertToNewKS(sessionNewKS, "token_count_day_wise", prepared_stmt_token_count_day_wise, [row.created_date, row[1], row.token_name, row.category_class_list, row.count_list, row.tweetidlist])
 		logger.info("token_count_day_wise done")
-		rows = sessionGlobalKS.execute("select * from token_co_occur where created_date="+"'"+date+"'")
-		for row in rows:
-			insertToNewKS(sessionNewKS, "token_co_occur", prepared_stmt_token_co_occur, [row.created_date, row[1], row.created_time, row.token_name1, row.token_name2, row.category_class_list, row.count_list, row.tweetidlist])
-		logger.info("token_co_occur done")
+		# rows = sessionGlobalKS.execute("select * from token_co_occur where created_date="+"'"+date+"'")
+		# for row in rows:
+		# 	insertToNewKS(sessionNewKS, "token_co_occur", prepared_stmt_token_co_occur, [row.created_date, row[1], row.created_time, row.token_name1, row.token_name2, row.category_class_list, row.count_list, row.tweetidlist])
+		# logger.info("token_co_occur done")
 		# rows = sessionGlobalKS.execute("select * from token_co_occur_hour_wise where created_date="+"'"+date+"'")
 		# for row in rows:
 		# 	insertToNewKS(sessionNewKS, "token_co_occur_hour_wise", prepared_stmt_token_co_occur_hour_wise, [row.created_date, row[1], row.created_time, row.token_name1, row.token_name2, row.category_class_list, row.count_list, row.tweetidlist])
@@ -158,5 +158,5 @@ def main():
 
 
 if __name__ == '__main__':
-	logger = log("insert")
+	# logger = log("insert")
 	main()

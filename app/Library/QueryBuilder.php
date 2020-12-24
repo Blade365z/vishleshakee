@@ -58,17 +58,20 @@ class QueryBuilder{
                         $query_class = $this->get_query_class($token, 'co_occur', $co_occur_option);
                         if($range_type == '10sec'){
                             $columns = 'created_date, created_time, token_name2, count_list';
-                            $table_name = 'token_co_occur';
+                            // $table_name = 'token_co_occur';
+                            $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name1='" . $token ."'";
                         }else if($range_type == 'hour'){
                             $columns = 'created_date, created_time, token_name2, count_list';
-                            $table_name = 'token_co_occur_hour_wise';
+                            // $table_name = 'token_co_occur_hour_wise';
+                            $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name1='" . $token ."'";
                         }else if($range_type == 'day'){
                             $columns = 'created_date, token_name2, count_list';
-                            $table_name = 'token_co_occur_day_wise';
+                            // $table_name = 'token_co_occur_day_wise';
+                            $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND token_name1='" . $token ."'";
                         }
@@ -331,5 +334,58 @@ class QueryBuilder{
             }
         }
         return $class;
+    }
+
+
+
+
+    public function select_co_occur_table_for_token($token=null, $range){
+        if ($token[0] == '*') {
+            if (($token[1] == 'a') or ($token[1] == 'b') or ($token[1] == 'c') or ($token[1] == 'd') or ($token[1] == 'e')) {
+                if($range == '10sec')
+                    $table_name = 'token_co_occur_ae';
+                else if($range == 'hour')
+                    $table_name = 'token_co_occur_hour_wise_ae';
+                else if($range == 'day')
+                    $table_name = 'token_co_occur_day_wise_ae';
+            } else if (($token[1] == 'f') or ($token[1] == 'g') or ($token[1] == 'h') or ($token[1] == 'i') or ($token[1] == 'j')) {
+                if($range == '10sec')
+                    $table_name = 'token_co_occur_fj';
+                else if($range == 'hour')
+                    $table_name = 'token_co_occur_hour_wise_fj';
+                else if($range == 'day')
+                    $table_name = 'token_co_occur_day_wise_fj';
+            }else if (($token[1] == 'k') or ($token[1] == 'l') or ($token[1] == 'm') or ($token[1] == 'n') or ($token[1] == 'o')) {
+                if($range == '10sec')
+                    $table_name = 'token_co_occur_ko';
+                else if($range == 'hour')
+                    $table_name = 'token_co_occur_hour_wise_ko';
+                else if($range == 'day')
+                    $table_name = 'token_co_occur_day_wise_ko';
+            }else if (($token[1] == 'p') or ($token[1] == 'q') or ($token[1] == 'r') or ($token[1] == 's') or ($token[1] == 't')) {
+                if($range == '10sec')
+                    $table_name = 'token_co_occur_pt';
+                else if($range == 'hour')
+                    $table_name = 'token_co_occur_hour_wise_pt';
+                else if($range == 'day')
+                    $table_name = 'token_co_occur_day_wise_pt';
+            }else if (($token[1] == 'u') or ($token[1] == 'v') or ($token[1] == 'w') or ($token[1] == 'x') or ($token[1] == 'y') or ($token[1] == 'z')) {
+                if($range == '10sec')
+                    $table_name = 'token_co_occur_uz_09_sym';
+                else if($range == 'hour')
+                    $table_name = 'token_co_occur_hour_wise_uz_09_sym';
+                else if($range == 'day')
+                    $table_name = 'token_co_occur_day_wise_uz_09_sym';
+            }
+        }else{
+            if($range == '10sec')
+                $table_name = 'token_co_occur';
+            else if($range == 'hour')
+                $table_name = 'token_co_occur_hour_wise';
+            else if($range == 'day')
+                $table_name = 'token_co_occur_day_wise';
+        }
+
+        return $table_name;
     }
 }
