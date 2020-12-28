@@ -268,7 +268,7 @@ jQuery(function () {
 
         get_tweet_location(query, fromDate, toDate, rangeType, null).then(response => {
             console.log("wwww");
-            console.log(response);
+            // console.log(response);
             getCompleteMap('result-div-map', response);
         });
 

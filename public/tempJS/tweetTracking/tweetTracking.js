@@ -379,7 +379,7 @@ const initiateTweetAnalysis = async (id, from, to, type, raw) => {
 
 //DateInput Box
 const drawDateBox = (offset, tweetID, from = null, to = null, groupByType) => {
-    $('#dateInputTrack-' + offset).html('');
+    // $('#dateInputTrack-').html('');
     let ischeckedDate = 'checked', ischeckedMonth = '', ischeckedWeek = '';
     if (groupByType == 'month') {
         ischeckedMonth = 'checked';
@@ -388,14 +388,14 @@ const drawDateBox = (offset, tweetID, from = null, to = null, groupByType) => {
         ischeckedWeek = 'checked'
         ischeckedDate = ''
     }
-    $('#dateInputTrack-' + offset).html('<div><div class="d-flex mb-1"><span class="text-dark font-weight-bold mr-2">Group By </span><div class="mx-2"><input class="groupByRadio" type="radio" id="radioDay-' + tweetID + '-' + offset + '"   value="' + tweetID + '|' + offset + '|' + 'day' + '|' + from + '|' + to + '"  ' + ischeckedDate + '><label for="radioDay-' + tweetID + '-' + offset + '"  class="text-dark mx-1">Day-wise</label></div><div class="mx-1"><input type="radio" class="groupByRadio"   id="radioMonth-' + tweetID + '-' + offset + '"   value="' + tweetID + '|' + offset + '|' + 'month' + '|' + from + '|' + to + '" ' + ischeckedMonth + ' ><label for="radioMonth-' + tweetID + '-' + offset + '"   class="text-dark mx-1 ">Month-wise</label></div><div class="mx-1"><input type="radio" class="groupByRadio"   id="radioWeek-' + tweetID + '-' + offset + '"   value="' + tweetID + '|' + offset + '|' + 'week' + '|' + from + '|' + to + '"  ' + ischeckedWeek + ' ><label for="radioWeek-' + tweetID + '-' + offset + '"   class="text-dark mx-1 ">Week-wise</label></div></div> </div><div id="date-divTrack-' + tweetID + '-' + offset + '"><form class="trackDateForm"  value="' + tweetID + '|' + offset + '" id="trackDateForm-' + tweetID + '-' + offset + '"><div class="d-flex mb-3"><div class="form-group   my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white" style="width:35%;"><i class="far fa-calendar-alt mx-2 text-normal " style="margin-top:11px;"></i><input type="text" class="form-control datepicker-here  smat-from" name="fromDate" id="fromDateTrack-' + tweetID + '-' + offset + '" placeholder="From Date" onkeydown="return false;" style="border:0px;"autocomplete="OFF" data-language="en" required></div><div class="form-group  my-0  mr-2 border smat-rounded d-flex px-2 py-1  bg-white" style="width:35%;"><i class="far fa-calendar-alt mx-2 text-normal" style="margin-top:11px;"></i><input type="text" class="form-control datepicker-here smat-to " name="toDate" id="toDateTrack-' + tweetID + '-' + offset + '"  placeholder="To Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language="en" required></div><button class="btn  btn-primary  " id="submit-btn-' + tweetID + '-' + offset + '"  type="submit" style="border-radius:50%;margin-top:5px;"> <span>Go </span> </button></div></form></div>');
+    $('#dateQueryTrack').html('<div><div class="d-flex mb-1"><span class="text-dark font-weight-bold mr-2">Group By </span><div class="mx-2"><input class="groupByRadio" type="radio" id="radioDay-' + tweetID + '-' + offset + '"   value="' + tweetID + '|' + offset + '|' + 'day' + '|' + from + '|' + to + '"  ' + ischeckedDate + '><label for="radioDay-' + tweetID + '-' + offset + '"  class="text-dark mx-1">Day-wise</label></div><div class="mx-1"><input type="radio" class="groupByRadio"   id="radioMonth-' + tweetID + '-' + offset + '"   value="' + tweetID + '|' + offset + '|' + 'month' + '|' + from + '|' + to + '" ' + ischeckedMonth + ' ><label for="radioMonth-' + tweetID + '-' + offset + '"   class="text-dark mx-1 ">Month-wise</label></div><div class="mx-1"><input type="radio" class="groupByRadio"   id="radioWeek-' + tweetID + '-' + offset + '"   value="' + tweetID + '|' + offset + '|' + 'week' + '|' + from + '|' + to + '"  ' + ischeckedWeek + ' ><label for="radioWeek-' + tweetID + '-' + offset + '"   class="text-dark mx-1 ">Week-wise</label></div></div> </div><div id="date-divTrack-' + tweetID + '-' + offset + '"><form class="trackDateForm"  value="' + tweetID + '|' + offset + '" id="trackDateForm-' + tweetID + '-' + offset + '"><div class="d-flex mb-3"><div class="form-group   my-0  mr-2  border smat-rounded d-flex px-2 py-1  bg-white" style="width:35%;"><i class="far fa-calendar-alt mx-2 text-normal " style="margin-top:11px;"></i><input type="text" class="form-control datepicker-here  smat-from" name="fromDate" id="fromDateTrack-' + tweetID + '-' + offset + '" placeholder="From Date" onkeydown="return false;" style="border:0px;"autocomplete="OFF" data-language="en" required></div><div class="form-group  my-0  mr-2 border smat-rounded d-flex px-2 py-1  bg-white" style="width:35%;"><i class="far fa-calendar-alt mx-2 text-normal" style="margin-top:11px;"></i><input type="text" class="form-control datepicker-here smat-to " name="toDate" id="toDateTrack-' + tweetID + '-' + offset + '"  placeholder="To Date" onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language="en" required></div><button class="btn  btn-primary  " id="submit-btn-' + tweetID + '-' + offset + '"  type="submit" style="border-radius:50%;margin-top:5px;"> <span>Go </span> </button></div></form></div>');
     $('#fromDateTrack-' + tweetID + '-' + offset).datepicker();
     $('#toDateTrack-' + tweetID + '-' + offset).datepicker();
     if (from && to) {
         $('#fromDateTrack-' + tweetID + '-' + offset).val(from);
         $('#toDateTrack-' + tweetID + '-' + offset).val(to);
     }
-
+$('#dateQueryTrack').fadeIn('slow')
 
 }
 
@@ -504,9 +504,9 @@ const createTweetAnalysis = (tweetID, from, to, div, profilePic, author, datesDa
     let chartDom = '<div class="mt-2"><div class="mb-1">Frequency Distribution of <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet</span></div><ul class="nav nav-pills mb-2"  role="tablist"><li class="nav-item"><a class="nav-link active smat-rounded " id="retweetTab-' + allotedID + '" data-toggle="pill" href="#retweetTabContent-' + allotedID + '" role="tab" aria-controls="retweetTabContent-' + allotedID + '" aria-selected="true">Retweet Frequency</a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="quotedTab-' + allotedID + '" data-toggle="pill" href="#quotedTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Quoted Frequency </a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="replyTab-' + allotedID + '" data-toggle="pill" href="#replyTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Reply Frequency </a></li></ul></div><div class="tab-content" id="pills-tabContent"><div class="tab-pane fade show active  trackChartDiv" id="retweetTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="retweetTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="quotedTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="quotedTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="replyTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="replyTabContent-' + allotedID + '"></div> </div>';
     $('#trackAnalysisMain').fadeIn("slow")
     $('#' + div).html('');
-    $('#' + div).html('<div class="my-3 pb-4  shadow"><div class="row "><div class="col-sm-8"><div class="row justify-content-center pt-4  px-3 pl-1" id="xyz"> </div></div><div class="col-sm-4">  <div class="mt-4 pr-4" id="dateInputTrack-' + allotedID + '" ></div>  </div></div><div id="connect" style="height:2px;"></div><div id="notFound-' + allotedID + '"></div><div id="analysisDOM-' + allotedID + '"></div>');
+    $('#' + div).html('<div class="my-3 pb-4  shadow"><div class="row "><div class="col-sm-12"><div class="row justify-content-center pt-4  px-3 pl-1" id="hierarchy-'+allotedID+'"> </div></div></div><div id="connect" style="height:2px;"></div><div id="notFound-' + allotedID + '"></div><div id="analysisDOM-' + allotedID + '"></div>');
     drawDateBox(allotedID, tweetID, from, to, groupByType);
-    printTweetHierarchy(analysisHistory[allotedID], 'xyz', allotedID).then(response => {
+    printTweetHierarchy(analysisHistory[allotedID], 'hierarchy-'+allotedID, allotedID).then(response => {
         if (datesData.length < 1 || checkFlag==1) {
             displayNoTrackFoundForTracking(tweetID, allotedID, from, to)
         } else {
@@ -680,11 +680,13 @@ const printTweetHierarchy = async (json, div, offset) => {
         DOM+='<div class="" id="heirarychyChild-' + offset + '-'+i+'"></div>';
     }
     DOM+='</div>'
+    // console.log(analysisHistory);
     $('#' + div).html(DOM);
     for (let key in json) {
         await getTweetInfo(key).then(response => {
+            // console.log(Object.keys(analysisHistory[0][json[key]['priority']]))
             sourceTag = json[key]['priority'] == highestPriority  ? '<div class="text-center" style="margin-top:-17px;" ><span class="badge badge-danger " > Source Tweet</span></div>' : '';
-            relationship = '<div class="pt-4"   ><button class="btn btn-sm btn-primary p-1 relationshipNode" data-container="body" data-trigger="focus" data-html="true" data-toggle="popover" data-placement="top" data-content="The tweet posted by <b>' + response.author + '</b> is a ' + tweetTypeDictShort[json[key]['type']] + '  of  <b>' + sourceAuthor + '</b>"  style="display:none;">' + tweetTypeDictShort[json[key]['type']]  + '</button></div>';
+            relationship = '<div class="pt-4"   ><button class="btn btn-sm btn-primary p-1 relationshipNode" data-container="body" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="top" data-content="The tweet posted by <b>' + response.author + '</b> is a ' + tweetTypeDictShort[json[key]['type']] + '  of  <b>' + sourceAuthor + '</b>"  style="display:none;">' + tweetTypeDictShort[json[key]['type']]  + '</button></div>';
             mainNode = '<div class="trackHierarchyNode" id="node-' + key + '-' + offset + '">' + sourceTag + '<div class="profilePictureDiv trackProfilePic p-1 text-center " value="' + key + '"><img class="openTweetRaw" src="' + response.author_profile_image + '" style="height:55px;border-radius:50%"  value="' + key + '"/> </div><div class=" text-truncate">' + response.author + '</div> <div class="badge badge-primary p-1 seeTweet" value=' + key + '>See Tweet</div></div>';
             if (json[key]['priority'] < highestPriority) {
                 $('#heirarychyChild-' + offset + '-' + json[key]['priority']).html('<div class="d-flex">' +  separator1 + relationship + separator2  + mainNode + '</div>');
@@ -731,8 +733,7 @@ const printDatesOptional = (tweetID, date, level, groupByType, month, div, week 
         $('#datesOptionalList-' + allocatedIDRecords[tweetID][0]['allotedID']).append('<div class="datesOptionalCard  mt-1 border p-1 " value="' + element + '|' + tweetID + '|' + level + '|' + groupByType + '|' + month + '|' + week + '"  style="border-radius:24px;"><li class="  text-center">' + element + '</li><div>');
 
     });
-    // $('#'+div).html('<div class="card"><div class="card-body"><div><p class="text-dark">Tweets arived on '++'</p></div><div></div></div></div>');
-
+      
 }
 
 

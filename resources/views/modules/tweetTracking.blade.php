@@ -13,12 +13,19 @@
     <div class="mt-3 ">
     <div class="text-dark">Analysis for the tweet posted by <span class=" font-weight-bold" id="queryAuthor"> </span> on <span class=" font-weight-bold" id="dateQuery"></span></div>
         
-    <div class="shadow p-4" id="mainQuery" style="display: none">
+    
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="shadow p-4" id="mainQuery" style="display: none">
+            </div>
+        </div>
+        <div class="col-sm-4" >
+<div  class="mt-5" id="dateQueryTrack" style="display: none"></div>
         </div>
     </div>
 
 
-    <div class="my-2" id="trackAnalysisMain" style="display: none">
+    <div class="my-5" id="trackAnalysisMain" style="display: none">
 
     </div>
     <script type="module" src="public/amcharts4/core.js"></script>

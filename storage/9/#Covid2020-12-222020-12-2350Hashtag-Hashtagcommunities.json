@@ -1,11 +1,6 @@
 {
     "0": [
         "#Americans", 
-        "#Christmas", 
-        "#ChristmasEve", 
-        "#GOP"
-    ], 
-    "1": [
         "#BTS", 
         "#Biden", 
         "#BidenWillNeverBePresident", 
@@ -13,10 +8,12 @@
         "#Blackwater", 
         "#China", 
         "#Chloe", 
+        "#Christmas", 
+        "#ChristmasEve", 
         "#Clippers", 
         "#Corona", 
-        "#Covid", 
         "#Fiverr", 
+        "#GOP", 
         "#Grandeur", 
         "#Lakers", 
         "#London", 
@@ -30,34 +27,31 @@
         "#wednesdaythought", 
         "#\u30af\u30ea\u30b9\u30de\u30b9"
     ], 
-    "2": [
+    "1": [
         "#Brexit", 
+        "#COVID19", 
         "#COVID20", 
         "#COVIDSecondWave", 
         "#CoronaVirusUpdates", 
+        "#Coronavirus", 
         "#CoronavirusStrain", 
+        "#Covid", 
         "#CovidVaccine", 
         "#Covid_19", 
         "#DelhiHighCourt", 
-        "#SOP", 
-        "#ZeroCovid", 
-        "#coronavirus", 
-        "#lockdown", 
-        "#pandemic"
-    ], 
-    "3": [
-        "#COVID19", 
-        "#Coronavirus", 
         "#DrSusanMoore", 
+        "#Free", 
         "#IPL2021", 
         "#Impfung", 
         "#India", 
-        "#UAE"
-    ], 
-    "4": [
-        "#Free", 
         "#NewZealanders", 
+        "#SOP", 
+        "#UAE", 
         "#Vaccine", 
-        "#advertising"
+        "#ZeroCovid", 
+        "#advertising", 
+        "#coronavirus", 
+        "#lockdown", 
+        "#pandemic"
     ]
 }

@@ -49,14 +49,16 @@ class ProjectActivityController extends Controller
         $from_date = $request->input('from_date');
         $to_date = $request->input('to_date');
         $module_name = $request->input('module_name');
-        $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py '.$keyspace_name.' "'.$query.'" '.$from_date.' '.$to_date.' '.$module_name);
-        shell_exec($command);
         // insert into mysql
         $datetimeobj = new DateTime();
         $analysis_datetime = $datetimeobj->format('Y-m-d H:m:s');
         $insertion_successful_flag=0;
         $this->storeToProjectActivityTable($user_id, $project_id, $query, $analysis_datetime, $from_date, $to_date, $insertion_successful_flag);
-        echo json_encode(array("res"=>"success"));
+        echo json_encode(array("res"=>"running"));
+
+        // triggered insert command
+        $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py '.$keyspace_name.' "'.$query.'" '.$from_date.' '.$to_date.' '.$module_name);
+        shell_exec($command);       
     }
 
 

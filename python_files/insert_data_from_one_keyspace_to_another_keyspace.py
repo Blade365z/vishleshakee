@@ -102,6 +102,59 @@ def prepareTable(option, sessionNewKS):
 
 
 
+def get_query_class(token, option=None, co_occur_option=None):
+	first_char = token[0]
+	if option == 'co_occur':
+		if first_char == '#':
+			switcher = { 
+				'mention': 2, 
+				'hashtag': 0,
+				'user': 8,
+				'keyword': 4
+			}
+		elif first_char == '*':
+			switcher = { 
+				'mention': 7, 
+				'hashtag': 5,
+				'user': 12,
+				'keyword': 22
+			}
+		elif first_char == '$':
+			switcher = { 
+				'mention': 11, 
+				'hashtag': 9
+			}
+		elif first_char == '@':
+			switcher = { 
+				'mention': 1, 
+				'hashtag': 3,
+				'user': 10,
+				'keyword': 6
+			}
+		class1 = switcher.get(co_occur_option, "nothing")
+	elif option == 'top':
+		switcher = { 
+			'mention': 1, 
+			'hashtag': 0,
+			'user': 2
+		}
+		class1 = switcher.get(token, "nothing")
+	else:
+		if first_char == '#':
+			class1 = 0
+		elif first_char == '^':
+			class1 = 4
+		elif first_char == '*':
+			class1 = 3
+		elif first_char == '$':
+			class1 = 2
+		elif first_char == '@':
+			class1 = 1
+	
+	return class1
+
+
+
 
 def fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, keyspace_name, query, date, module_name):
 	sessionGlobalKS.set_keyspace(keyspace_name)
@@ -112,7 +165,12 @@ def fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, keyspace_name, query, date,
 		prepared_stmt_token_co_occur = prepareTable("token_co_occur", sessionNewKS)	
 		prepared_stmt_token_co_occur_hour_wise = prepareTable("token_co_occur_hour_wise", sessionNewKS)	
 		prepared_stmt_token_co_occur_day_wise = prepareTable("token_co_occur_day_wise", sessionNewKS)	
-		rows = sessionGlobalKS.execute("select * from token_count where created_date="+"'"+date+"'")
+
+
+
+
+		class1 = get_query_class(query)
+		'''rows = sessionGlobalKS.execute("select * from token_count where created_date="+"'"+date+"'")
 		for row in rows:
 			# print(row.created_date, row.token_name)
 			insertToNewKS(sessionNewKS, "token_count", prepared_stmt_token_count, [row.created_date, row[1], row.created_time, row.token_name, row.category_class_list, row.count_list, row.tweetidlist])
@@ -120,11 +178,14 @@ def fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, keyspace_name, query, date,
 		rows = sessionGlobalKS.execute("select * from token_count_hour_wise where created_date="+"'"+date+"'")
 		for row in rows:
 			insertToNewKS(sessionNewKS, "token_count_hour_wise", prepared_stmt_token_count_hour_wise, [row.created_date, row[1], row.created_time, row.token_name, row.category_class_list, row.count_list, row.tweetidlist])
-		logger.info("token_count_hour_wise done")
+		logger.info("token_count_hour_wise done")'''
 		rows = sessionGlobalKS.execute("select * from token_count_day_wise where created_date="+"'"+date+"'")
 		for row in rows:
 			insertToNewKS(sessionNewKS, "token_count_day_wise", prepared_stmt_token_count_day_wise, [row.created_date, row[1], row.token_name, row.category_class_list, row.count_list, row.tweetidlist])
 		logger.info("token_count_day_wise done")
+
+
+		
 		# rows = sessionGlobalKS.execute("select * from token_co_occur where created_date="+"'"+date+"'")
 		# for row in rows:
 		# 	insertToNewKS(sessionNewKS, "token_co_occur", prepared_stmt_token_co_occur, [row.created_date, row[1], row.created_time, row.token_name1, row.token_name2, row.category_class_list, row.count_list, row.tweetidlist])
