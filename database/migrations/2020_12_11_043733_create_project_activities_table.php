@@ -21,6 +21,8 @@ class CreateProjectActivitiesTable extends Migration
             $table->string('from_date');
             $table->string('to_date');
             $table->boolean('insertion_successful_flag');
+            $table->string('module_name');
+            $table->string('full_query');
         });
     }
 

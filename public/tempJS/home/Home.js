@@ -34,7 +34,7 @@ var userID;
  
 jQuery(function () {
 
-  removeVariableFromLocalStorage();
+  //  
 
 
   $('[data-toggle="popover"]').popover(); //Initalizing popovers
@@ -43,7 +43,7 @@ jQuery(function () {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     userID = userInfoTemp['id'];
   } 
-  getMe();
+
   makeSmatReady();
   $('#alertsDiv').append('<div class="text-center  smat-loader"  id="alertBoxLoader"><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
   if (localStorage.getItem('smat-currentlyTrending')) {

@@ -1,3 +1,0 @@
-INFO 2020-12-22 03:03:38,931 Started
-INFO 2020-12-22 03:03:38,973 Downgrading core protocol version from 66 to 65 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version
-INFO 2020-12-22 03:03:38,975 Downgrading core protocol version from 65 to 4 for 172.16.117.201:9042. To avoid this, it is best practice to explicitly set Cluster(protocol_version) to the version supported by your cluster. http://datastax.github.io/python-driver/api/cassandra/cluster.html#cassandra.cluster.Cluster.protocol_version

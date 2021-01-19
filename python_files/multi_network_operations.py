@@ -182,6 +182,13 @@ class MultiNet():
 		except:
 			return -1
 
+	def diameter(self,*args):
+		G = self.generate_graph(args[0])
+		try:
+			diameter = nx.diameter(G)
+			return diameter
+		except:
+			return -1
 
 	def all_shortest_path(self, *args):
 		G = self.generate_graph(args[0])

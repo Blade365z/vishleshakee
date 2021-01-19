@@ -50,8 +50,8 @@ class queryStatusController extends Controller
             'query' => $request->get('query'),
             'fromDate' => $request->get('fromDate'),
             'toDate' => $request->get('toDate'),
-            'status'=>$request->get('status'),
-            'type'=>$request->get('module_type'),
+            'status'=> $request->get('status'),
+            'type'=> $request->get('module_type'),
         ]);
         $statusObj->save();
         return response()->json(['data' => 'Submitted Successfully!'], 200);
@@ -104,6 +104,12 @@ class queryStatusController extends Controller
     public function destroy($id)
     {
         $statusObj = QueryStatus::where('queryID', $id)->delete();
+        return $statusObj;
+    }
+
+    public function destroy_network_query_rec(Request $request)
+    {
+        $statusObj = QueryStatus::where(['queryID'=>$request->input('queryID')])->delete();
         return $statusObj;
     }
 }

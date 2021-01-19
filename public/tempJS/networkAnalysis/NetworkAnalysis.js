@@ -5,7 +5,8 @@ import {
     sparkUpload, get_network, writedelete, difference, shortestpaths, community_detection, centrality, linkprediction,
     render_linkprediction_graph, render_shortestpath_graph, render_community_graph1, draw_graph, update_view_graph_for_link_prediction,
     render_graph_community, render_union_graph, render_graph_union, render_intersection_diff_graph, render_intersection_difference,
-    networkGeneration, storeResultofSparkFromController,getDeletedNodes,node_highlighting,selected_graph_query,getUserDetailsNA,message_displayer
+    networkGeneration, storeResultofSparkFromController,getDeletedNodes,node_highlighting,selected_graph_query,getUserDetailsNA,message_displayer,
+    node_highlighting_community,query_track,populate_track,delete_queries_from_db,diameter
 } from './helper.js';
 import { makeSuggestionsReady } from '../utilitiesJS/smatExtras.js'
 import { formulateUserSearch } from '../utilitiesJS/userSearch.js';
@@ -19,8 +20,9 @@ var cardIDdictionary = {};
 var queryDictionaryFilename = {};
 var queryDictionaryNetworkName = {};
 var currentNetworkEngine = 'networkx', currentlyShowing;
-var community_algo_option = "Async Fluidic";
+var community_algo_option = "async";
 
+let network_del_db = "notallowed"
 var SourceNode;
 var DestinationNode;
 
@@ -44,6 +46,95 @@ if (localStorage.getItem('smat.me')) {
 }
 
 jQuery(function () {
+    $('body #netview').tooltip({title: "Double click to activate View Mode", html: true, placement: "top"}); 
+    $('body #netdel').tooltip({title: "Double click to activate Delete Mode", html: true, placement: "top"}); 
+    $("#modemsg").html('<p class="d-flex text-muted mb-1 text-center" style="font-size:0.8rem">View Mode Active</p>');
+    populate_track(userID).then(response => {
+            $.each(response,function(key,value){
+                console.log(key,value);
+                transferQueryToStatusTable_track(value["query"],value["queryID"], "algo_option", "sparkID");
+            })
+             console.log(response);
+        })
+
+
+
+    $("#queryNA").on("input",function(){
+        let r = $("#queryNA").val();
+
+        if (!(r.indexOf(""))) {
+            console.log("MariaDB");
+            $('#typeNA option[value="Hashtag-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="Hashtag-Mention"]').attr('disabled', true);
+            $('#typeNA option[value="Hashtag-Keyword"]').attr('disabled', true);
+            $('#typeNA option[value="Keyword-Mention"]').attr('disabled', false);
+            $('#typeNA option[value="Keyword-Hashtag"]').attr('disabled', false);
+            $('#typeNA option[value="User-Hashtag"]').attr('disabled', false);
+            $('#typeNA option[value="User-Mention"]').attr('disabled', false);
+            $('#typeNA option[value="Hashtag-Keyword"]').attr('disabled', true);
+            $('#typeNA option[value="Mention-Mention"]').attr('disabled', true);
+            $('#typeNA option[value="Mention-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="Mention-Keyword"]').attr('disabled', true);
+            $('#typeNA option[value="Hashtag-User"]').attr('disabled', true);
+        }
+
+        if (!(r.indexOf("#"))) {
+            console.log("#tag");
+            $('#typeNA option[value="Mention-Mention"]').remove();
+            $('#typeNA option[value="Mention-Hashtag"]').remove();
+            $('#typeNA option[value="Keyword-Mention"]').remove();
+            $('#typeNA option[value="Keyword-Hashtag"]').remove();
+            $('#typeNA option[value="User-Mention"]').remove();
+            $('#typeNA option[value="User-Hashtag"]').remove();
+            $('#typeNA option[value="User-Mention"]').remove();
+            $('#typeNA option[value="Mention-Keyword"]').remove();
+
+            $('#typeNA option[value="Hashtag-Hashtag"]').attr('disabled', false);
+            $('#typeNA option[value="Hashtag-Mention"]').attr('disabled', false);
+            $('#typeNA option[value="Hashtag-Keyword"]').attr('disabled', false);
+            $('#typeNA option[value="Hashtag-User"]').attr('disabled', false);
+            $('#typeNA option[value="Mention-Mention"]').attr('disabled', true);
+            $('#typeNA option[value="Mention-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="Mention-Keyword"]').attr('disabled', true);
+            $('#typeNA option[value="User-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="User-Mention"]').attr('disabled', true);
+            $('#typeNA option[value="Keyword-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="Keyword-Mention"]').attr('disabled', true);
+        }
+
+        if (!(r.indexOf("@"))) {
+            console.log("#tag");
+
+            $('#typeNA option[value="Hashtag-Keyword"]').remove();
+            $('#typeNA option[value="Keyword-Hashtag"]').remove();
+            $('#typeNA option[value="Keyword-Mention"]').remove();
+            $('#typeNA option[value="Keyword-Hashtag"]').remove();
+            $('#typeNA option[value="User-Mention"]').remove();
+            $('#typeNA option[value="User-Hashtag"]').remove();
+            $('#typeNA option[value="User-Mention"]').remove();
+            $('#typeNA option[value="Hashtag-Keyword"]').remove();
+            $('#typeNA option[value="Hashtag-Mention"]').remove();
+            $('#typeNA option[value="Hashtag-User"]').remove();
+            $('#typeNA option[value="Hashtag-Hashtag"]').remove();
+
+
+
+
+            $('#typeNA option[value="Mention-Hashtag"]').attr('disabled', false);
+            $('#typeNA option[value="Mention-Mention"]').attr('disabled', false);
+            $('#typeNA option[value="Mention-Keyword"]').attr('disabled', false);
+            $('#typeNA option[value="Hashtag-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="Hashtag-Mention"]').attr('disabled', true);
+            $('#typeNA option[value="Hashtag-Keyword"]').attr('disabled', true);
+            $('#typeNA option[value="User-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="User-Mention"]').attr('disabled', true);
+            $('#typeNA option[value="Keyword-Hashtag"]').attr('disabled', true);
+            $('#typeNA option[value="Keyword-Mention"]').attr('disabled', true);
+            $('#typeNA option[value="Hashtag-User"]').attr('disabled', true);
+        }
+
+    })
+
     $('.analysis_summary_div').hide();
     $("#naSummary").css("height", "0px");
 
@@ -52,8 +143,69 @@ jQuery(function () {
         node_highlighting(input);
     });
 
+    $("body").on('mouseover', ".click_events", function() {
+        var input = $(this).text();
+        node_highlighting(input);
+    });
+
+    $("body").on('mouseover', ".click_events_community", function() {
+        var input = $(this).text();
+        node_highlighting_community(input);
+    });
+
+    $("body").on("click", "#show_neighbors", function(){
+        $('#analysis_summary_charts').hide();
+       // $('.analysis_summary_div').hide();
+        $(".NeighborsDiv").css('display', 'block');
+        $("#show_analysis").removeClass("btn btn-primary");
+        $("#show_analysis").addClass( "btn btn-info" );
+        $("#show_neighbors").addClass("btn btn-primary");
+    })
+
+    $("body").on("click", "#show_analysis", function(){
+        $('#analysis_summary_charts').show();
+        //$('.analysis_summary_div').show();
+        $(".NeighborsDiv").css('display', 'none');
+        $("#show_neighbors").removeClass( "btn btn-primary" );
+        $("#show_neighbors").addClass( "btn btn-info" );
+        $("#show_analysis").addClass( "btn btn-primary" );
+    })
+
+    $("body").on("click",".network_button",function(){
+        let button = $(this);
+        let queryID = $(this).val();
+        if(network_del_db=="allowed"){
+            $("#delete_permission_db").modal('show');
+            $("#permission_granted_dbdel").click(function() {
+                delete_queries_from_db(queryID,userID).then(response=>console.log("LKLK"));
+                $(button).remove();
+            });
+        }else{
+        var input = $(this).val();
+        let sequence = input.split('_');
+        let filename = input;
+        let name_text = sequence[0];
+        let fromDateStripped = sequence[1];
+        let toDateStripped = sequence[2];
+        let noOfNodesTemp = sequence[3];
+        let naTypeTemp = sequence[4];
+        let naEngine = "networkx";
+
+        totalQueries += 1;
+        totalNetworkatInstance = totalNetworkatInstance + 1;
+
+        generateCards(totalQueries, name_text, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
+        let movingmessage = "Moved network &nbsp <b>"+name_text+" </b> &nbsp to Active Networks. Click on the &nbsp <u>view network</u> &nbsp text on the card to view the network.";               
+
+        message_displayer(movingmessage,"success");
+
+        console.log(sequence);
+        }
+    });
+
     $('[data-toggle="popover"]').popover(); 
     if(incoming){
+        $("#hint").hide();
         //TODO::Redirection 
         var networkType;        
         if(!(uniqueIDReceived == "null")){           
@@ -70,6 +222,7 @@ jQuery(function () {
                 generateCards(totalQueries, incoming, fromDateReceived, toDateReceived, 50, relationReceived, currentNetworkEngine, uniqueIDReceived, 'naCards',"normal");        
             }
         }else{
+            $("#hint").hide();
             if(incoming.charAt(0) == "$"){
                 networkType = relationReceived;
             }else if((incoming.charAt(0) == "#")){
@@ -237,6 +390,7 @@ jQuery(function () {
     $('#nav-NA').addClass('smat-nav-active');
     $('#naInputInputs').on('submit', function (e) {
         e.preventDefault();
+        $("#hint").hide();
         let queryTemp = $('#queryNA').val().trim();
 
         if(queryTemp.includes('#')&&(($('#typeNA').val()=="Mention-Mention")||($('#typeNA').val()=="Mention-Hashtag")||($('#typeNA').val()=="Mention-Keyword")||(($('#typeNA').val()=="User-Hashtag")||(($('#typeNA').val()=="User-Mention"))||(($('#typeNA').val()=="Keyword-Hashtag"))||(($('#typeNA').val()=="Keyword-Mention"))))){
@@ -254,8 +408,8 @@ jQuery(function () {
         }
 
         if(($('#typeNA').val() != "User-Hashtag")&&($('#typeNA').val() != "User-Mention")){
-            totalQueries += 1;
-            totalNetworkatInstance = totalNetworkatInstance + 1;
+            // totalQueries += 1;
+            // totalNetworkatInstance = totalNetworkatInstance + 1;
 
             let fromDateTemp = $('#fromDateNA').val();
             let fromDateStripped = fromDateTemp;
@@ -271,7 +425,7 @@ jQuery(function () {
             }
             let netCategory = $("#net_category").val();
             let naEngine = $('#networkEngineNA').val();
-            let filename = queryTemp + fromDateStripped + toDateStripped + noOfNodesTemp + naTypeTemp;
+            let filename = queryTemp+"_"+fromDateStripped+"_"+toDateStripped+"_"+noOfNodesTemp+"_"+naTypeTemp;
             networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename).then(response => {
                
                 if(response["res"]=="empty"){
@@ -289,10 +443,34 @@ jQuery(function () {
                     queryTemp = queryTemp.substring(1);
                 }
 
-                generateCards(totalQueries, queryTemp, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
-                message_displayer("NETWORK GENERATED SUCCESSFULLY","success");
+                //generateCards(totalQueries, queryTemp, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
+                message_displayer("  Network successfully generated and added to My Networks. Click on the card to move it to Active Networks","success");
+
+                let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
+                let userID = userInfoTemp['id'];
+
+                let data_query_track = {
+                    "queryID" : filename,
+                    "userID" : userID,
+                    "query" : queryTemp,
+                    "fromDate" : fromDateStripped,
+                    "toDate" : toDateStripped,
+                    "status" : "success",
+                    "module_type" : "na"
+                };
+                    query_track("status",data_query_track).then(response => {
+                    console.log("Insertion Successful");
+                    $('#mynetworks').empty();
+                    populate_track(userID).then(response => {
+                        $.each(response,function(key,value){
+                            transferQueryToStatusTable_track(value["query"], value["queryID"], "algo_option", "sparkID");
+                        })
+                            console.log(response);
+                    })
+                })
                 return;
             })
+
         }else if(($('#typeNA').val()=="User-Hashtag")||($('#typeNA').val()=="User-Mention")){
             totalQueries += 1;
             totalNetworkatInstance = totalNetworkatInstance + 1;
@@ -330,23 +508,21 @@ jQuery(function () {
         $(".from_date").text(searchRecords[index - 1].from);
         $(".to_date").empty();
         $(".to_date").text(searchRecords[index - 1].to);
+
+        $('html, body').animate({
+            scrollTop: $("#messagebox").offset().top
+          }, 900)
+
+          let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
+          let dir_name = userInfoTemp['id'];
+          let data_for_net_stats = {
+              input : filename,
+              dir_name : dir_name
+          }
+        //   diameter('na/diameter', data_for_net_stats).then(response => {
+        //     console.log(response);
+        // });
     })
-
-  
-    
-
-    //mala
-    // $('body').on('click', 'div .deleteBtn', function () {
-    //     let type = $(this).attr('type');
-    //     if (type == '0') {
-    //         $(this).parent().parent().remove();
-    //     } else {
-    //         let filename = $(this).attr('value');
-    //         removeFromStatusTable(filename);
-    //         $(this).parent().parent().remove();
-    //         //TODO::Delete file.
-    //     }
-    // });
 });
 // jquery ended
 
@@ -374,7 +550,7 @@ $("body").on('click', ".authorName",function(){
     let filename = queryTemp + fromDateStripped + toDateStripped + noOfNodesTemp + naTypeTemp;
     networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename).then(response => {
         generateCards(totalQueries, name_text, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
-        message_displayer("NETWORK GENERATED SUCCESSFULLY","success");
+        message_displayer("Network generated successfully","success");
         return;
     })
     $('#userContainerList-modal').modal('toggle');
@@ -406,7 +582,7 @@ $("#netTabNA").on('click',function(){
 $("#lpTabNA").on('click', function () {
 
     if(selected_graph_ids().length > 1){
-        message_displayer("SELECT A SINGLE NETWORK AND PROCEED","error");
+        message_displayer("Select a single network and proceed","error");
         return;   
     }
 
@@ -423,8 +599,9 @@ $("#lpTabNA").on('click', function () {
 });
 
 $("#centralityTab").on('click', function () {
+    console.log("Selected Graph IDs",selected_graph_ids);
     if(selected_graph_ids().length > 1){
-        message_displayer("SELECT A SINGLE NETWORK AND PROCEED","error");
+        message_displayer("Select a single network and proceed","error");
         return;   
     }
     var select_graph = selected_graph_ids();
@@ -439,9 +616,11 @@ $("#centralityTab").on('click', function () {
     currentViewTAB = "centralityTab";
 });
 
+
+
 $("#spTab").on('click', function () {
     if(selected_graph_ids().length > 1){
-        message_displayer("SELECT A SINGLE NETWORK AND PROCEED","error");
+        message_displayer("Select a single network and proceed","error");
         return;   
     }
     if(currentNetworkEngine=="spark"){
@@ -463,7 +642,7 @@ $("#spTab").on('click', function () {
 
 $("#commTab").on('click', function () {
     if(selected_graph_ids().length > 1){
-        message_displayer("SELECT A SINGLE NETWORK AND PROCEED","error");
+        message_displayer("Select a single network and proceed","error");
         return;   
     }
     var select_graph = selected_graph_ids();
@@ -495,7 +674,7 @@ $('#upload_form').on('submit', function (event) {
     let dir_name = userInfoTemp['id'];
 
     if(!$("#cardnamefileupload").val()){
-        message_displayer("NAME YOUR NETWORK IN THE INPUT BOX WHILE UPLOADING YOUR FILE","error");
+        message_displayer("Name your network in the input box while uploading your file","error");
         $('#myModal_file_upload').modal('toggle');
         return;  
     }
@@ -515,12 +694,12 @@ $('#upload_form').on('submit', function (event) {
             totalQueries = totalQueries + 1;
             totalNetworkatInstance = totalNetworkatInstance + 1;
             generateCards(totalQueries, $("#cardnamefileupload").val(), "fromDateStripped", "toDateStripped", "noOfNodesTemp", "Default", "naEngine", unique_id, 'naCards',"fileupload");
-            message_displayer("NETWORK IMPORTED SUCCESSFULLY. CLICK ON THE NETWORK CARD TO VIEW DETAILS","success");
+            message_displayer("Network imported successfully. click on the network card to view details","success");
             return; 
         }
     })
     .fail(function(res) {
-        message_displayer("AN UNEXPECTED ERROR OCCUR WHILE UPLOADING YOUR NETWORK. CHECK YOUR INPUTS AND TRY AGAIN. THIS MAY HAPPEN BECAUSE OF WRONG FILE FORMAT","error");
+        message_displayer("An unexpected error occur while uploading your network. check your inputs and try again. This may happen because of wrong file format","error");
         return;   
      })
     $('#myModal_file_upload').modal('toggle');
@@ -528,6 +707,7 @@ $('#upload_form').on('submit', function (event) {
 
 
 const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, naEngine, filename, div, status) => {
+    $("#hint_inside_na_cards").remove();
     let tempArr = [];
     tempArr = { 'id': id, 'query': query, 'from': fromDateTemp, 'to': toDateTemp, 'nodesNo': noOfNodesTemp, 'naType': naTypeTemp, 'filename': filename, 'naEngine': naEngine };
     searchRecords.push(tempArr);
@@ -536,16 +716,16 @@ const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTyp
     queryDictionaryNetworkName[filename] = naTypeTemp;
 
     if(status == "normal"){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> From: ' + fromDateTemp + ' </p><p class="   smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > To:' + toDateTemp + ' </p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Nodes: ' + noOfNodesTemp + '</p><p class="  smat-dash-title " style="margin-top:-2px;margin-bottom:0px;" > Type: ' + naTypeTemp + '</p><p class=" smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"> Status: Ready</p></div></div></div></div>');
+        $('#' + div).append('<div class="col-sm-3" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0 border border-primary" style="border-radius: 24px;"><div class="d-flex px-3 pt-2"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + ' checked></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0 text-center" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><p class="  smat-dash-title text-center" style="margin-top:-2px;margin-bottom:0px;">' + fromDateTemp + ' to '+toDateTemp+'</p><p class=" smat-dash-title text-center" style="margin-top:-2px;margin-bottom:0px;"> Nodes: ' + noOfNodesTemp + '</p><p class="  smat-dash-title text-center" style="margin-top:-2px;margin-bottom:0px;" > Type: ' + naTypeTemp + '</p><span class="d-flex justify-content-center smat-dash-title" style="margin-top:-2px;margin-bottom:0px;"><u>View Network</u></span></div></div></div></div>');
         currentOperation=null;
     }else if((status == "union")||(status == "intersection")||(status == "difference")){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
+        $('#' + div).append('<div class="col-sm-3" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0 border border-primary" style="border-radius: 24px;"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><span class="d-flex justify-content-end smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"><u>View Network</u></span></div>');
         currentOperation=null;
     }else if(status == "afterdeletion"){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
+        $('#' + div).append('<div class="col-sm-3" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0 border border-primary" style="border-radius: 24px;"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><span class="d-flex justify-content-end smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"><u>View Network</u></span></div>');
         currentOperation=null;
     }else if(status == "fileupload"){
-        $('#' + div).append('<div class="col-md-2" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p></div>');
+        $('#' + div).append('<div class="col-sm-3" value="' + id + '"><div class="card shadow p-0"><div class="card-body p-0 border border-primary" style="border-radius: 24px;"><div class="d-flex px-3 pt-3"><span class="pull-left"><i id="deleteCard" class="fa fa-window-close text-neg" aria-hidden="true"></i></span><div class="naCardNum text-center ml-auto mr-auto">' + padNumber(id) + '</div><span class="pull-right ml-auto"><input class="form-check-input position-static" type="checkbox" style="margin-top: -1px;" id=' + filename + '></span></div><div class="text-left networkCardDetails px-3 pb-3" style="border-radius:10px;" value="' + id + '" ><p class="font-weight-bold m-0" style="font-size:16px;" cardquery="' + query + '"> ' + query + '</p><span class="d-flex justify-content-end smat-dash-title " style="margin-top:-2px;margin-bottom:0px;"><u>View Network</u></span></div>');
         currentOperation=null;
     }
 
@@ -554,6 +734,8 @@ const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTyp
         $("#net-smat-tabs").show();
         $("#net-analysis-summary").show();
         $("#queryDisplay").show();
+        $("#naCards").css('overflow-x','auto');
+        $("#naCards").css('height','200px');
     }
 }
 
@@ -571,6 +753,7 @@ $("#naCards").on("click", "#deleteCard", function () {
         $("#net-smat-tabs").css('display', 'none');
         $("#net-analysis-summary").css('display', 'none');
         $("#queryDisplay").css("display","none");
+        // $("#hint").show();
     }
 });
 
@@ -578,8 +761,66 @@ $("#messagebox").on("click","#infopanel #deleteinfoCard", function () {
     $(this).parent().remove();
 });
 
-$("#show_summary_button").on("click",function () {
 
+$("#show_summary_button_intersection").on("click",function(){
+
+    if(summary_flag === true){
+        $("#card_summary").hide();
+        $("#card-division").removeClass("col-sm-8");
+        $("#card-division").addClass("col-sm-12");
+        $("#show_summary_button").text("Show Summary")
+        summary_flag = false;
+        }
+    else{
+        $("#card_summary").show();
+        $("#card-division").removeClass("col-sm-12");
+        $("#card-division").addClass("col-sm-8");
+        $("#show_summary_button").text("Hide Summary");
+        summary_flag = true;
+    }
+});
+
+
+$("#show_summary_button_union").on("click",function(){
+
+    if(summary_flag === true){
+        $("#card_summary").hide();
+        $("#card-division").removeClass("col-sm-8");
+        $("#card-division").addClass("col-sm-12");
+        $("#show_summary_button_union").text("Show Summary")
+        summary_flag = false;
+        }
+    else{
+        $("#card_summary").show();
+        $("#card-division").removeClass("col-sm-12");
+        $("#card-division").addClass("col-sm-8");
+        $("#show_summary_button_union").text("Hide Summary");
+        summary_flag = true;
+    }
+});
+
+
+$("#show_summary_button_difference").on("click",function(){
+
+    if(summary_flag === true){
+        $("#card_summary").hide();
+        $("#card-division").removeClass("col-sm-8");
+        $("#card-division").addClass("col-sm-12");
+        $("#show_summary_button_difference").text("Show Summary")
+        summary_flag = false;
+        }
+    else{
+        $("#card_summary").show();
+        $("#card-division").removeClass("col-sm-12");
+        $("#card-division").addClass("col-sm-8");
+        $("#show_summary_button_difference").text("Hide Summary");
+        summary_flag = true;
+    }
+});
+
+
+
+$("#show_summary_button").on("click",function () {
     if(summary_flag === true){
         $("#card_summary").hide();
         $("#card-division").removeClass("col-sm-8");
@@ -661,17 +902,21 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
         
     }
     centrality(url, data, currentNetworkEngine).then(response => {
+        $('#analysis_summary_charts').css("display", "block");
+        $('.analysis_summary_div').empty();
+        $(".analysis_summary_div").css("display", "none");
         if (currentNetworkEngine == "networkx") {
             render_centrality_graph(data["input"], "networkDivid", data["algo_option"],currentNetworkEngine).then(response => {
+                console.log("I am printing chart DATA",response);
                 chartBuilder(response["chartData"]);
                 $('.analysis_summary_div').html('');
                 $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node Rankings (Decreasing Order)</th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
                 for (var i = 0; i < response["nodes"].length; i++) {
-                    $('#tableBody').append('<tr><td>'+'<a href="#target" class="click_events">'+ response["nodes"][i]["label"] +'</a>'+ '</td><td>' + response["nodes"][i]["size"] + '</td></tr>');
+                    $('#tableBody').append('<tr><td>'+'<a href="#target" class="click_events">'+ response["nodes"][i]["label"] +'</a>'+ '</td><td>' + parseFloat(response["nodes"][i]["size"]).toFixed(3) + '</td></tr>');
                 }
                 $('.analysis_summary_div').append('</table>');
                 draw_graph(response, "networkDivid");
-                message_displayer("CENTRALITY CALCULATED SUCCESSFULLY","success");
+                message_displayer("centrality calculated successfully","success");
             });
         } else if (currentNetworkEngine == "spark") {
             let sparkID = response.id;
@@ -679,7 +924,7 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
             let queryMetaData = searchRecords[currentlyShowing - 1];
 
             if(!queryMetaData){
-                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                message_displayer("click on the selected network card then proceed","error");
                 return;
             }
 
@@ -717,7 +962,7 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
     }
 
     if(selected_graph_ids().length != 1){
-        message_displayer("SELECT A SINGLE NETWORK","error");
+        message_displayer("select a single network","error");
         return;
     }
 
@@ -744,19 +989,19 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
     }
 
     if(!$("#link_source_node").val()){
-        message_displayer("SELECT A NODE","error");
+        message_displayer("select a node","error");
         return;
     }else if(!$("#nos_links_to_be_predicted").val()){
-        message_displayer("ENTER NUMBER OF LINKS TO BE PREDICTED","error");
+        message_displayer("enter number of links to be predicted","error");
         return;
     }else if(!algo_option){
-        message_displayer("SELECT A LINK PREDICTION ALGORITHM CHOICE","error");
+        message_displayer("select a link prediction algorithm choice","error");
         return;
     }else if((selected_graph_ids().length == 0)){
-        message_displayer("SELECT A NETWORK","error");
+        message_displayer("select a network","error");
         return;
     }else if(selected_graph_ids().length > 1){
-        message_displayer("SELECT A SINGLE NETWORK","error");
+        message_displayer("select a single network","error");
         return;
     }
 
@@ -807,7 +1052,7 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
                 }
                 $('.analysis_summary_div').append('</table>');
                 update_view_graph_for_link_prediction(response, data["src"],$("#nos_links_to_be_predicted").val());
-                message_displayer("LINK PREDICTION OPERATION PERFORMED SUCCESSFULLY","success");
+                message_displayer("link prediction operation performed successfully","success");
                 return;
             });
         } else if (currentNetworkEngine == "spark") {
@@ -817,7 +1062,7 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
             let queryMetaData = searchRecords[currentlyShowing - 1];
 
             if(!queryMetaData){
-                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                message_displayer("click on the selected network card then proceed","error");
                 return;
             }
 
@@ -853,7 +1098,7 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
 
 
     if(selected_graph_ids().length != 1){
-        message_displayer("SELECT A SINGLE NETWORK","error");
+        message_displayer("select a single network","error");
         return;
     }
 
@@ -887,19 +1132,19 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
     }
 
     if(!src){
-        message_displayer("SELECT A SOURCE NODE","error");
+        message_displayer("select a source node","error");
         return;
     }else if(!dst){
-        message_displayer("SELECT A DESTINATION NODE","error");
+        message_displayer("select a destination node","error");
         return;
     }else if(!algo_option){
-        message_displayer("SELECT A SHORTEST PATH ALGORITHM CHOICE","error");
+        message_displayer("select a shortest path algorithm choice","error");
         return;
     }else if((selected_graph_ids().length == 0)){
-        message_displayer("SELECT A NETWORK","error");
+        message_displayer("select a network","error");
         return;
     }else if(selected_graph_ids().length > 1){
-        message_displayer("SELECT A SINGLE NETWORK","error");
+        message_displayer("select a single network","error");
         return;
     }
 
@@ -933,7 +1178,7 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
     shortestpaths(url, data, currentNetworkEngine).then(response => {
         if (currentNetworkEngine == "networkx") {
             render_shortestpath_graph(data["input"], data["src"], data["dst"]);
-            message_displayer("SHORTEST PATH OPERATION PERFORMED SUCCESSFULLY","success");
+            message_displayer("shortest path operation performed successfully","success");
             return;
         } else if (currentNetworkEngine == "spark") {
             let sparkID = response.id;
@@ -944,7 +1189,7 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
             let queryMetaData = searchRecords[currentlyShowing - 1];
 
             if(!queryMetaData){
-                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                message_displayer("click on the selected network card then proceed","error");
                 return;
             }
 
@@ -974,37 +1219,37 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
 // Setting community detection algo option
 $("#async").on("click", function () {
     $("#noOfCommunities").show();
-    community_algo_option = $("#async").text();
+    community_algo_option = $(this).attr("algo");
 });
 
 $("#lpa").on("click", function () {
-    community_algo_option = $("#lpa").text();
+    community_algo_option = $(this).attr("algo");
     $("#noOfCommunities").hide();
 });
 
 $("#grivan").on("click", function () {
-    community_algo_option = $("#grivan").text();
+    community_algo_option = $(this).attr("algo");
     $("#noOfCommunities").hide();
 });
 
 $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option = "") {
     if(selected_graph_ids().length > 1){
-        message_displayer("SELECT A SINGLE NETWORK","error");
+        message_displayer("select a single network","error");
         return;
     }else if(selected_graph_ids().length == 0){
-        message_displayer("SELECT A SINGLE NETWORK","error");
+        message_displayer("select a single network","error");
         return;
     }
     NAType = $("#networkEngineNA").val();
-    if (community_algo_option == "Async Fluidic") {
+    if (community_algo_option == "async") {
         algo_option = "async";
         if(!$("#noOfCommunities").val()){
-            message_displayer("ENTER NUMBER OF COMMUNITIES TO BE FOUND","error");
+            message_displayer("enter number of communities to be found","error");
             return;        
         }
-    } else if (community_algo_option == "Label Propagation") {
+    } else if (community_algo_option == "lpa") {
         algo_option = "lpa";
-    } else if (community_algo_option == "Grivan Newman") {
+    } else if (community_algo_option == "grivan") {
         algo_option = "grivan";
     }
     var select_graph = selected_graph_ids();
@@ -1053,12 +1298,14 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
         };
     } else {
     }
+
+    console.log("Community",data);
     community_detection(url, data, NAType).then(response => {
         if (currentNetworkEngine == "networkx") {
             render_community_graph1(data["input"]).then(response => {
                 render_graph_community(response, "networkDivid");
             });
-            message_displayer("COMMUNITY DETECTION PERFORMED SUCCESSFULLY","success");
+            message_displayer("Community detection performed successfully","success");
         } else if (currentNetworkEngine == "spark") {
 
             let sparkID = response.id;
@@ -1066,7 +1313,7 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
             let queryMetaData = searchRecords[currentlyShowing - 1];
 
             if(!queryMetaData){
-                message_displayer("CLICK ON THE SELECTED NETWORK CARD THEN PROCEED","error");
+                message_displayer("click on the selected network card then proceed","error");
                 return;
             }
 
@@ -1095,7 +1342,7 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
 
 $("#union_exec").on('click', function () {
     if((selected_graph_ids().length == 0) || (selected_graph_ids().length == 1)){
-        message_displayer("SELECT AT LEAST 2 NETWORKS","error");
+        message_displayer("select at least 2 networks","error");
         return;
     }
 
@@ -1153,7 +1400,7 @@ $("#union_exec").on('click', function () {
         if (currentNetworkEngine == "networkx") {
             render_union_graph(data["input"],input_arr_net_type).then(response => {
                 render_graph_union(response);
-                message_displayer("UNION OPERATION PERFORMED SUCCESSFULLY","success");
+                message_displayer("union operation performed successfully","success");
                 return;
             });
         } else if (currentNetworkEngine == "spark") {
@@ -1200,7 +1447,7 @@ $("#union_exec").on('click', function () {
 $("#intersection_exec").on('click', function (NAType = "networkx") {
 
     if((selected_graph_ids().length == 0) || (selected_graph_ids().length == 1)){
-        message_displayer("SELECT AT LEAST 2 NETWORKS","error");
+        message_displayer("select at least 2 networks","error");
         return;
     }
 
@@ -1252,7 +1499,7 @@ $("#intersection_exec").on('click', function (NAType = "networkx") {
             render_intersection_diff_graph(data["input"], "intersection").then(response => {
                 render_intersection_difference(response, "intersection_displayer", "intersection");
             });
-            message_displayer("INTERSECTION OPERATION PERFORMED SUCCESSFULLY","success");
+            message_displayer("intersection operation performed successfully","success");
             return;
         } else if (currentNetworkEngine == "spark") {
 
@@ -1313,7 +1560,7 @@ $("#export").on('click', function (NAType = "networkx") {
 $("#difference_exec").on('click', function (NAType = "networkx") {
 
     if((selected_graph_ids().length == 0) || (selected_graph_ids().length == 1)){
-        message_displayer("SELECT AT LEAST 2 NETWORKS","error");
+        message_displayer("select at least 2 networks","error");
         return;
     }
 
@@ -1336,14 +1583,14 @@ $("#difference_exec").on('click', function (NAType = "networkx") {
     var input_arr = [];
 
     if(!$("#difference_sequence").val()){
-        message_displayer("SELECT YOUR NETWORKS AND INPUT NETWORK IDs COMMA SEPARATED. EX. 2,1","error");
+        message_displayer("select your networks and input network ids comma separated. ex. 2,1","error");
         return;
     }
 
     let sequence = $("#difference_sequence").val().split(',');
     for (let i = 0; i < sequence.length; i++) {
         if(!(selected_graph_ids().includes(cardIDdictionary[sequence[i]]))){
-            message_displayer("MISMATCH IN INPUT CARD ID SEQUENCE AND SELECTED NETWORKS","error");
+            message_displayer("mismatch in input card id sequence and selected networks","error");
             return;
         }
         input_arr.push(cardIDdictionary[sequence[i]]);
@@ -1380,7 +1627,7 @@ $("#difference_exec").on('click', function (NAType = "networkx") {
             render_intersection_diff_graph(data["input"], "difference").then(response => {
                 render_intersection_difference(response, "difference_displayer", "difference");
             });
-            message_displayer("DIFFERENCE OPERATION PERFORMED SUCCESSFULLY","success");
+            message_displayer("Difference operation performed successfully","success");
             return;
         } else if (currentNetworkEngine == "spark") {
 
@@ -1483,8 +1730,19 @@ const transferQueryToStatusTable = (data, operation, algo, sparkID = 123, render
     $('#searchTable').css('display', 'block');
     let algoTitle = algoDict[algo];
     $('#naStatusTable').append('<tr><th scope="row">' + data.id + '</th><td>' + data.query + '</td><td>' + operation + ' (' + algoTitle + ')' + '</td><td>' + data.from + '</td><td>' + data.to + '</td><td  id="' + sparkID + 'Status">Running...</td><td><button class="btn btn-secondary smat-rounded mx-1 showBtn" value="' + data.id + '|' + sparkID + '|' + renderDivID + '"  id="' + sparkID + 'Btn" disabled > Show </button><button class="btn btn-neg mx-1  smat-rounded"> Delete </button></td></tr>');
-    message_displayer("APACHE SPARK : QUERY SUBMITTED SUCCESSFULLY","info");
+    message_displayer("APACHE SPARK : Query submitted successfully","info");
 }
+
+const transferQueryToStatusTable_track = (query_name, queryID, algo, sparkID = 123, renderDivID = 'networkDivid') => {
+    $('#mynetworks').css('display', 'block');
+   $("#mynetworks").prepend('<button class="btn alert alert-info mx-1 btn_mynetwork network_button" value="' + queryID + '"><b>'+query_name+'</b></button>');
+   if(network_del_db == "allowed"){
+    $('body .btn_mynetwork').tooltip({title: "Click to delete network", html: true, placement: "bottom"}); 
+   }else{
+    $('body .btn_mynetwork').tooltip({title: "Click to use the network", html: true, placement: "bottom"}); 
+   } 
+}
+
 
 const makeShowBtnReadyAfterSuccess = (sparkID, filename, mode, algo = null, originalFile) => {
     $('#' + sparkID + 'Btn').prop("disabled", false);
@@ -1495,5 +1753,26 @@ const makeShowBtnReadyAfterSuccess = (sparkID, filename, mode, algo = null, orig
     btnValue = btnValue + '|' + filename + '|' + mode + '|' + algo + '|' + originalFile + '|' + SourceNode + '|' + DestinationNode + '|' + k_value;
     $('#' + sparkID + 'Btn').attr('value', btnValue);
     $('#' + sparkID + 'Status').text('Success');
-    message_displayer("APACHE SPARK : COMPUTATION PERFORMED SUCCESSFULLY. CLICK ON SHOW TO GET THE RESULTS","success");
+    message_displayer("APACHE SPARK : Computation performed successfully. Click on show to get the results","success");
 }
+
+$('body #netdel').dblclick(function(event) {
+    $("#netdel").css("opacity", "100%");
+    network_del_db="allowed";
+    $("#netview").css("opacity","30%");
+    $("#modemsg").empty();
+    $("#modemsg").html('<p class="d-flex text-muted  mb-1 text-center" style="font-size:0.8rem">Delete Mode Active</p>');
+    $('body .btn_mynetwork').tooltip( "dispose" );
+    $('body .btn_mynetwork').tooltip({title: "Click to delete the network", html: true, placement: "bottom"}); 
+    $('body .btn_mynetwork').tooltip('enable'); 
+});
+
+$('body #netview').dblclick(function(event) {
+    $("#netdel").css("opacity", "30%");
+    network_del_db="notallowed";
+    $("#netview").css("opacity","100%");
+    $("#modemsg").empty();
+    $("#modemsg").html('<p class="d-flex text-muted mb-1 text-center" style="font-size:0.8rem">View Mode Active</p>');
+    $('body .btn_mynetwork').tooltip( "dispose" );
+    $('body .btn_mynetwork').tooltip({title: "Click to use the network", html: true, placement: "bottom"}); 
+    $('body .btn_mynetwork').tooltip('enable'); });

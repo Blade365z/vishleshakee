@@ -2,7 +2,7 @@ export const forwardToNetworkAnalysis = (argsArr) => {
   window.open('networkAnalysis?query=' + encodeURIComponent(argsArr[0]) + '&from=' + argsArr[2] + '&to=' + argsArr[1] + '&uniqueID=' + argsArr[4] + '&relation=' + encodeURIComponent(argsArr[3]) + '&user=' + argsArr[5], '_blank');
 }
 
-export const forwardToHistoricalAnalysis = (query, from=null, to=null) => {
+export const forwardToHistoricalAnalysis = (query, from=null, to=null, ks_name=null) => {
   let isLoggedIn = false;
   if(localStorage.getItem('smat.me')){
     isLoggedIn=true;
@@ -12,7 +12,7 @@ export const forwardToHistoricalAnalysis = (query, from=null, to=null) => {
     urlTemp = 'home?query=' + urlTemp;
     window.open(urlTemp, '_blank');
   } else {
-    let urlTemp = encodeURIComponent(query) + '&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to);
+    let urlTemp = encodeURIComponent(query) + '&from=' + encodeURIComponent(from) + '&to=' + encodeURIComponent(to) + '&pname=' + encodeURIComponent(ks_name);
     urlTemp = 'historicalAnalysis?query=' + urlTemp;
     window.open(urlTemp, '_blank');
   }

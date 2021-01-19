@@ -162,4 +162,5 @@ export const toShowSelectedProject = () => {
         let div1 = 'CP: <span style="color: #3490dc;">'+pname+'</span>';
         $("#selected_project_name_id").html(div1);
     }
+   
 }

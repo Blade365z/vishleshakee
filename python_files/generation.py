@@ -592,7 +592,7 @@ if(option == 502):
 	else:
 		os.mkdir(path)
 
-	filename=path+query+"communities_grivan"+".csv"
+	filename=path+query+"communities"+".json"
 	print filename
 
 	final_dict = {}
@@ -634,6 +634,7 @@ if(option == 111):
 	with open(filename,'w') as csv_file:
 		writer = csv.writer(csv_file)
 		writer.writerows(all_shortest_path)
+
 
 #degree centrality
 if(option == 1001):
@@ -769,6 +770,27 @@ if(option == 404):
 	with open(filename,'w') as csv_file:
 		writer = csv.writer(csv_file)
 		writer.writerows(all_shortest_path)
+
+if(option == 10101):
+	g=nx.Graph()
+	mydict = mo_obj.diameter(sys.argv[2])
+	query=sys.argv[3]
+	dir_name = sys.argv[4]+"/"
+
+	os.chdir("storage");
+	path = os.getcwd()+"/"+dir_name;
+
+	if((os.path.exists(path))):
+		pass
+	else:
+		os.mkdir(path)
+	rows = [[mydict]]  
+	filename=path+query+"diameter"+".csv"
+	print filename
+
+	with open(filename, 'w') as f: 
+		write = csv.writer(f) 
+		write.writerows(rows) 
 
 
 

@@ -74,6 +74,10 @@ export const getCompleteMap = (id,op) => {
     });
     var glow = new L.LayerGroup();
     var History_Map = L.map(id, {
+        fullscreenControl: true,
+        fullscreenControlOptions: {
+            position: 'topleft'
+        },
         center: [21.1458, 79.0882],
         zoom: 5,
         layers: [tiles, glow]
@@ -116,10 +120,18 @@ export const getCompleteMap = (id,op) => {
         }
     }
 
-
+    let setView_coordinates = false;
+    let setView_coordinates_lat = 0.0;
+    let setView_coordinates_lng = 0.0;
     var location_tweet_count = 0;
     for (var i = 0; i < op.length; i++) {
         if (op[i].Latitude != null) {
+            if(setView_coordinates!==true){
+                setView_coordinates_lat = op[i].Latitude;
+                setView_coordinates_lng = op[i].Longitude;
+                setView_coordinates = true;
+            }
+
             location_tweet_count = location_tweet_count + 1;
             var senti = op[i].sentiment.value;
             if (senti == "0") {
@@ -233,8 +245,23 @@ export const getCompleteMap = (id,op) => {
     if(location_tweet_count==0)
     {
         // displayErrorMsg(id,'error','No Location Found',false);
-        $('#'+id).css('height', '50px');
-        $('#'+id).html(`<div style="height: 50px;font-size:1.6em;"><div class="text-center ">No Map Data Found.</div></div>`);
+        // $('#'+id).css('height', '50px');
+        // $('#'+id).html(`<div style="height: 50px;font-size:1.6em;"><div class="text-center ">No Map Data Found.</div></div>`);
+        $('.legend_info').css({'padding': '25px'});
+        if(id=='result-div-map'){
+            $('#'+id).css('height', '400px');
+            History_Map.invalidateSize();
+            History_Map.zoomOut(2, {
+                "animate": true
+                });
+        }
+        else{
+            $('#'+id).css('height', '450px');
+            History_Map.invalidateSize('true');
+            History_Map.zoomOut(2, {
+                "animate": true
+                });
+        }
         
 
     }
@@ -242,10 +269,22 @@ export const getCompleteMap = (id,op) => {
         if(id=='result-div-map'){
             $('#'+id).css('height', '400px');
             History_Map.invalidateSize();
+            History_Map.setView([setView_coordinates_lat,setView_coordinates_lng], History_Map.getZoom(), {
+                "animate": true,
+                "pan": {
+                    "duration": 2
+                }
+                });
         }
         else{
             $('#'+id).css('height', '450px');
             History_Map.invalidateSize('true');
+            History_Map.setView([setView_coordinates_lat,setView_coordinates_lng], History_Map.getZoom(), {
+                "animate": true,
+                "pan": {
+                    "duration": 2
+                }
+                })
         }
     }
 }

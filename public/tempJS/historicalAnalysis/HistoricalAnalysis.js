@@ -2,16 +2,16 @@
 //imports 
 
 import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
-import { getFreqDistDataForHA, getTweetIDsForHA, getSentiDistDataForHA, getCooccurDataForHA, getQueryStatues, removeFromStatusTable, removeFromStatusTableNormal } from './helper.js';
+import { getFreqDistDataForHA, getTweetIDsForHA, getSentiDistDataForHA, getCooccurDataForHA, getQueryStatues, removeFromStatusTable, removeFromStatusTableNormal, getAnalysisForAProjectAPI, removeFromProjectActivityTable } from './helper.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
-import { getCurrentDate, getRangeType, dateProcessor } from '../utilitiesJS/smatDate.js';
+import { getCurrentDate, getRangeType, dateProcessor, getDateRange} from '../utilitiesJS/smatDate.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { generateUniqueID } from '../utilitiesJS/uniqueIDGenerator.js';
 import { makeSuggestionsReady, makeSmatReady, makeDropDownReady, getRelationType, displayErrorMsg, toShowSelectedProject } from '../utilitiesJS/smatExtras.js';
-import { getDateRange } from '../utilitiesJS/smatDate.js';
 import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './Advancehelper.js';
 import { forwardToNetworkAnalysis } from '../utilitiesJS/redirectionScripts.js';
 import { addNormalSearchToDB, populateRecentSearches } from '../userAnalysis/helper.js';
+import { checkIfAnyProjActive, checkAnalysisExistorNotFunction } from '../project/createProject.js';
 
 
 
@@ -34,19 +34,18 @@ if (localStorage.getItem('smat.me')) {
 
 var suggestionsGlobal, suggInputBoxBuffer = [];
 
-
+_MODE='HA';
 // ready function
 jQuery(function () {
-    console.log(localStorage.getItem('projectName'));
-    // to show project selected................................
-    toShowSelectedProject();
-    // ........................................................
-    
-    
+    checkIfAnyProjActive(); //for project
     $('[data-toggle="popover"]').popover(); //Initalizing popovers
     makeSmatReady();
     fromDate = getCurrentDate()
     toDate = dateProcessor(toDate, '-', 0);
+
+
+    
+    // normal searches
     populateRecentSearches(userID, 0, 'ha').then(response => {
         if (response.length < 1) {
             displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
@@ -55,6 +54,10 @@ jQuery(function () {
             updateStatusTable(element.query, element.fromDate, element.toDate, 0, true, element.queryID, false);
         });
     });
+
+
+
+
     // get past advance searches from MySQL Table......... 
     getQueryStatues(userID, 'ha').then(response => {
         if (response.length < 1) {
@@ -64,11 +67,8 @@ jQuery(function () {
             statusTableFlag = 1;
             $('#showTableBtn span').text(" Hide Search History ");
             $('#searchTable').css('display', 'block');
-            console.log("helooooooo");
-            console.log(response);
             response.forEach(element => {
-                updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID)
-
+                updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID);
                 addToStatusTable(element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.status);
             });
         }
@@ -93,7 +93,19 @@ jQuery(function () {
             updateStatusTable(incoming, fromDateReceived, toDateReceived, searchType, false, null, true);
 
         }
-    })
+    });
+
+
+
+
+    
+    // for project queries
+    if (localStorage.getItem('projectName')) {
+        updateProjStatsTable('ha');
+    }
+
+
+
     // /haQueryInputBox
     let getStatusFromMySqlInterval = setInterval(function () { getStatusFromMySql(userID, getStatusFromMySqlInterval); }, 10000);
 
@@ -195,8 +207,8 @@ jQuery(function () {
     $('#haQueryInputs').on('submit', function (event) {
         event.preventDefault();
         let q = $('#queryToken').val();
-        statusTableFlag = 1;
-        $('#searchTable').css('display', 'block');
+        // statusTableFlag = 1;
+        // $('#searchTable').css('display', 'block');
         $('#analysisPanelHA').css('display', 'none');
         let fromDate = $('#fromDateHA').val();
         let toDate = $('#toDateHA').val();
@@ -271,7 +283,6 @@ jQuery(function () {
             // console.log(response);
             getCompleteMap('result-div-map', response);
         });
-
     });
 
 
@@ -309,15 +320,31 @@ jQuery(function () {
     //TODO::Formulate these functions based on the searches
     $('body').on('click', '.showBtn', function () {
         $('#analysisPanelHA').css('display', 'block');
+       
         let recordsCaptured = searchRecords[$(this).attr('value')];
         // console.log(recordsCaptured);
+       
+
+        // for project
+        let pname=null; 
+        if($(this).attr('projectName')){
+            pname = $(this).attr('projectName'); 
+        }    
+        
+
         if (recordsCaptured[0]['searchType'] == 1) {
             // for advance search................
             // console.log(recordsCaptured[0]['query']);
             initiateHistoricalAnalysisAdvance(recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], recordsCaptured[0]['mentionUniqueID'], recordsCaptured[0]['hashtagUniqueID'], recordsCaptured[0]['userUniqueID'], recordsCaptured[0]['searchType'], recordsCaptured[0]['filename']);
         } else {
-            // for normal search........................
-            initiateHistoricalAnalysis(recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], recordsCaptured[0]['mentionUniqueID'], recordsCaptured[0]['hashtagUniqueID'], recordsCaptured[0]['userUniqueID'], recordsCaptured[0]['searchType']);
+            // for project
+            if (localStorage.getItem('projectName')) {
+                checkAnalysisExistorNotFunction(userID, recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], 'ha');
+            }
+
+
+            // for normal search........................pname for project
+            initiateHistoricalAnalysis(recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], recordsCaptured[0]['mentionUniqueID'], recordsCaptured[0]['hashtagUniqueID'], recordsCaptured[0]['userUniqueID'], recordsCaptured[0]['searchType'], pname);
         }
     });
 
@@ -328,8 +355,17 @@ jQuery(function () {
         let type = $(this).attr('type');
         let idCaptured = $(this).attr('value');
         if (type == '0') {
+            // for project
+            let pname=null; 
+            if($(this).attr('projectName')){
+                pname = $(this).attr('projectName'); 
+            }  
             $(this).parent().parent().remove();
-            removeFromStatusTableNormal(idCaptured);
+            //for project
+            if(pname)
+                removeFromProjectActivityTable(idCaptured);
+            else
+                removeFromStatusTableNormal(idCaptured);
         } else {
             removeFromStatusTable(idCaptured);
             $(this).parent().parent().remove();
@@ -340,15 +376,15 @@ jQuery(function () {
     });
 
 
-    $('body').on('click', 'div .saveAnalysisBtn', function () {
-        // let type = $(this).attr('type');
-        // let idCaptured = $(this).attr('value');
-        // if (type == '0') {
-        //     $(this).parent().parent().remove();
-        // } else {
-        //     //advance search
-        // }
-    });
+    // $('body').on('click', 'div .saveAnalysisBtn', function () {
+    //     // let type = $(this).attr('type');
+    //     // let idCaptured = $(this).attr('value');
+    //     // if (type == '0') {
+    //     //     $(this).parent().parent().remove();
+    //     // } else {
+    //     //     //advance search
+    //     // }
+    // });
 
 
     $('body').on('click', 'div .suggHashtags', function () {
@@ -398,7 +434,8 @@ const getStatusFromMySql = (userID) => {
 }
 
 
-const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable = false, filename = null, highlight = false) => {
+ const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable = false, filename = null, highlight = false, projectName=null, analysis_insertion_status=null) => {
+    // alert('called')
     let uniqueTimeStamp = filename == null ? new Date().getTime() : filename;
     let queryElement = decodeQuery(query);
     mentionUniqueID = generateUniqueID();
@@ -413,8 +450,29 @@ const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable 
         if (!filename) {
             addNormalSearchToDB(uniqueTimeStamp, userID, query, fromDate, toDate, 'Success', 'ha', hashtagUniqueID, mentionUniqueID);
         }
+
+        let div_id;
         $('#tableInitialTitle').html('');
-        $('<tr class="statusTableRow ' + highlightTag + '"><td>' + queryElement + '</td><td>' + fromDate + '</td><td>' + toDate + '</td><td >Success</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + uniqueTimeStamp + '"> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" type="0" value="' + uniqueTimeStamp + '"  > Delete </button></td></tr>').prependTo("#haNormalStatusTable");
+
+
+        if(projectName){
+            let a_status;
+            if(analysis_insertion_status == 1)
+                a_status = 'success';
+            else if(analysis_insertion_status == 0)
+                a_status = 'inserting';
+            else if(analysis_insertion_status == -1)
+                a_status = 'error';
+                
+            div_id = "#ProjectStatusTable";
+            $('<tr class="statusTableRow ' + highlightTag + '"><td><div>' + queryElement + '</div><div>from: '+fromDate+' to: '+toDate+'</div></td><td >'+a_status+'</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + uniqueTimeStamp + '" projectName="'+projectName+'"> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" type="0" value="' + uniqueTimeStamp + '" projectName="'+projectName+'" > Delete </button></tzd></tr>').prependTo(div_id);
+        }            
+        else{
+            div_id = "#haNormalStatusTable";      
+            $('<tr class="statusTableRow ' + highlightTag + '"><td><div>' + queryElement + '</div><div>from: '+fromDate+' to: '+toDate+'</div> </td><td >Success</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + uniqueTimeStamp + '"> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" type="0" value="' + uniqueTimeStamp + '"  > Delete </button></td></tr>').prependTo(div_id);      
+        }
+
+
         let recordTemp = [{ 'query': query, 'from': fromDate, 'to': toDate, 'mentionUniqueID': mentionUniqueID, 'hashtagUniqueID': hashtagUniqueID, 'userUniqueID': userUniqueID, 'searchType': searchType }];
 
         searchRecords[uniqueTimeStamp] = recordTemp;
@@ -556,7 +614,7 @@ const decodeQuery = (query) => {
 
     let counter = 0;
     let finalString = '';
-    finalString = '<div>';
+    finalString = '<div class="text-truncate" style="max-width:150px;" title="'+query+'">';
     for (let i = 0; i < queries.length; i++) {
         if (i == 0) {
             finalString += '<span>' + queries[i] + '</span> ';
@@ -594,20 +652,21 @@ const decodeOperand = (operand) => {
 
 
 
-const initiateHistoricalAnalysis = (queryTemp, fromTemp, toTemp, mentionID, hashtagID, activeUserID, searchType) => {
+const initiateHistoricalAnalysis = (queryTemp, fromTemp, toTemp, mentionID, hashtagID, activeUserID, searchType, pname=null) => {
     //  mentionUniqueID = generateUniqueID();
     query = queryTemp;
     fromDate = fromTemp;
     toDate = toTemp;
+
     $('#currentlySearchedQuery').text(query);
     $('#analysisPanelHA').css('display', 'block');
     let rangeType = getRangeType(fromDate, toDate);
 
-    frequencyDistributionHA(query, rangeType, fromDate, toDate, null, 'freqContentHA', false);
-    sentimentDistributionHA(query, rangeType, fromDate, toDate, null, 'sentiContentHA', false);
-    plotDistributionGraphHA(query, fromDate, toDate, 'user', activeUserID, userID, 'usersContentHA');
-    plotDistributionGraphHA(query, fromDate, toDate, 'mention', mentionID, userID, 'mentionsContentHA');
-    plotDistributionGraphHA(query, fromDate, toDate, 'hashtag', hashtagID, userID, 'hashtagsContentTab');
+    frequencyDistributionHA(query, rangeType, fromDate, toDate, null, 'freqContentHA', false, null, pname);
+    sentimentDistributionHA(query, rangeType, fromDate, toDate, null, 'sentiContentHA', false, null, pname);
+    plotDistributionGraphHA(query, fromDate, toDate, 'user', activeUserID, userID, 'usersContentHA', null, pname);
+    plotDistributionGraphHA(query, fromDate, toDate, 'mention', mentionID, userID, 'mentionsContentHA', null, pname);
+    plotDistributionGraphHA(query, fromDate, toDate, 'hashtag', hashtagID, userID, 'hashtagsContentTab', null, pname);
 }
 
 
@@ -638,7 +697,8 @@ const initiateHistoricalAnalysisAdvance = (queryTemp, fromTemp, toTemp, mentionI
 
 
 let freqParentDiv = 'freqContentHA';
-export const frequencyDistributionHA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null) => {
+export const frequencyDistributionHA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname=null) => {
+    console.log(pname);
     let chartType = 'freq-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
@@ -671,13 +731,13 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 0).then(data => {
+            getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 0, pname).then(data => {
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateFreqDistBarChart(query, data, rangeType, chartDivID);
                     freqSummaryGenerator(data, summaryDivID, rangeType);
-                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null).then(response => {
+                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
                     });
                 }
@@ -695,13 +755,13 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 0).then(data => {
+            getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 0, pname).then(data => {
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateFreqDistBarChart(query, data, rangeType, chartDivID);
                     freqSummaryGenerator(data, summaryDivID, rangeType);
-                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null).then(response => {
+                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
                     });
                 }
@@ -720,13 +780,13 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 1).then(data => {
+            getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 1, pname).then(data => {
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateFrequencyLineChart(query, data, rangeType, chartDivID);
                     freqSummaryGenerator(data, summaryDivID, rangeType);
-                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 1).then(response => {
+                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 1, pname).then(response => {
                         let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
                     });
@@ -740,7 +800,7 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
 
 
 let sentiParentDiv = 'sentiContentHA';
-export const sentimentDistributionHA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null) => {
+export const sentimentDistributionHA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname=null) => {
     let chartType = 'senti-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
@@ -771,13 +831,13 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getSentiDistDataForHA(query, fromDate, toDate, null, rangeType, 0).then(data => {
+            getSentiDistDataForHA(query, fromDate, toDate, null, rangeType, 0, pname).then(data => {
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateSentiDistBarChart(data, query, rangeType, chartDivID);
                     generateSentimentSummary(data, summaryDivID, rangeType);
-                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null).then(response => {
+                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
                     });
                 }
@@ -796,13 +856,13 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getSentiDistDataForHA(query, fromDate, toDate, null, rangeType, 0).then(data => {
+            getSentiDistDataForHA(query, fromDate, toDate, null, rangeType, 0, pname).then(data => {
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateSentiDistBarChart(data, query, rangeType, chartDivID);
                     generateSentimentSummary(data, summaryDivID, rangeType);
-                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null).then(response => {
+                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
                     });
                 }
@@ -820,13 +880,13 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getSentiDistDataForHA(query, fromDate, toDate, null, rangeType, 1).then(data => {
+            getSentiDistDataForHA(query, fromDate, toDate, null, rangeType, 1, pname).then(data => {
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateSentiDistLineChart(query, data, rangeType, chartDivID);
                     generateSentimentSummary(data, summaryDivID, rangeType);
-                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 1).then(response => {
+                    getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 1, pname).then(response => {
                         let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
                     });
@@ -840,7 +900,7 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
 
 
 
-const plotDistributionGraphHA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null) => {
+const plotDistributionGraphHA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null, pname=null) => {
     //Loader...
     let chartDivID = option + '-chart';
     $('#' + div).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
@@ -857,7 +917,7 @@ const plotDistributionGraphHA = (query, fromDate, toDate, option, uniqueID, user
             $('#' + option + '-total').text(response[0]['nodes']);
         });
     } else {
-        getCooccurDataForHA(query, fromDate, toDate, option, uniqueID, userID).then(response => {
+        getCooccurDataForHA(query, fromDate, toDate, option, uniqueID, userID, pname).then(response => {
             // console.log(response);
             let relType = getRelationType(query, option);
             $('#' + div).html('<div class="d-flex " ><span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span><button class="btn btn-primary mt-1  mr-3  analyzeNetworkButton  smat-rounded"   value="' + query + '?' + toDate + '?' + fromDate + '?' + relType + '?' + uniqueID + '?' + userID + '" > <span> Analyse network </span> </button></div><div class="px-5 co_occur_plot" id="' + chartDivID + '"></div>');
@@ -981,4 +1041,33 @@ const openSpecificTab = (tabID, tabClass) => {
     $(tab).addClass('active')
     $(tab).addClass('show')
 
+}
+
+
+const refreshProjContentsHA = () =>{
+    updateProjStatsTable();
+}
+
+
+
+
+// for project
+const updateProjStatsTable = (type) => {
+    $('#ProjectStatusTable').html('')
+    let projectName = null;
+    projectName = localStorage.getItem("projectName");
+    let project_id = localStorage.getItem("project_id");
+    getAnalysisForAProjectAPI(userID, project_id,type).then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitleProject', 'normal', 'No analysis found in records.', false);
+        }
+        response.forEach(element => {
+            updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName, element.insertion_successful_flag);
+        });
+    });
+}
+
+
+function alert1(){
+    console.log("alert");
 }

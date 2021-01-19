@@ -26,12 +26,12 @@ var HeadersForApi = {
 
 
 
-export const getFreqDistDataForHA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0) => {
+export const getFreqDistDataForHA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0, pname=null) => {
     let dataArg;
     if (toTime) {
-        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready,pname });
     } else {
-        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready,pname });
     }
     let response = await fetch('HA/getFrequencyDataForHistorical', {
         method: 'post',
@@ -45,12 +45,12 @@ export const getFreqDistDataForHA = async (query, from, to, toTime = null, range
 
 
 
-export const getTweetIDsForHA = async (query, from = null, to = null, rangeType, filter = null, isDateTimeAlready = 0) => {
+export const getTweetIDsForHA = async (query, from = null, to = null, rangeType, filter = null, isDateTimeAlready = 0, pname=null) => {
     let dataArgs;
     if (from != null && to != null && isDateTimeAlready == 0) {
-        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready });
+        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready, pname});
     } else if (isDateTimeAlready == 1) {
-        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready });
+        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready, pname });
     }
     let response = await fetch('UA/getTweetIDs', {
         method: 'post',
@@ -63,14 +63,13 @@ export const getTweetIDsForHA = async (query, from = null, to = null, rangeType,
 
 
 
-export const getSentiDistDataForHA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0) => {
+export const getSentiDistDataForHA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0, pname=null) => {
     let dataArg;
     if (toTime) {
-        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready, pname });
     } else {
-        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready, pname });
     }
-    console.log(dataArg);
     let response = await fetch('HA/getSentimentDataForHistorical', {
         method: 'post',
         headers: HeadersForApi,
@@ -83,9 +82,9 @@ export const getSentiDistDataForHA = async (query, from, to, toTime = null, rang
 
 
 
-export const getCooccurDataForHA = async (query, from, to, option, uniqueID, userID) => {
+export const getCooccurDataForHA = async (query, from, to, option, uniqueID, userID, pname=null) => {
    let dataArgs = JSON.stringify({
-        query, from, to, option, uniqueID, userID, mode:'write'
+        query, from, to, option, uniqueID, userID, mode:'write', pname
     });
     let dataArrayTemp = [];
     let noOfNodes = 0;
@@ -117,9 +116,9 @@ export const getCooccurDataForHA = async (query, from, to, option, uniqueID, use
 
 
 
-export const getTopDataHA = async (from, to, option, limit) => {
+export const getTopDataHA = async (from, to, option, limit, pname=null) => {
     let dataArgs = JSON.stringify({
-        from, to, option, limit
+        from, to, option, limit, pname
     });
          let response = await fetch('TA/getTopTrending', {
         method: 'post',
@@ -137,7 +136,7 @@ export const getQueryStatues = async (userID, mode) => {
         body:JSON.stringify({
             mode
         })
-    })
+    }) 
     let data = await response.json();
     return data;
 }
@@ -153,4 +152,28 @@ export const removeFromStatusTableNormal = async(id)=>{
         method: 'delete'
     })
                    
+}
+
+
+
+export const removeFromProjectActivityTable = async (full_query_id) => {
+    let response = await fetch('deleteFromProjectActivityTable', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            full_query_id   //declare body to be parsed in server
+        })
+    });
+    let data = await response.json();
+    return data;
+};
+
+
+export const getAnalysisForAProjectAPI = async (userID, projectID,type) => {
+    let response = await fetch('getAnalysisForUserUnderProject/' + userID + '/' + projectID+'/'+type, {
+        method: 'get',
+        headers: HeadersForApi
+    });
+    let data = await response.json();
+    return data;
 }

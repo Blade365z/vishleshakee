@@ -18,6 +18,7 @@ class CreateProjectsTable extends Migration
             $table->string('project_name');
             $table->string('project_creation_date');
             $table->string('user_id');
+            $table->string('status');
         });
     }
 

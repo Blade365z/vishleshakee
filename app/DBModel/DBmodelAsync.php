@@ -8,11 +8,11 @@ use App\DBModel\DBmodel;
 
 class DBmodelAsync extends Model
 {
-    private function db_connection($type)
+    private function db_connection($ks=null)
     {
         /*------------------DATABASE CREDENTIALS-------------------------*/
         $db_obj = new DBmodel;
-        $session = $db_obj->establish_db_connection($type);
+        $session = $db_obj->establish_db_connection($ks);
         return $session;
     }
 
@@ -22,10 +22,11 @@ class DBmodelAsync extends Model
         input - array(array(element1, element1), array(element1, element1), array(element1, element1), ...)
         ouput - Cassandra Future Row Object
     */
-    public function executeAsync_query($input_args, $prepared_statement,$type=null)
+    // public function executeAsync_query($input_args, $prepared_statement,$type=null)
+    public function executeAsync_query($input_args, $prepared_statement,$ks=null)
     {
 
-        $session = $this->db_connection($type);
+        $session = $this->db_connection($ks);
         $futures   = array();
         $result   = array();
         $prepared_statement = $session->prepare($prepared_statement);

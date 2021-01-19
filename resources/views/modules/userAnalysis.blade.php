@@ -16,7 +16,10 @@
                     id="uaSearchInput">
                     <i class="fa fa-search px-1 pt-2" aria-hidden="true" style="margin-top:5px"></i>
                     <input type="text" class="form-control" name="query" id="queryUASearch" placeholder="Search by an User"
-                        style="border:0px;" autocomplete="OFF"  data-container="body" data-trigger="focus" data-html="true" data-toggle="popover" data-placement="bottom" data-content="Search user using the characters only <b> ('@' required)</b>, For example:- <b>Narendra</b> " required>
+                        style="border:0px;" autocomplete="OFF" data-container="body" data-trigger="focus" data-html="true"
+                        data-toggle="popover" data-placement="bottom"
+                        data-content="Search user using the characters only <b> ('@' required)</b>, For example:- <b>Narendra</b> "
+                        required>
                 </div>
 
 
@@ -25,14 +28,49 @@
                     <button class="btn smat-btn  smat-rounded  mx-1 mb-3" id="submit-btnUserSearch" type="submit">
                         <span>Search
                             User</span> </button>
-                    <button class="btn text-normal smat-rounded  mx-1 mb-3 " onclick="return false;" id="showUAsugg"> <span
-                            id="suggestionCurrentStatus">Hide</span> Recent Searches </button>
-                   
+                    <span class=" text-normal clickable mx-2 my-3 " onclick="return false;" id="showUAsearches"> <span
+                            id="suggestionCurrentStatus">Hide</span> Recent Searches </span>
+                            <span class=" text-normal clickable  mx-2 my-3 " onclick="return false;" id="showUAsugg"> <span
+                                id="suggestionCurrentStatus">Hide</span> Suggestions </span>
+    
                 </div>
                 <!-- <button class="btn  text-normal smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show Search History </span> </button> -->
             </div>
 
         </form>
+    </div>
+    <div class="row" id="suggDiv">
+        <div class="col-md-6">
+            <div class="card shadow mb-2">
+                <div class="card-body">
+                    <div class="text-center">
+                        <h6 class="text-dark "> Popular Users </h6>
+                    </div>
+                    <div class="d-flex justify-content-center" id="suggUsers-1">
+
+                    </div>
+                    <div class="d-flex  justify-content-center mt-2" id="suggUsers-2">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow mb-2">
+                <div class="card-body">
+                    <div class="text-center">
+                        <h6 class="text-dark "> Popular News Handles </h6>
+                    </div>
+                    <div class="d-flex justify-content-center " id="suggNews-1">
+
+                    </div>
+                    <div class="d-flex justify-content-center mt-2 " id="suggNews-2">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 
@@ -40,35 +78,60 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-9">
+                    <div class="col">
                         <div>
                             <p class="m-0 smat-box-title"> Recent Searches</p>
                         </div>
-                        <div > 
+                        <div>
                             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-        
-        
+
+
                                 <li class="nav-item active recentSearchTab">
                                     <a class="nav-link smat-rounded active  " id="normalQueryTab" data-toggle="pill"
-                                        href="#normalQueryContent" role="tab" aria-controls="pills-profile" aria-selected="true"> Normal Queries</a>
+                                        href="#normalQueryContent" role="tab" aria-controls="pills-profile"
+                                        aria-selected="true"> Normal Queries</a>
                                 </li>
                                 <li class="nav-item recentSearchTab">
                                     <a class="nav-link smat-rounded " id="advQueryTab" data-toggle="pill"
                                         href="#advQueryContent" role="tab" aria-controls="mentionsContentUA"
                                         aria-selected="false"> Advance Queries</a>
                                 </li>
-                                
+
                             </ul>
                         </div>
-                        <div class="tab-content UATopContent" id="pills-tabContent"  >
-                       
-                            <div class="tab-pane fade recentSearchTabContent  px-1 active show" id="normalQueryContent" role="tabpanel"
-                                aria-labelledby="normalQueryContent">
+                        <div class="tab-content UATopContent" id="pills-tabContent">
+
+                            <div class="tab-pane fade recentSearchTabContent  px-1 active show" id="normalQueryContent"
+                                role="tabpanel" aria-labelledby="normalQueryContent">
                                 <div class="table-responsive ">
                                     <table class="table  table-bordered">
                                         <thead>
                                             <tr>
-                
+
+                                                <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                    
+                                                <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                                                <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="uaStatusTable">
+
+                                        </tbody>
+                                    </table>
+                                    <div id="tableInitialTitle">
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="tab-pane fade  recentSearchTabContent px-1  " id="advQueryContent" role="tabpanel"
+                                aria-labelledby="advQueryContent">
+                                <div class="table-responsive ">
+                                    <table class="table  table-bordered">
+                                        <thead>
+                                            <tr>
+
                                                 <th class="py-1 px-3 text-dark " scope="col">Query</th>
                                                 <th class="py-1 px-3 text-dark " scope="col">From </th>
                                                 <th class="py-1 px-3 text-dark " scope="col">To </th>
@@ -76,60 +139,53 @@
                                                 <th class="py-1 px-3 text-dark" scope="col"> Options</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="uaStatusTable">
-        
+                                        <tbody id="uaAdvStatusTable">
+
                                         </tbody>
                                     </table>
-                                    <div id="tableInitialTitle">
-                                      
+                                    <div id="tableInitialTitleAdv">
+
                                     </div>
                                 </div>
-                            
-                            
                             </div>
-                            <div class="tab-pane fade  recentSearchTabContent px-1  " id="advQueryContent" role="tabpanel"
-                            aria-labelledby="advQueryContent">
-                            <div class="table-responsive ">
-                                <table class="table  table-bordered">
-                                    <thead>
-                                        <tr>
-            
-                                            <th class="py-1 px-3 text-dark " scope="col">Query</th>
-                                            <th class="py-1 px-3 text-dark " scope="col">From </th>
-                                            <th class="py-1 px-3 text-dark " scope="col">To </th>
-                                            <th class="py-1 px-3 text-dark " scope="col"> Status</th>
-                                            <th class="py-1 px-3 text-dark" scope="col"> Options</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="uaAdvStatusTable">
-        
-                                    </tbody>
-                                </table>
-                                <div id="tableInitialTitleAdv">
-                                
-                                </div>
-                            </div>
-                        </div>
                         </div>
                     </div>
-                    <div class="col-sm-3 ">
+                    <div class="col projContent"  style="display: none;">
+                   
                         <div>
-                            <p class="m-0 smat-box-title"> Few user suggestion</p>
-                            <p class="text-muted pull-text-top m-0">Some popular users and news handle</p>
+                            <p class="m-0 smat-box-title">Saved in <b class="projName"></b></p>
                         </div>
-                        <div  id="userSuggestions" style="max-height:330px;overflow-y:auto;">
+                        <p class="m-0  text-dark"> Recent Searches saved in project <b class="projName"></b></p>
+                        <div class="table-responsive ">
+                            <table class="table  table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                       
+                                        <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                        
+                                        <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ProjectStatusTable">
+
+                                </tbody>
+                            </table>
+                            <div id="tableInitialTitleProject">
+
+                            </div>
+                        </div>
 
 
-                        </div>
                     </div>
                 </div>
-            
+
             </div>
         </div>
     </div>
-<div id="errorMsgUA">
+    <div id="errorMsgUA">
 
-</div>
+    </div>
     <div id="UAAnalysisDiv" style="display:none">
 
         <div class="row mt-3">
@@ -139,7 +195,7 @@
                         <p class="smat-box-title-large m-0">Showing results for <span
                                 class="smat-value font-weight-bold text-normal" id="showingResultsFor"> </span> </p>
                     </div>
-                   
+
                     <form id="uaQueryHandleForm">
                         <div class="d-flex" id="addAdvQueryDiv">
 
@@ -184,10 +240,11 @@
                     </form>
                     <div class="card shadow" id="userInfoDiv">
                         <div class="card-body">
-                            @if(Auth::check() && Auth::user()->role ==1)
-                            <div class="mt-1 d-flex w-100">   
-                                <span class="clickable ml-auto" id="addHandleToCrawlerList"> <i class="fas fa-user-plus"></i> Add User to Crawler</span>
-                            </div>
+                            @if (Auth::check() && Auth::user()->role == 1)
+                                <div class="mt-1 d-flex w-100">
+                                    <span class="clickable ml-auto" id="addHandleToCrawlerList"> <i
+                                            class="fas fa-user-plus"></i> Add User to Crawler</span>
+                                </div>
                             @endif
                             <div class="dFlexBut">
                                 <div class="text-center">
@@ -236,7 +293,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                             
+
                             </div>
 
                         </div>
@@ -290,31 +347,34 @@
 
             <div class="card shadow">
                 <div class="card-body">
+                    <div class="d-flex">
+                        <div>
 
-                    <div>
-
-                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active smat-rounded uaNav" id="frqTabUA" data-toggle="pill"
-                                    href="#freqContentUA" role="tab" aria-controls="freqContentUA"
-                                    aria-selected="true">Frequency</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link smat-rounded  uaNav " id="sentiTabUA" data-toggle="pill"
-                                    href="#sentiContentUA" role="tab" aria-controls="pills-profile"
-                                    aria-selected="false">Sentiment</a>
-                            </li>
-
-
+                            <ul class="nav nav-pills mb-3 mt-3" id="pills-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active smat-rounded uaNav" id="frqTabUA" data-toggle="pill"
+                                        href="#freqContentUA" role="tab" aria-controls="freqContentUA"
+                                        aria-selected="true">Frequency</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link smat-rounded  uaNav " id="sentiTabUA" data-toggle="pill"
+                                        href="#sentiContentUA" role="tab" aria-controls="pills-profile"
+                                        aria-selected="false">Sentiment</a>
+                                </li>
 
 
-                            <li class="nav-item">
-                                <a class="nav-link smat-rounded uaNav" id="locationTabUA" data-toggle="pill"
-                                    href="#locationContentUA" role="tab" aria-controls="pills-contact"
-                                    aria-selected="false">Locations</a>
-                            </li>
-                        </ul>
 
+
+                                <li class="nav-item">
+                                    <a class="nav-link smat-rounded uaNav" id="locationTabUA" data-toggle="pill"
+                                        href="#locationContentUA" role="tab" aria-controls="pills-contact"
+                                        aria-selected="false">Locations</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="ml-auto">
+                            <button class="btn  mx-1 smat-rounded my-2 px-4" id="save_analysis_project_id"> </button>
+                        </div>
                     </div>
                     <div class="tab-content" id="pills-tabContent">
 

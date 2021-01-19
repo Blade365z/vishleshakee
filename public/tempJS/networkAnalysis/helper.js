@@ -12,13 +12,17 @@ import { getquerydictfilename } from './NetworkAnalysis.js';
 var network_global;
 var global_edges;
 var deletedNodes = [];
+var update_node_list = [];
 
 export const chartBuilder = async(data)=> {
     var node_list = "";
+    update_node_list = data;
     for(let i=0; i<data.length;i++){
         let round = data[i].value;
-        node_list = node_list+`<li class="list-group-item d-flex justify-content-between align-items-center text-truncate" style="font-size: large;"> <span class="font-weight-bold"> Rank: `+(i+1)+` </span><a href="#target" class="click_events">`+data[i].key+`</a>
-        <span class="badge badge-primary badge-pill">`+round+`</span>
+        let nodeNAME= data[i].key;
+        nodeNAME = nodeNAME.substring(1);
+        node_list = node_list+`<li class="list-group-item d-flex justify-content-between align-items-center text-truncate" style="font-size: large;"> <span class="font-weight-bold"> Rank: `+(i+1)+` </span><a href="#target" class="click_events" id= `+nodeNAME+`>`+data[i].key+`</a>
+        <span class="badge badge-primary badge-pill">`+parseFloat(round).toFixed(3)+`</span>
         </li>`;
     }
     $('#analysis_summary_charts').empty();
@@ -84,7 +88,18 @@ export const chartBuilder = async(data)=> {
     series.columns.template.events.on("over", function (ev) {
        console.log(ev.target.tooltipDataItem.categories.categoryX);
        node_highlighting(ev.target.tooltipDataItem.categories.categoryX);
+       let mymsg = ev.target.tooltipDataItem.categories.categoryX;
+       mymsg = mymsg.toString()
+       $(ev.target.tooltipDataItem.categories.categoryX).html("<b>"+mymsg+"</b>");
+       for(let i=0; i<update_node_list.length;i++){
+            if(update_node_list[i].key != mymsg){
+                $(update_node_list[i].key).html(update_node_list[i].key);
+                console.log("OK");
+            }
+        }
     });
+
+
  
     var columnTemplate = series.columns.template;
     columnTemplate.strokeWidth = 2;
@@ -92,6 +107,8 @@ export const chartBuilder = async(data)=> {
 }
 
 function barChartBuilder(div_name,chart_data,title_text){
+    console.log("Printing chart data");
+    console.log(chart_data);
         /**
      * ---------------------------------------
      * This demo was created using amCharts 4.
@@ -112,6 +129,7 @@ function barChartBuilder(div_name,chart_data,title_text){
 
     // Create chart instance
     var chart = am4core.create(div_name, am4charts.XYChart);
+
 
     // Add data
     chart.data = chart_data;
@@ -142,6 +160,7 @@ function barChartBuilder(div_name,chart_data,title_text){
     series.dataFields.valueY = "value";
     series.dataFields.categoryX = "key";
     series.name = "value";
+    series.columns.template.propertyFields.fill = "color";
     series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
     series.columns.template.fillOpacity = .8;
     series.columns.template.events.on("over", function (ev) {
@@ -179,17 +198,17 @@ export const render_graph = async (url,input) => {
 export const message_displayer = async (msg,category) => {
     $("#messagebox").empty();
     if(category == "info"){
-        $("#messagebox").append('<div class="card bg-info text-white m-2">'+'<div class="card-body text-center"><b>'+msg+'</b></div>'+'</div>');
+        $("#messagebox").append('<div class="d-flex justify-content-center alert alert-info" role="alert"><strong> Information : </strong>&nbsp'+ msg +'</div>');
     }else if(category == "error"){
-        $("#messagebox").append('<div class="card bg-danger text-white m-2">'+'<div class="card-body text-center"><b>'+msg+'</b></div>'+'</div>');
+        $("#messagebox").append('<div class="d-flex justify-content-center alert alert-danger" role="alert"><strong> Error : </strong>&nbsp'+ msg +'</div>');
     }else if(category == "success"){
-        $("#messagebox").append('<div class="card bg-success text-white m-2">'+'<div class="card-body text-center"><b>'+msg+'</b></div>'+'</div>');
+        $("#messagebox").append('<div class="d-flex justify-content-center alert alert-success" role="alert"><strong> Success : </strong>&nbsp'+ msg +'</div>');
     }
 }
 
 
 export const networkGeneration = async (url,queryTemp,fromDateTemp,toDateTemp,noOfNodesTemp,naTypeTemp,filename) => {
-    message_displayer("GENERATING YOUR REQUESTED NETWORK","info");
+    message_displayer("Generating your requested network","info");
     let dir_name = getmystoragedir();
     let data = {
         token : queryTemp,
@@ -298,7 +317,12 @@ export const update_view_graph_for_link_prediction = (res,src,k_value) => {
     }
 
 
+    $('#analysis_summary_charts').css("display", "none");
     $('.analysis_summary_div').empty();
+    $(".analysis_summary_div").css("display", "block");
+
+    $('.analysis_summary_div').append('<table> <tr><th style="width:20px">Rank</th><th style="width:30px">Source</th><th style="width:340px">Predicted Destination</th></tr>');
+    // $('.analysis_summary_div').empty();
     let j = 0;
     for (var i = 0; ((i < res.length) && (j < k_value)); i++) {
         if (src == res[i].id) {
@@ -314,7 +338,7 @@ export const update_view_graph_for_link_prediction = (res,src,k_value) => {
         }
 
         j++;
-        $('.analysis_summary_div').append('<tr><td>'+'<a href="#target" class="click_events">'+ src +'</a>'+'</td><td>' + res[i].id + '</td></tr>');
+        $('.analysis_summary_div').append('<tr><td style="width:20px">'+(i+1)+'</td><td style="width:30px">'+'<a href="#target" class="click_events">'+ src +'</a>'+'</td><td style="width:340px">' + res[i].id + '</td></tr>');
     }
     $('.analysis_summary_div').append('</table>');
 
@@ -328,6 +352,60 @@ export const centrality = async (url,data,NAType) =>{
         headers: HeadersForApi,
         body : JSON.stringify(data),
     });
+
+    let output = await response.json();
+    return output;
+}
+
+export const diameter = async(url,data) =>{
+    let response = await fetch(url,{
+        method : "post",
+        headers: HeadersForApi,
+        body : JSON.stringify(data),
+    })
+
+    let output = await response.json();
+    return output;
+}
+
+export const query_track = async (url,data) =>{
+    let response = await fetch(url,{
+        method : 'post',
+        headers: HeadersForApi,
+        body : JSON.stringify(data),
+    });
+
+    let output = await response.json();
+    return output;
+}
+
+
+export const populate_track = async (id) =>{
+    let response = await fetch('status/'+id,{
+        method : 'post',
+        headers: HeadersForApi,
+        body : JSON.stringify({
+            mode:'na'
+        }),
+    });
+
+
+    let output = await response.json();
+    return output;
+}
+
+export const delete_queries_from_db = async (input,userID) =>{
+    let response = await fetch('destroynets',{
+        method : 'post',
+        headers: HeadersForApi,
+        body : JSON.stringify({
+            mode:'na',
+            queryID:input,
+            userID:userID
+        }),
+    });
+
+    console.log(response);
 
     let output = await response.json();
     return output;
@@ -347,6 +425,7 @@ export const render_centrality_graph = async (input,id_value,algo_option,current
 }
 
 export const community_detection = async (url,data,NAType) =>{
+    console.log("My Data",data);
     let response = await fetch(url,{
         method : 'post',
         headers: HeadersForApi,
@@ -379,48 +458,137 @@ export const render_community_graph1 = async (input) => {
 
 export const render_graph_community = (res,id_value) =>{
     $('#analysis_summary_charts').empty();
+    $('#analysis_summary_charts').css("display", "block");
     $("#analysis_summary_charts").append(`<div class="shadow analysis_chart_div" id="chartDiv" style="overflow-x:auto;overflow-y:auto;"></div>
         <div class="shadow analysis_chart_div" id="chartDiv1" style="overflow-x:auto;overflow-y:auto;"></div>`);
 
+    console.log("Printing COM");
+    console.log(res);
+    console.log(res["groups"]);
 
     var nodes_arr = res["nodes"];
     var edges_arr = res["edges"];
-    console.log(res);
-    console.log(res["interCommunityEdges"]);
+
     let temp_community_number = 0;
-    var data_node = []
+    var data_node = [];
+
     $.each(res["groups"], function(key, value){
         var temp = {};
-        temp["key"] = "Community_"+String(temp_community_number);
+        temp["key"] = "Community "+String(temp_community_number + 1);
         temp["value"] = value.length;
+        if((temp_community_number +1) == 1){
+            temp["color"] = "blue";
+            console.log("COL1");
+        }else if((temp_community_number +1) == 2){
+            temp["color"] = "yellow";
+            console.log("COL2");
+        }else if((temp_community_number +1) == 3){
+            temp["color"] = "red";
+        }else if((temp_community_number +1) == 4){
+            temp["color"] = "green";
+        }else if((temp_community_number +1) == 5){
+            temp["color"] = "pink";
+        }else if((temp_community_number +1) == 6){
+            temp["color"] = "purple";
+        }else if((temp_community_number +1) == 7){
+            temp["color"] = "orange";
+        }else if((temp_community_number +1) == 8){
+            temp["color"] = "brown";
+        }else if((temp_community_number +1) == 9){
+            temp["color"] = "black";
+        }
         data_node.push(temp);
         temp_community_number = temp_community_number+1;
     });
 
     let temp_edge_community_number = 0;
     var data_edge = [];
-    
-    res["interCommunityEdges"].forEach(function(v){
-        var temp = {};
-        temp["key"] = "Community "+String(temp_edge_community_number);
-        temp["value"] = v;
-        data_edge.push(temp);
-        temp_edge_community_number = temp_edge_community_number+1;
-    });
+    if(res["interCommunityEdges"].length >= 1){
+        res["interCommunityEdges"].forEach(function(v){
+            var temp = {};
+            temp["key"] = "Community "+String(temp_edge_community_number + 1);
+            temp["value"] = v;
+            data_edge.push(temp);
+            if((temp_edge_community_number +1) == 1){
+                temp["color"] = "blue";
+                console.log("COL1");
+            }else if((temp_edge_community_number +1) == 2){
+                temp["color"] = "yellow";
+                console.log("COL2");
+            }else if((temp_edge_community_number +1) == 3){
+                temp["color"] = "red";
+            }else if((temp_edge_community_number +1) == 4){
+                temp["color"] = "green";
+            }else if((temp_edge_community_number +1) == 5){
+                temp["color"] = "pink";
+            }else if((temp_edge_community_number +1) == 6){
+                temp["color"] = "purple";
+            }else if((temp_edge_community_number +1) == 7){
+                temp["color"] = "orange";
+            }else if((temp_edge_community_number +1) == 8){
+                temp["color"] = "brow";
+            }else if((temp_edge_community_number +1) == 9){
+                temp["color"] = "black";
+            }
+            temp_edge_community_number = temp_edge_community_number+1;
+        });
+    }
 
     barChartBuilder("chartDiv",data_node,"Nodes in each Communities");
-    barChartBuilder("chartDiv1",data_edge,"Edges in each Communities");
+    barChartBuilder("chartDiv1",data_edge,"Intra Community Edges");
 
     
 
     $('.analysis_summary_div').empty();
-    // $('.analysis_summary_div').append('<table> <tr><th>Node</th><th>Score</th></tr>');
+    $(".analysis_summary_div").css("display", "none");
+    $('#analysis_summary_charts').append('<div id="mydiv" style="height:250px;width:420px;overflow:scroll;">');
+    $('#mydiv').append('<table class="table table-sm"><thead><tr><th scope="col">Community No.</th><th scope="col">Community Members</th></tr></thead>');
+    $('#mydiv').append("<tbody>");
     for(var i=0; i<res["groups"].length;i++){
-        $('.analysis_summary_div').append('<tr><td>'+(i+1)+'</td><td>'+res["groups"][i]+'</td></tr>');
+        $('#mydiv').append('<tr><th scope="row" > <a href="#target" class="click_events_community">'+(i+1)+'</th><td style="width:30px">'+res["groups"][i]+'</td></tr>');
     }
-    $('.analysis_summary_div').append('</table>');
+    $('#mydiv').append("</tbody>");
+    $('#mydiv').append('</table>');
+    
+    const groupsN = res["groups"].length;
+    
+    const groups = []
+    for (let i = 1; i <= groupsN; i++) {
+        groups.push(i)
+    }
+    
+
+    const visNodes = []
+    $.each(nodes_arr, function(index, value) {        
+        visNodes.push({
+           "id": value.id,
+           "label": value.label,
+           "group": value.group+1,
+           "size": 25,
+           "font": { size: 25 }
+        });
+    });
+
+
+    const visEdges = []
+    $.each(edges_arr, function(index, value) {
+        visEdges.push({
+            "from": value.from,
+            "to": value.to,
+            "label": value.label
+        });
+    });
+    
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
+    edges.add(visEdges);
+
+    console.log(visNodes);
+    // console.log(visEdges);
+    console.log(groups);
+
+    computeNodesPositionsDistricts(visNodes, groups);
+    nodes.add(visNodes);
 
     // create a network
     var container = document.getElementById(id_value);
@@ -429,36 +597,98 @@ export const render_graph_community = (res,id_value) =>{
         edges: edges
     };
 
-    network_global = new vis.Network(container, data, community_options);
+    var options = {
+        nodes: {
+            shape: 'dot',
+            scaling: {
+                min: 10,
+                max: 30
+            },
+            font: {
+                size: 30,
+                face: 'courier'
+            },
+            borderWidth: 1,
+            // shadow: true
+        },
+        physics:
+        {
+            enabled: false
+        }
+    }
+
+    network_global = new vis.Network(container, data, options);
+    network_global.on('afterDrawing', (ctx) => afterNetworkDrawing(network_global, ctx));
 
     // to add node dynamically
-    $.each(nodes_arr, function(index, value) {        
-        nodes.add({
-           "id": value.id,
-           "label": value.label,
-           "group": value.group,
-           "size": 25,
-           "font": { size: 25 }
-        });
-    });
+    // $.each(nodes_arr, function(index, value) {        
+    //     nodes.add({
+    //        "id": value.id,
+    //        "label": value.label,
+    //        "group": value.group,
+    //        "size": 25,
+    //        "font": { size: 25 }
+    //     });
+    // });
     
 
     // to add edges dynamically
-    setTimeout(function() {
-        $.each(edges_arr, function(index, value) {
-            setTimeout(function() {
-                edges.add({
-                    "from": value.from,
-                    "to": value.to,
-                    "label": value.label
-                });
-            }, 10);
-        });
-    }, 10000);
+    // setTimeout(function() {
+    //     $.each(edges_arr, function(index, value) {
+    //         setTimeout(function() {
+    //             edges.add({
+    //                 "from": value.from,
+    //                 "to": value.to,
+    //                 "label": value.label
+    //             });
+    //         }, 10);
+    //     });
+    // }, 10000);
     
 var scaleOption = {scale:0.3};
 network_global.moveTo(scaleOption);
 
+}
+
+setRGBAColorAlpha = (startingColor, targetAlpha) => {
+    let c = startingColor
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(startingColor)) {
+        c = startingColor.substring(1).split('')
+        if (c.length == 3) {
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]]
+        }
+        c = `0x${c.join('')}`
+        return `rgba(${[(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',')}, ${targetAlpha})`
+    } else return c
+}
+afterNetworkDrawing = (network, ctx) => {
+    const groupsPoints = {}
+    for (const node of network.body.data.nodes.get()) {
+        const nodePosition = network.getPositions([node.id])
+        if (nodePosition[node.id]) {
+            if (!groupsPoints[node.group]) groupsPoints[node.group] = []
+            groupsPoints[node.group].push({ x: nodePosition[node.id].x, y: nodePosition[node.id].y })
+        }
+    }
+
+    ctx.lineWidth = 5
+
+    for (const group in groupsPoints) {
+        const convexPoints = convexHull(groupsPoints[group])
+        const groupColor = network.groups.groups[group].color.background
+
+        ctx.fillStyle = setRGBAColorAlpha(groupColor, 0.2)
+        ctx.beginPath()
+        ctx.moveTo(convexPoints[0].x, convexPoints[0].y)
+        for (let i = 1; i < convexPoints.length; i++) {
+            ctx.lineTo(convexPoints[i].x, convexPoints[i].y)
+        }
+        ctx.closePath()
+        ctx.fill()
+
+        ctx.strokeStyle = setRGBAColorAlpha(groupColor, 0.3)
+        ctx.stroke()
+    }
 }
 
 export const node_highlighting = async(input) =>{
@@ -481,8 +711,39 @@ export const node_highlighting = async(input) =>{
     network_global.body.data.nodes.update(new_array);
 }
 
+export const node_highlighting_community = async(input) =>{
+    console.log(network_global);
+    console.log("The input value is");
+    console.log(input);
+    $.each(network_global.body.data.nodes._data, function(index, value) {
+        console.log("Value");
+        console.log(value);
+        let new_value = value.id;
+        console.log("Printing new_value");
+        console.log(new_value);
+        console.log("Printing value of input");
+        console.log(input);
+        console.log("network_global_community.body.data.nodes._data[new_value].group ");
+        console.log(network_global.body.data.nodes._data[new_value].group);
+
+        if (network_global.body.data.nodes._data[new_value].group == input) {
+            network_global.body.data.nodes._data[new_value].size = 100;
+            network_global.body.data.nodes._data[new_value].font.size = 150;
+        } else {
+            network_global.body.data.nodes._data[new_value].size = 25;
+            network_global.body.data.nodes._data[new_value].font.size = 25;
+        }
+    });
+
+    let new_array = [];
+    $.each(network_global.body.data.nodes._data, function(index, value, input) {
+        new_array.push(value);
+    });
+    network_global.body.data.nodes.update(new_array);
+}
+
 export const shortestpaths = async (url,data,NAType) =>{
-    message_displayer("CALCULATING SHORTEST PATHS","info");
+    message_displayer("Calculating shortest paths","info");
     let response = await fetch(url,{
         method : 'post',
         headers: HeadersForApi,
@@ -512,23 +773,29 @@ export const render_shortestpath_graph = (input, src_id, dst_id) => {
         })
         .fail(function(res) {
             console.log(res);
-            message_displayer("AN UNEXPECTED ERROR OCCUR WHILE PROCESSING YOUR REQUEST. REFRESH YOUR BROWSER AND TRY AGAIN","error");
+            message_displayer("An unexpected error occured while processing your request. Refresh the page and try again.","error");
             return;
         })
     }
 
     export const update_sp_graph = (res) =>  {
 
+        $('#analysis_summary_charts').css("display", "none");
         $('.analysis_summary_div').empty();
+        $(".analysis_summary_div").css("display", "block");
 
+        // $('.analysis_summary_div').empty();
+        $('.analysis_summary_div').append('<table> <tr><th style="width:20px">Sl No.</th><th style="width:350px">Path</th><th style="width:30px">Path Length</th></tr>');
         if(res["paths"].length > 1){
             for(var per=0;per<res["paths"].length;per++){
-                    $('.analysis_summary_div').append('<tr><td>'+(per+1)+'</td><td>'+res["paths"][per]+'</td></tr>');
+                console.log("I am haha",res["paths"][per]);
+                    $('.analysis_summary_div').append('<tr><td style="width:20px">'+(per+1)+'</td><td style="width:340px">'+res["paths"][per]+'</td><td style="width:40px">'+(res["paths"][per].length - 1)+'</td></tr>');
             }
             $('.analysis_summary_div').append('</table>');
         }else{
             for(var i=0; i<res["paths"].length;i++){
-                $('.analysis_summary_div').append('<tr><td>'+(i+1)+'</td><td>'+res["paths"]+'</td></tr>');
+                console.log("I am haha",res["paths"]);
+                $('.analysis_summary_div').append('<tr><td style="width:20px">'+(i+1)+'</td><td style="width:340px">'+res["paths"]+'</td><td style="width:40px">'+(res["paths"][0].length - 1)+'</td></tr>');
             }
             $('.analysis_summary_div').append('</table>');
         }
@@ -648,11 +915,6 @@ export const draw_graph = (res,id_value) => {
     $(".nos_of_edges").text(edges_arr.length);
 
     $('.analysis_summary_div').html('');
-    $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
-    for (var i = 0; i < nodes_arr.length; i++) {
-        $('#tableBody').append('<tr><td>'+'<a href="#target" class="click_events">'+ nodes_arr[i].label +'</a>'+ '</td></tr>');
-    }
-
 
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
@@ -773,7 +1035,7 @@ export const delete_node = (properties, data) => {
 
 export const selected_graph_ids = () => {
     var ids_arr = [];
-    ids_arr = $( $('#naCards .col-md-2 .form-check-input:checked')).map(function(){
+    ids_arr = $( $('#naCards .col-sm-3 .form-check-input:checked')).map(function(){
         return this.id;
     }).get()
     return ids_arr;
@@ -781,7 +1043,7 @@ export const selected_graph_ids = () => {
 
 export const selected_graph_query = () => {
     var ids_arr = [];
-    ids_arr = $( $('#naCards .col-md-2 .form-check-input:checked')).map(function(){
+    ids_arr = $( $('#naCards .col-sm-3 .form-check-input:checked')).map(function(){
         return this.query;
     }).get()
     return ids_arr;
@@ -830,6 +1092,7 @@ export const getDeletedNodes = async () => {
 }
 
 export const render_graph_union = (res) => {
+    console.log("Rendering Union",res);
     var nodes_arr = res["nodes"];
     var edges_arr = res["edges"];
     var querynodeinfo = res["querynode"];
@@ -847,31 +1110,86 @@ export const render_graph_union = (res) => {
     let selectedGraphs = selected_graph_ids();
     let querydictfilename = getquerydictfilename();
 
+    // $('.shadow analysis_chart_div').empty();
+    // $('#infoDiv').remove();
+    $('#analysis_summary_charts').css("display", "none");
     $('.analysis_summary_div').empty();
-    $('.analysis_summary_div').append('<table> <tr><th>Network Name</th><th>Network Size</th><th>Network Type</th><th>Color Code</th></tr>');
+    $(".analysis_summary_div").css("display", "block");
+
+    $('.analysis_summary_div').append('<table> <tr><th style="width:100px">Network Name</th><th style="width:40px">Network Size</th><th style="width:200px">Network Type</th><th style="width:60px">Color Code</th></tr>');
     for(var i=0; i<querynodeinfo.length;i++){
         let color_code = querynodeinfo[i]["color"];
         let count = i + 1;
         let size_of_each_network = major_array[i].length - 2;
-        $('.analysis_summary_div').append('<tr><td>'+ querydictfilename[selectedGraphs[i]] +'</td><td>'+size_of_each_network+'</td><td>'+networkTypes[i]+'</td><td style="background-color:'+querynodeinfo[i]["color"]+';width:100%"></td></tr>');
+        $('.analysis_summary_div').append('<tr><td style="width:100px">'+ querydictfilename[selectedGraphs[i]] +'</td><td style="width:40px">'+size_of_each_network+'</td><td style="width:200px">'+networkTypes[i]+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+querynodeinfo[i]["color"]+'">&nbsp;</span></td></tr>');
     }
     $('.analysis_summary_div').append('</table>');
 
 
-    $('.analysis_summary_div').append('<table> <tr><th>Node Name</th><th>Color Code</th></tr>');
+    $('.analysis_summary_div').append('<table> <tr><th style="width:350px">Node Name</th><th style="width:60px">Color Code</th></tr>');
     for(var i=0; i<nodes_arr.length;i++){
         let color_code = nodes_arr[i]["color"];
         let count = i + 1;
-        $('.analysis_summary_div').append('<tr><td>'+'<a href="#target" class="click_events">'+nodes_arr[i]["id"]+'</a>'+'</td><td style="background-color:'+color_code+';width:100%"></td></tr>');
+        $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+nodes_arr[i]["id"]+'</a>'+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
     }
     $('.analysis_summary_div').append('</table>');
 
 
+    //SRS-003
+    console.log("Printing in SRS3",res);
+    const groupsN = networkTypes.length;
+    
+    const groups = []
+    for (let i = 1; i <= groupsN; i++) {
+        groups.push(i)
+    }
+    
 
-    // Roshan Testing here 
+    const visNodes = [];
+    let group;
+    $.each(nodes_arr, function(index, value) {    
+        if(value.color=="blue"){
+            group = 1;
+        }else if(value.color=="yellow"){
+            group = 2;            
+        }else if(value.color=="red"){
+            group = 3;            
+        }else if(value.color=="green"){
+            group = 4;            
+        }else if(value.color=="pink"){
+            group = 5;            
+        }else if(value.color == "purple"){
+            group = 3;
+        }   
+        visNodes.push({
+           "id": value.id,
+           "label": value.label,
+           "group": group,
+           "size": 25,
+           "font": { size: 25 }
+        });
+    });
 
+
+    const visEdges = []
+    $.each(edges_arr, function(index, value) {
+        visEdges.push({
+            "from": value.from,
+            "to": value.to,
+            "label": value.label
+        });
+    });
+    
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
+    edges.add(visEdges);
+
+    console.log(visNodes);
+    // console.log(visEdges);
+    console.log(groups);
+
+    computeNodesPositionsDistricts(visNodes, groups);
+    nodes.add(visNodes);
 
     // create a network
     var container = document.getElementById("union_displayer");
@@ -880,38 +1198,80 @@ export const render_graph_union = (res) => {
         edges: edges
     };
 
-    network_global = new vis.Network(container, data, global_options);
-    // network_global_union = network;
+    var options = {
+        nodes: {
+            shape: 'dot',
+            scaling: {
+                min: 10,
+                max: 30
+            },
+            font: {
+                size: 30,
+                face: 'courier'
+            },
+            borderWidth: 1,
+            // shadow: true
+        },
+        physics:
+        {
+            enabled: false
+        }
+    }
+
+    network_global = new vis.Network(container, data, global_options2);
+    network_global.on('afterDrawing', (ctx) => afterNetworkDrawing(network_global, ctx));
 
 
-    network_global.focus(1, {
-        scale: 1
-    });
+    //
 
 
-    // to add node dynamically
-    $.each(nodes_arr, function(index, value) {    
-        nodes.add({
-            "id": value.id,
-            "label": value.label,
-            "group": value.group,
-            "color": value.color,
-            "size": 25,
-            "font": { "size": 25 }
-         });
-    });
 
-    // to add edges dynamically
-    $.each(edges_arr, function(index, value) {
-        setTimeout(function() {
-            edges.add({
-                "from": value.from,
-                "to": value.to,
-                "label": value.label
-            });
 
-        }, 10);
-    });
+
+    // // Roshan Testing here 
+
+    // var nodes = new vis.DataSet();
+    // var edges = new vis.DataSet();
+
+    // // create a network
+    // var container = document.getElementById("union_displayer");
+    // var data = {
+    //     nodes: nodes,
+    //     edges: edges
+    // };
+
+    // network_global = new vis.Network(container, data, global_options);
+    // // network_global_union = network;
+
+
+    // network_global.focus(1, {
+    //     scale: 1
+    // });
+
+
+    // // to add node dynamically
+    // $.each(nodes_arr, function(index, value) {    
+    //     nodes.add({
+    //         "id": value.id,
+    //         "label": value.label,
+    //         "group": value.group,
+    //         "color": value.color,
+    //         "size": 25,
+    //         "font": { "size": 25 }
+    //      });
+    // });
+
+    // // to add edges dynamically
+    // $.each(edges_arr, function(index, value) {
+    //     setTimeout(function() {
+    //         edges.add({
+    //             "from": value.from,
+    //             "to": value.to,
+    //             "label": value.label
+    //         });
+
+    //     }, 10);
+    // });
 
     global_edges = edges_arr;
     
@@ -1016,14 +1376,14 @@ export const writedelete = (unique_id) => {
 
         },
         success: function(data) {
-            message_displayer("NETWORK SAVED SUCCESSFULLY","success");
+            message_displayer("Network saved successfully","success");
         }
     })
     .fail(function(res) {
         console.log(res);
         return; 
     })
-    message_displayer("NETWORK SAVED SUCCESSFULLY","success");
+    message_displayer("Network saved successfully","success");
 }
 
 export const sparkUpload = (filename_arr) =>{
@@ -1118,11 +1478,17 @@ export const render_intersection_difference = (res,id_value,option) => {
         $(".nos_of_edges").empty();
         $(".nos_of_edges").text(edges_arr.length);
   
+
+        $('#analysis_summary_charts').css("display", "none");
         $('.analysis_summary_div').empty();
+        $(".analysis_summary_div").css("display", "block");
+
+
+        // $('.analysis_summary_div').empty();
         if(info.length == 0){
             $('.analysis_summary_div').append('<b>No intersecting nodes.</b>');
         }else{
-            $('.analysis_summary_div').append('<table> <tr><th>Node Name</th><th>Color Code</th></tr>');
+            $('.analysis_summary_div').append('<table> <tr><th style="width:350px">Node Name</th><th style="width:60px">Color Code</th></tr>');
             if(option == "difference"){
                 var color_code = "#5c2480";
             }else{
@@ -1130,7 +1496,7 @@ export const render_intersection_difference = (res,id_value,option) => {
             }
             for(var i=0; i<info.length;i++){
                 let count = i + 1;
-                $('.analysis_summary_div').append('<tr><td>'+'<a href="#target" class="click_events">'+ info[i]["nodes"] +'</a>'+'</td><td style="background-color:'+color_code+';width:100%"></td></tr>');
+                $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+ info[i]["nodes"] +'</a>'+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
             }
             $('.analysis_summary_div').append('</table>');
         }      
@@ -1278,6 +1644,48 @@ var global_options = {
         randomSeed: 191006
     }
 };
+
+var global_options2 = {
+    nodes: {
+        shape: 'dot',
+        color: '',
+        size: 30,
+        scaling: {
+            min: 10,
+            max: 30
+        },
+        font: {
+            size: 30,
+            face: 'courier'
+        },
+        borderWidth: 1,
+        // shadow: true
+    },
+    edges: {
+        color: '#97C2FC',
+        length: 1500,
+        width: 0.15,
+        smooth: {
+            type: 'continuous'
+        },
+        hoverWidth: 10
+            // shadow: true
+    },
+    interaction: {
+        hideEdgesOnDrag: true,
+        hover: true,
+        tooltipDelay: 100,
+        multiselect: true,
+        navigationButtons: true,
+        keyboard: true
+    },
+    physics: false,
+    layout: {
+        improvedLayout: false,
+        randomSeed: 191006
+    }
+};
+
 
 // Options format for link prediction and shortest path 
 var options_link_shortestpath = {
@@ -1464,6 +1872,18 @@ export const on_hover_change_color_of_neighbournodes = async(properties, nodes) 
 
     let nodes_new = Object.keys(nodes._data);
     let con_nodes = network_global.getConnectedNodes(selected_node);
+
+    $('#analysis_summary_charts').css("display", "none");
+    $('.NeighborsDiv').empty();   
+    $('.analysis_summary_div').css("display", "block");   
+
+    $('.NeighborsDiv').append('<table> <tr><th style="width:20px">Neighbors of - <b>'+selected_node+'</b></th></tr>');
+
+    for(let i = 0; i < con_nodes.length; i++){
+        $('.NeighborsDiv').append('<tr><td style="width:500px"> <a href="#target" class="click_events">'+con_nodes[i]+'</a></td></tr></table>');
+    }
+
+
     for (let i = 0; i < nodes_new.length; i++) {
         let node_index = nodes_new[i];
         if (con_nodes.includes(node_index)) {

@@ -390,6 +390,18 @@ class networkAnalysisController extends Controller
         echo json_encode($output);
     }
 
+    public function diameter(Request $request)
+    {
+        $input = $request->input('input');
+        $dir_name = $this->getdirname($request);
+        $read_path = "storage/$dir_name/$input.csv";
+        $algo_choosen_option = "10101";
+
+        $command = escapeshellcmd('/usr/bin/python python_files/generation.py ' . $algo_choosen_option . ' ' . $read_path . ' ' . $input . ' ' . $dir_name);
+        $output = shell_exec($command);
+        echo json_encode($output);
+    }
+
     public function get_session_uid($request)
     {
         return $request->session()->get('uid');
@@ -629,6 +641,7 @@ class networkAnalysisController extends Controller
         $final_result["edges"] = $edges_temp_arr;
         $final_result["groups"] = $community_members;
         $final_result["interCommunityEdges"] = $interCommunityEdges;
+        $final_result["network_arr"] = $network_arr;
         return json_encode($final_result);
     }
 
@@ -681,8 +694,11 @@ class networkAnalysisController extends Controller
         $final_node_arr = array();
         $edges_temp_arr = array();
         $unique_nodes = array();
-        $color_code_list = array("#00ff00", "#964B00", "#1abc9c", "#5b2c6f", "#ED5565", " #5f6a6a", "#000000", "#FF0000");
-        $color_code = "#00ff00";
+        // $color_code_list = array("#00ff00", "#964B00", "#1abc9c", "#5b2c6f", "#ED5565", " #5f6a6a", "#000000", "#FF0000");
+        // $color_code = "#00ff00";
+
+        $color_code_list = array("blue", "yellow", "red", "green", "pink", "purple", "orange", "brown","black");
+        $color_code = "blue";
 
         foreach ($link as $connection) {
             // nodes

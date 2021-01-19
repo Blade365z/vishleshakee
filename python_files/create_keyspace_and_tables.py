@@ -14,6 +14,14 @@ from cassandra.cqlengine.columns import *
 from cassandra.cqlengine.models import Model
 from cassandra.cqlengine.usertype import UserType
 
+import mysql.connector
+
+
+def create_connection_to_mysql():
+	mydb = mysql.connector.connect(host="localhost", user="blade", password="password", database="smat")
+	return mydb
+
+
 def log(file_name):
 	#Create and configure logger                                                   
 	logging.basicConfig(filename=file_name+".log", format='INFO %(asctime)s %(message)s', filemode='a')
@@ -42,7 +50,7 @@ def create_connection():
 def create_keyspace(keyspace_name, session):
 	session.execute("CREATE KEYSPACE "+keyspace_name+" WITH replication = {'class': 'NetworkTopologyStrategy', 'dc_osint_test': '2'}  AND durable_writes = true")
 	# for checking is keyspace ready??
-	time.sleep(5)
+	# time.sleep(5)
 	session.set_keyspace(keyspace_name)
 	session.default_timeout = 60
     
@@ -180,6 +188,17 @@ def create_tables(session):
 	
 
 
+def update_status_to_mysql(keyspace_name):
+	mydb = create_connection_to_mysql()
+	mycursor = mydb.cursor()
+	sql = "UPDATE projects SET status = 1 WHERE project_name = '"+keyspace_name+"'"
+	mycursor.execute(sql)
+	mydb.commit()
+	# logger.info(mycursor.rowcount, "record(s) affected")
+
+
+
+
 
 # get input date from which we should start
 def main():
@@ -188,6 +207,7 @@ def main():
 	create_keyspace(keyspace_name, session)
 	# time.sleep(5)
 	create_tables(session)
+	update_status_to_mysql(keyspace_name)
 
 
 if __name__ == '__main__':

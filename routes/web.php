@@ -196,6 +196,7 @@ Route::group(['prefix' => 'na'], function () {
     //For network evolution
     Route::get('nettest', 'networkAnalysisEvolution@tester');
     Route::get('jobsubmit', 'networkAnalysisEvolution@jobSubmission');
+    Route::post('diameter', 'networkAnalysisController@diameter');
 });
 
 //Define API routes requiring middleware here for User Analysis
@@ -277,13 +278,22 @@ Route::post('insertKT', 'ProjectActivityController@insert_to_new_keyspace');
 Route::post('showP/{id}', 'ProjectActivityController@show');
 Route::post('getProjectName/{project_id}', 'ProjectActivityController@get_project_name');
 Route::post('getAllProject/{id}', 'ProjectActivityController@get_all_projects');
+Route::get('checkIfAnyKeySpaceCreating/{id}','ProjectActivityController@checkIfAnyKeySpaceCreating');
+Route::post('deleteProjectFromRecords', 'ProjectActivityController@deleteProjectFromRecords');
+Route::get('checkIfAnyAnalysisStoreGoingOn/{id}', 'ProjectActivityController@checkIfAnyAnalysisStoreGoingOn');
+Route::get('getAnalysisDetails/{userID}/{queryString}', 'ProjectActivityController@getAnalysisDetails');
+Route::get('getAnalysisForUserUnderProject/{userID}/{projectID}/{type}', 'ProjectActivityController@getAnalysisForUserUnderProject');
+Route::get('checkAnalysisExistorNot/{full_query_id}', 'ProjectActivityController@checkAnalysisExistorNot');
+
+Route::post('deleteFromProjectActivityTable', 'ProjectActivityController@deleteFromProjectActivityTable');
+
+
+
 
 
 Route::get('/ShowProject', function () {
     return view('modules.ShowProject');
 })->middleware('auth');
-
-
 
 
 // log file route
@@ -292,3 +302,5 @@ Route::post('log', 'LogController@write_to_log_file');
 
 //check for data streaming status
 Route::get('checkStatus', 'CommonController@check_for_cassandra_data_streaming_status');
+Route::post('/destroy/{id}', 'queryStatusController@destroy');
+Route::post('/destroynets', 'queryStatusController@destroy_network_query_rec');

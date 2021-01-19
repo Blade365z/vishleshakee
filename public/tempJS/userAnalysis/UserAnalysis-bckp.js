@@ -361,21 +361,7 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
         addQueryToStatusTable('uaAdvStatusTable',searchType, null, query, fromDate, toDate, unique_name_timestamp, false, mentionUniqueID, hashtagsUniqueID, true); //mala
         }
     }
-
-    // for project
-    // let pname=null; 
-    // if($(this).attr('projectName')){
-    //     pname = $(this).attr('projectName'); 
-    // }  
-
-
     if (searchType === 0) {
-        // for project
-        // if (localStorage.getItem('projectName')) {
-        //     checkAnalysisExistorNotFunction(userID, SearchID, fromDate, toDate, 'ua');
-        // }
-
-
         getUserDetails(SearchID).then(data => makePageReady(data));
         // window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
         frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false);

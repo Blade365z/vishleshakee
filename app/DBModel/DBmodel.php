@@ -37,7 +37,7 @@ use App\Http\Controllers\ConfigureSmat as Config;
 
 class DBmodel extends Model
 {
-    public function establish_db_connection($type_arg)
+    public function establish_db_connection($ks=null)
     {
         // $osint_DB = parse_ini_file("/var/www/osint_conf.ini"); // The Database Configuration file
         // $userId = env('CASSANDRA_UNAME');
@@ -49,9 +49,13 @@ class DBmodel extends Model
         $configData = $configObj->getConfig(1);
         $userId = $configData['dbUser'];
         $pwd =  $configData['dbPass'];
-        $cassandra_nodes = $configData['dbNodes'];
-        $keyspace =  $configData['dbKeyspace'];
+        $cassandra_nodes = $configData['dbNodes'];        
         $port =  (int)$configData['dbPort'];
+        if($ks)
+            $keyspace = $ks;
+        else
+            $keyspace =  $configData['dbKeyspace'];
+            
         //100000000000000
         $cluster = Cassandra::cluster()->withRoundRobinLoadBalancingPolicy()->withContactPoints($cassandra_nodes)->withDefaultConsistency(Cassandra::CONSISTENCY_LOCAL_ONE)->withDefaultPageSize(100000000000000)->withCredentials($userId, $pwd)->withPort($port)->withPersistentSessions(true)->withConnectTimeout(900)->build();
         $session = $cluster->connect($keyspace);

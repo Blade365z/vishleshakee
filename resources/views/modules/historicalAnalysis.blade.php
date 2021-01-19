@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="public/leaflet/markerCluster/MarkerCluster.Default.css">
     <link rel="stylesheet" href="public/leaflet/leaflet.css">
     <link rel="stylesheet" href="public/leaflet/leaflet_modal.css">
- 
+
     <div class="smat-mainHeading ">
         Historical Analysis
         <h5><span class="float-right" id="selected_project_name_id"></span></h5>
@@ -47,28 +47,32 @@
                     <input type="text" class="form-control datepicker-here  smat-to " id="toDateHA" placeholder="To Date"
                         onkeydown="return false;" style="border:0px;" autocomplete="OFF" data-language='en' required>
                 </div>
-                <button class="btn smat-btn  smat-rounded  mx-1" id="submit-btn" type="submit"> <span> Search Result </span>
+                <button class="btn  smat-btn smat-rounded   mx-1" id="submit-btn" type="submit"> <span> <i class="fa fa-search" aria-hidden="true"></i>
+                     <b>Search</b> </span>
                 </button>
-                <button class="btn  text-normal smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show
-                        Adv. searches </span> </button>
-                <button class="btn  text-normal smat-rounded  mx-1" id="helpBtnHA" onclick="return false"> <span> Need help?
-                    </span> </button>
+             
+          
             </div>
         </form>
+        <div class="mt-3"> 
+            <span class="clickable   text-primary smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show Search History  </span> </span>
+                <span class="clickable   text-primary smat-rounded  mx-2"  id="helpBtnHA" onclick="return false"> <span>
+                    Need help?
+                </span> </span>
+       
+        </div>
     </div>
 
-    <div class="my-3" id="searchTable">
+    <div class="my-3" id="searchTable" >
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-9">
+                    <div class="col">
                         <div>
                             <p class="m-0 smat-box-title"> Recent Searches</p>
                         </div>
                         <div>
                             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-
-
                                 <li class="nav-item active recentSearchTab ">
                                     <a class="nav-link smat-rounded active  " id="normalQueryTab" data-toggle="pill"
                                         href="#normalQueryContent" role="tab" aria-controls="pills-profile"
@@ -79,6 +83,8 @@
                                         href="#advQueryContent" role="tab" aria-controls="mentionsContentUA"
                                         aria-selected="false"> Advance Queries</a>
                                 </li>
+                            
+
 
                             </ul>
                         </div>
@@ -91,8 +97,7 @@
                                         <thead>
                                             <tr>
                                                 <th class="py-1 px-3 text-dark " scope="col">Query</th>
-                                                <th class="py-1 px-3 text-dark " scope="col">From </th>
-                                                <th class="py-1 px-3 text-dark " scope="col">To </th>
+                                              
                                                 <th class="py-1 px-3 text-dark " scope="col"> Status</th>
                                                 <th class="py-1 px-3 text-dark" scope="col"> Options</th>
                                             </tr>
@@ -131,17 +136,36 @@
                                     </div>
                                 </div>
                             </div>
+
+            
+
                         </div>
                     </div>
-                    <div class="col-sm-3 ">
+                    <div class="col projContent" style="display: none;">
                         <div>
-                            <p class="m-0 smat-box-title"> Trending Today</p>
-                            <p class="text-muted pull-text-top mb-1">Some popular topics trending today.</p>
+                            <p class="m-0 smat-box-title">Saved in <b class="projName"></b></p>
                         </div>
-                        <div id="querySugg" style="max-height:330px;overflow-y:auto;">
+                        <p class="m-0  text-dark"> Recent Searches saved in project <b class="projName"></b></p>
+                        <div class="table-responsive ">
+                            <table class="table  table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="py-1 px-3 text-dark " scope="col">Query</th>
+                                       
+                                        <th class="py-1 px-3 text-dark " scope="col"> Status</th>
+                        
+                                        <th class="py-1 px-3 text-dark" scope="col"> Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ProjectStatusTable">
 
+                                </tbody>
+                            </table>
+                            <div id="tableInitialTitleProject">
 
+                            </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -149,53 +173,28 @@
         </div>
     </div>
 
-    <div class="my-3" id="searchTablse" style="display:none; height:300px; overflow-y:auto">
-        <div class="card">
-            <div class="card-body">
-                <div>
-                    <p class="m-0 smat-box-title"> Recent Searches</p>
-                </div>
-                <div class="table-responsive ">
-                    <table class="table  table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="py-1 px-3 text-dark" scope="col">ID</th>
-                                <th class="py-1 px-3 text-dark " scope="col">Query</th>
-                                <th class="py-1 px-3 text-dark " scope="col">From </th>
-                                <th class="py-1 px-3 text-dark " scope="col">To </th>
-                                <th class="py-1 px-3 text-dark " scope="col"> Status</th>
-                                <th class="py-1 px-3 text-dark" scope="col"> Options</th>
-                            </tr>
-                        </thead>
-                        <tbody id="haStatuxsTable">
 
-                        </tbody>
-                    </table>
-                    <div id="tableInitialTitle">
-                        <p class="m-0 text-center text-hint" disabled> Submit a query to perform analysis upon. </p>
-                    </div>
-                </div>
+
+
+
+    <div class="my-4" id="analysisPanelHA" style="display:none;">
+        <div class="d-flex">
+            <div>
+                <p class="smat-box-title-large mt-3 mb-0">Showing Results for <span
+                        class="smat-value font-weight-bold text-normal" id="currentlySearchedQuery"> </span>
+
+                </p>
+
             </div>
+         
         </div>
-    </div>
-
-
-
-    <div class="my-2" id="analysisPanelHA" style="display:none;">
-        <div>
-            <p class="smat-box-title-large m-0">Showing Results for <span class="smat-value font-weight-bold text-normal"
-                    id="currentlySearchedQuery"> </span> </p>
-
-        </div>
-
-
-
         <div class="card shadow">
             <div class="card-body">
+                <div class="d-flex">
 
                 <div>
 
-                    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <ul class="nav nav-pills mb-3  mt-2" id="pills-tab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active smat-rounded" id="frqTabHA" data-toggle="pill" href="#freqContentHA"
                                 role="tab" aria-controls="freqContentHA" aria-selected="true">Frequency</a>
@@ -230,7 +229,10 @@
                     </ul>
 
                 </div>
-
+                <div class="ml-auto">
+                    <button class="btn mx-1 smat-rounded my-2 px-4" id="save_analysis_project_id"> </button>
+                </div>
+            </div>
                 <div class="tab-content" id="pills-tabContent">
                     <div class="" id="summaryContent-1">
 

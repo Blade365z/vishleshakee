@@ -13,5 +13,6 @@ class Project extends Model
         'project_name',
         'project_creation_date',
         'user_id',
+        'status',
     ];
 }
