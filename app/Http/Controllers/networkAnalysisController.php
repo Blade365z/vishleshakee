@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
+ini_set('max_execution_time', '300');
+ini_set('memory_limit', '1024M'); 
+
 class networkAnalysisController extends Controller
 {
 
@@ -23,6 +26,109 @@ class networkAnalysisController extends Controller
         $no_of_nodes = $request->input('noOfNodes');
         $framework = 'networkx';
         $filename = $request->input("filename");
+
+
+        $pname = null;
+        if ($request->input('pname')){
+            $pname = $request->input('pname');
+        }
+
+        $nodes = array();
+        $edges = array();
+
+        $netType = $request->input('nettype');
+        if ($netType == "Hashtag-Hashtag") {
+            $co_occur_option = "hashtag";
+        } else if ($netType == "Hashtag-Mention") {
+            $co_occur_option = "mention";
+        } else if ($netType == "Mention-Hashtag") {
+            $co_occur_option = "hashtag";
+        } else if ($netType == "Hashtag-Keyword") {
+            $co_occur_option = "keyword";
+        }else if ($netType == "Mention-Mention"){
+            $co_occur_option = "mention";
+        }else if ($netType == "Mention-Keyword"){
+            $co_occur_option = "keyword";
+        }else if ($netType == "Keyword-Hashtag"){
+            $co_occur_option = "hashtag";
+        }else if ($netType == "Keyword-Mention"){
+            $co_occur_option = "mention";
+        }else if ($netType == "User-Mention"){
+            $co_occur_option = "mention";
+        }else if ($netType == "User-Hashtag"){
+            $co_occur_option = "hashtag";
+        }else if ($netType == "Hashtag-User"){
+            // only one level
+            $co_occur_option = "user";
+        }else if ($netType == "Mention-User"){
+             // only one level
+            $co_occur_option = "user";
+        }
+
+        $CC_obj = new CommonController;
+        // 1st level
+        $co_occur_result = $CC_obj->get_co_occur_data($to_datetime, $from_datetime, $token, $range_type = null, $co_occur_option, $file_path = null, $need_to_store = false, $data_formatter = false, $userID=null, $pname);
+        if ($no_of_nodes) {
+            $co_occur_result = array_slice($co_occur_result['data'], 0, $no_of_nodes);
+        }
+
+        // push node to nodes array
+        foreach ($co_occur_result as $key => $value) {
+            array_push($nodes, $key);
+        }
+
+        // 2nd level
+        if( ($netType == "Hashtag-User") or ($netType == "Hashtag-User")){
+            foreach ($co_occur_result as $key => $count) {
+                $edges[] = [$token, $key, (string) $count];
+                echo " ";
+                flush();
+                ob_flush();
+            }
+        }else{
+            foreach ($co_occur_result as $key => $count) {
+                $edges[] = [$token, $key, (string) $count];
+                $co_occur_result_2nd_level = $CC_obj->get_co_occur_data($to_datetime, $from_datetime, $key, $range_type = null, $co_occur_option, $file_path = null, $need_to_store = false, $data_formatter = false, $userID=null, $pname);
+                if ($no_of_nodes) {
+                    $co_occur_result_2nd_level = array_slice($co_occur_result_2nd_level['data'], 0, $no_of_nodes);
+                }
+
+                foreach ($co_occur_result_2nd_level as $k => $c) {
+                    // creating among connection
+                    if (in_array($k, $nodes)) {
+                        $edges[] = [$key, $k, (string) $c];
+                    }
+                    echo " ";
+                    flush();
+                    ob_flush();
+                }
+            }
+        }
+
+        $dir_name = $request->input("dir_name");
+        $completeFilepath = "$dir_name/$filename" . ".csv";
+        // write to file
+        $ut_obj->write_to_file($file_type = 'csv', $file_path = $completeFilepath, $edges, $token = null, $dir_name);
+        
+        if(sizeof($co_occur_result)==0){
+            echo json_encode(array('res' => 'empty'));
+        }else{
+            echo json_encode(array('res' => 'success'));
+        }
+    }
+
+
+    public function network_expansion(Request $request)
+    {
+        $ut_obj = new Ut;
+        $token = $request->input('token');
+        $from_datetime = $request->input('fd');
+        $to_datetime = $request->input('td');
+        $feature_option = 'co_occur';
+        //$co_occur_option = 'hashtag';
+        $no_of_nodes = $request->input('noOfNodes');
+        $framework = 'networkx';
+        //$filename = $request->input("filename");
         $nodes = array();
         $edges = array();
 
@@ -94,18 +200,9 @@ class networkAnalysisController extends Controller
                 }
             }
         }
-
-        $dir_name = $request->input("dir_name");
-        $completeFilepath = "$dir_name/$filename" . ".csv";
-        // write to file
-        $ut_obj->write_to_file($file_type = 'csv', $file_path = $completeFilepath, $edges, $token = null, $dir_name);
-        
-        if(sizeof($co_occur_result)==0){
-            echo json_encode(array('res' => 'empty'));
-        }else{
-            echo json_encode(array('res' => 'success'));
-        }
+        return json_encode($edges);
     }
+
 
 
 
@@ -157,13 +254,38 @@ class networkAnalysisController extends Controller
             $commonController_obj = new CommonController;
             // unique node generation
             $network_arr = array_slice($network_arr, 1, sizeof($network_arr));
+            $flag_tweet_tracker_processor = false;
             foreach ($network_arr as $connection) {
                 for ($i = 0; $i < sizeof($connection) - 1; $i++) {
                     if (!(in_array($connection[$i], $unique_node_temp_arr))) {
                         array_push($unique_node_temp_arr, $connection[$i]);
                         if (substr($connection[$i], 0, 1) == "#") {
                             array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => 'public/icons/hashtag.svg', "size" => 50, "borderwidth" => 5, "border" => "#EA9999"));
-                        } else if (substr($connection[$i], 0, 1) == "@") {
+                        }
+                        else if (substr($connection[$i], 0, 2) == "QW") {
+                            if($flag_tweet_tracker_processor == false){
+                                array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 100, 'color' => "black"));
+                                $flag_tweet_tracker_processor = true;
+                            }else{
+                                if($connection[2]=="QuotedTweet"){
+                                    if($i == 1){
+                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, 'color' => "#ff704d"));
+                                    }
+
+                                }elseif($connection[2]=="retweet"){
+                                    if($i == 1){
+                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, 'color' => "#0099cc"));
+                                    }
+                                }elseif($connection[2]=="Reply"){
+                                    if($i == 1){
+                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, 'color' => "#00e600"));
+                                    }
+                                }else{
+                                    array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, "color"=>"pink"));
+                                }
+                            }
+                        } 
+                         else if (substr($connection[$i], 0, 1) == "@") {
                             array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => 'public/icons/roshanmention.jpg', "size" => 50, "borderwidth" => 5, "border" => "#EA9999"));
                         } else if (substr($connection[$i], 0, 1) == "*") {
                             $trimmed_string = ltrim($connection[$i], $connection[$i][0]);
@@ -272,6 +394,7 @@ class networkAnalysisController extends Controller
                 $input = $filename;
             }
 
+
         } else {
             if ($option == 'centralities') {
                 $input = $input . "centralities";
@@ -332,6 +455,8 @@ class networkAnalysisController extends Controller
                 array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/roshanmention.jpg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>(exp($one_list[1])/$sum)));
             } else if (substr($one_list[0], 0, 1) == "*") {
                 array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'circularImage', "image" => 'public/icons/keyword.svg', "size" => ($multiplier * $one_list[1]), "borderwidth" => 7, "border" => "#EA9999","raw"=>(exp($one_list[1])/$sum)));
+            }else{
+                array_push($final_node_arr, array("id" => $one_list[0], "label" => $one_list[0], "shape" => 'dot', "size" => ($multiplier * 10), "borderwidth" => 7, "border" => "#EA9999"));   
             }
 
             array_push($chartData,array("key"=>$one_list[0],"value"=>(exp($one_list[1])/$sum)));
@@ -694,11 +819,11 @@ class networkAnalysisController extends Controller
         $final_node_arr = array();
         $edges_temp_arr = array();
         $unique_nodes = array();
-        // $color_code_list = array("#00ff00", "#964B00", "#1abc9c", "#5b2c6f", "#ED5565", " #5f6a6a", "#000000", "#FF0000");
-        // $color_code = "#00ff00";
+        $color_code_list = array("#629632", "#79CDCD", "#1abc9c", "#5b2c6f", "#ED5565", " #5f6a6a", "#000000");
+        $color_code = "#629632";
 
-        $color_code_list = array("blue", "yellow", "red", "green", "pink", "purple", "orange", "brown","black");
-        $color_code = "blue";
+        // $color_code_list = array("blue", "yellow", "brown", "green", "pink", "purple", "orange", "red","black");
+        // $color_code = "blue";
 
         foreach ($link as $connection) {
             // nodes
@@ -718,7 +843,7 @@ class networkAnalysisController extends Controller
                     for ($counter = 0; $counter < $major_array_index; $counter++) {
                         if (in_array($connection[$i], $major_array[$counter])) {
                             if (($major_array_index - $counter) == 1) {
-                                $color_code = $color_code_list[7];
+                                $color_code = "#FF0000";
                             } else {
                                 continue;
                             }

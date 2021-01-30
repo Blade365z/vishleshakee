@@ -17,7 +17,7 @@
                     <div class="form-group   border smat-rounded d-flex px-2 py-1  bg-white" id="haQueryInputBox">
                         <input type="text" class="form-control typeahead " id="queryToken" placeholder="Query"
                             style="border:0px;" autocomplete="OFF" placeholder="Search a Hashtag or Mention"
-                            style="border:0px;" autocomplete="OFF" data-container="body" data-trigger="focus"
+                            style="border:0px;" data-container="body" data-trigger="focus"
                             data-html="true" data-toggle="popover" data-placement="right"
                             data-content="Query by :- <b>Hashtag</b> ( use'#',example: #COVID19 ) or <b> Mention</b> ( use'@',example: @narendramodi ) "
                             required>

@@ -58,20 +58,20 @@ class QueryBuilder{
                         $query_class = $this->get_query_class($token, 'co_occur', $co_occur_option);
                         if($range_type == '10sec'){
                             $columns = 'created_date, created_time, token_name2, count_list';
-                            // $table_name = 'token_co_occur';
-                            $table_name = $this->select_co_occur_table_for_token($token, $range_type);
+                            $table_name = 'token_co_occur';
+                            // $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name1='" . $token ."'";
                         }else if($range_type == 'hour'){
                             $columns = 'created_date, created_time, token_name2, count_list';
-                            // $table_name = 'token_co_occur_hour_wise';
-                            $table_name = $this->select_co_occur_table_for_token($token, $range_type);
+                            $table_name = 'token_co_occur_hour_wise';
+                            // $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name1='" . $token ."'";
                         }else if($range_type == 'day'){
                             $columns = 'created_date, token_name2, count_list';
-                            // $table_name = 'token_co_occur_day_wise';
-                            $table_name = $this->select_co_occur_table_for_token($token, $range_type);
+                            $table_name = 'token_co_occur_day_wise';
+                            // $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND token_name1='" . $token ."'";
                         }
@@ -163,14 +163,14 @@ class QueryBuilder{
         // for tweet info....................................................
         if($feature_option == 'tweet_info'){
             if($async){
-                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,tweet_text,retweet_source_id,media_list,type,category from tweet_info_by_id_test WHERE tid=?";
+                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,tweet_text,retweet_source_id,media_list,type,category,tl_longitude,tl_latitude from tweet_info_by_id_test WHERE tid=?";
                 $input_args = array();
                 foreach ($id_list as $value) {
                     array_push($input_args, array($value));
                 }
                 $final_res[1] = $input_args;
             }else{
-                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,replyto_source_id,retweet_source_id,tweet_text,retweet_source_id,media_list,type,category from tweet_info_by_id_test WHERE tid=" . "'" .$token."'";
+                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,replyto_source_id,retweet_source_id,tweet_text,retweet_source_id,media_list,type,category,tl_longitude,tl_latitude from tweet_info_by_id_test WHERE tid=" . "'" .$token."'";
             }
         }
 
@@ -202,7 +202,7 @@ class QueryBuilder{
         if($feature_option == 'tweet_track'){
             if($range_type=='all'){
                 $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
-               $where_clause = "source_tweet_id='" . $token ."' AND datetime = ? " ;
+                $where_clause = "source_tweet_id='" . $token ."' AND datetime = ? " ;
                 $prepared_statement = "SELECT * FROM tweet_track WHERE ".$where_clause;  
                 $final_res[0] = $prepared_statement;
                 $final_res[1] = $input_args;

@@ -5,8 +5,10 @@
         "#BBOY", 
         "#BOOMBAP", 
         "#DJ", 
+        "#EUdisinfo", 
         "#EXCLUSIVE", 
         "#EXPLOSIVE", 
+        "#FarmersProtests", 
         "#GRAFFITI", 
         "#HIPHOP", 
         "#LGTWO", 
@@ -16,7 +18,12 @@
         "#NEW", 
         "#OLDSKOOL", 
         "#POETRY", 
-        "#RAP"
+        "#RAP", 
+        "#RAW", 
+        "#RAWKilledKarimaBaloch", 
+        "#RAWTampa", 
+        "#SlammyAwards", 
+        "#TeamBAE"
     ], 
     "1": [
         "#BLA", 
@@ -25,7 +32,6 @@
         "#Canada", 
         "#Canadian", 
         "#EUDisinfoLab", 
-        "#FarmersProtests", 
         "#India", 
         "#Indian", 
         "#IndianChronicles", 
@@ -47,9 +53,5 @@
         "#india", 
         "#indianleaks", 
         "#kareemaBaloch"
-    ], 
-    "2": [
-        "#SlammyAwards", 
-        "#TeamBAE"
     ]
 }

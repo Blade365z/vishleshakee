@@ -91,11 +91,11 @@
                                         href="#normalQueryContent" role="tab" aria-controls="pills-profile"
                                         aria-selected="true"> Normal Queries</a>
                                 </li>
-                                <li class="nav-item recentSearchTab">
+                                {{-- <li class="nav-item recentSearchTab">
                                     <a class="nav-link smat-rounded " id="advQueryTab" data-toggle="pill"
                                         href="#advQueryContent" role="tab" aria-controls="mentionsContentUA"
                                         aria-selected="false"> Advance Queries</a>
-                                </li>
+                                </li> --}}
 
                             </ul>
                         </div>
@@ -197,7 +197,7 @@
                     </div>
 
                     <form id="uaQueryHandleForm">
-                        <div class="d-flex" id="addAdvQueryDiv">
+                        {{-- <div class="d-flex" id="addAdvQueryDiv">
 
                             <div class="d-flex" id="queryAdvUA">
 
@@ -214,7 +214,7 @@
                                 <p class="mb-0 mt-3 text-muted" id="addQueryHint"> Click to add more queries </p>
                             </div>
 
-                        </div>
+                        </div> --}}
                         <div class="mb-3" id="date-divUA">
 
                             <div class="d-flex mb-0">

@@ -30,7 +30,7 @@ const intervalValues = { '15': 900, '30': 1800, '45': 2700, '1': 3600, '2': 7200
 const categoryColor = { 'normal': 'text-normal', 'com': 'text-com', 'sec': 'text-sec', 'com_sec': 'text-com_sec' }
 var date = getCurrentDate();
 var TopTrendingData;
-var userID;
+var userID=null;
  
 jQuery(function () {
 
@@ -42,6 +42,9 @@ jQuery(function () {
   if (localStorage.getItem('smat.me')) {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     userID = userInfoTemp['id'];
+    let mainPublicCardHeight = $('#main-public-dash').height();
+    let heightTobeDeducted = userID!==null ? 190 : 100
+    $('#public-trending').css('height', mainPublicCardHeight -heightTobeDeducted );
   } 
 
   makeSmatReady();
@@ -97,8 +100,7 @@ jQuery(function () {
 
 
 
-  let mainPublicCardHeight = $('#main-public-dash').height();
-  $('#public-trending').css('height', mainPublicCardHeight - 70);
+
 
 
 
@@ -231,6 +233,29 @@ jQuery(function () {
   //update public hahstag every 1 min 
 
   let updatePublicHashtagOneMinInt = setInterval(updatePublicTrendingHashtagsEveryOneMiute, 10000);
+
+
+//Logic for Right Bar 
+  // let isTrendingHidden=0;
+  // $('body').on('click','div #seeProjectBtnHome',function(){
+  //   if(isTrendingHidden==0){
+  //     $('#homeRightPanel').removeClass('homeRightPanelLarge')
+  //     $('#homeRightPanel').addClass('homeRightPanelSmall')
+  //     isTrendingHidden=1;
+  //   }else{
+  //     $('#homeRightPanel').removeClass('homeRightPanelSmall')
+  //     $('#homeRightPanel').addClass('homeRightPanelLarge')
+  //     isTrendingHidden=0;
+  //   }
+  // })
+
+
+
+
+
+
+
+
 
 
 });

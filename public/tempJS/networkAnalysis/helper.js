@@ -6,13 +6,17 @@ var HeadersForApi = {
     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 };
 
-import { getquerydictfilename } from './NetworkAnalysis.js';
+import { getquerydictfilename,naTypeTempforEXPs,crr_viewing_network } from './NetworkAnalysis.js';
 
 // Render Graph  for view
 var network_global;
+var network_global_expansion;
+var coming_from_binary_ops = false;
+var queryTempexp;
 var global_edges;
 var deletedNodes = [];
 var update_node_list = [];
+let image_icon;
 
 export const chartBuilder = async(data)=> {
     var node_list = "";
@@ -198,18 +202,25 @@ export const render_graph = async (url,input) => {
 export const message_displayer = async (msg,category) => {
     $("#messagebox").empty();
     if(category == "info"){
-        $("#messagebox").append('<div class="d-flex justify-content-center alert alert-info" role="alert"><strong> Information : </strong>&nbsp'+ msg +'</div>');
+        $("#messagebox").append('<div class="d-flex justify-content-center alert alert-info" role="alert"> <strong>Information : </strong>&nbsp'+ msg +'</div>');
     }else if(category == "error"){
         $("#messagebox").append('<div class="d-flex justify-content-center alert alert-danger" role="alert"><strong> Error : </strong>&nbsp'+ msg +'</div>');
     }else if(category == "success"){
         $("#messagebox").append('<div class="d-flex justify-content-center alert alert-success" role="alert"><strong> Success : </strong>&nbsp'+ msg +'</div>');
+    }else if(category == "generation"){
+        $("#messagebox").append('<div class="d-flex justify-content-center alert alert-info" role="alert"> <strong role="status" class=" spinner-border text-primary float-right" style="height:1rem;width:1rem"></strong>&nbsp&nbsp&nbsp&nbsp'+ msg +'</div>');
     }
 }
 
 
-export const networkGeneration = async (url,queryTemp,fromDateTemp,toDateTemp,noOfNodesTemp,naTypeTemp,filename) => {
-    message_displayer("Generating your requested network","info");
+export const networkGeneration = async (url,queryTemp,fromDateTemp,toDateTemp,noOfNodesTemp,naTypeTemp,filename,msgbox) => {
+    if(msgbox == "enabled"){
+        message_displayer("Generating your requested network","generation");
+    }else{
+
+    }
     let dir_name = getmystoragedir();
+    let pname = null;
     let data = {
         token : queryTemp,
         fd : fromDateTemp,
@@ -217,7 +228,8 @@ export const networkGeneration = async (url,queryTemp,fromDateTemp,toDateTemp,no
         noOfNodes : noOfNodesTemp,
         nettype : naTypeTemp,
         filename : filename,
-        dir_name : dir_name
+        dir_name : dir_name,
+        pname: pname
     };
 
     let response = await fetch(url,{
@@ -903,6 +915,7 @@ export const expansion = (node,hops) => {
 }
 
 export const draw_graph = (res,id_value) => {
+    coming_from_binary_ops = false;
     var nodes_arr = res["nodes"];
     var edges_arr = res["edges"];
 
@@ -938,6 +951,7 @@ export const draw_graph = (res,id_value) => {
     // number of nodes
 
     // to add node dynamically
+    // $(".loader").remove();
     $.each(nodes_arr, function(index, value) {
         nodes.add({
             "id": value.id,
@@ -983,6 +997,25 @@ export const draw_graph = (res,id_value) => {
         }
     });
 
+    network_global.on('oncontext',function(properties){
+        event.preventDefault();
+    
+        //Show contextmenu
+        $(".custom-menu").finish().toggle(100).
+        
+        // In the right position (the mouse)
+        css({
+            top: event.pageY + "px",
+            left: event.pageX + "px"
+        });
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        queryTempexp = network_global.getNodeAt(properties.pointer.DOM);
+        network_global_expansion = network_global;
+        $("#expansionnodename").empty();
+        $("#expansionnodename").append(queryTempexp);
+    });
+
+
     network_global.on('selectNode', function(properties) {
         var len1 = properties.nodes.length;
         if (len1 >= 2) {
@@ -1007,6 +1040,221 @@ export const draw_graph = (res,id_value) => {
     var scaleOption = {scale:0.18};
     network_global.moveTo(scaleOption);
 }
+
+$('body').on("click","#expand_from_list",function(){
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    queryTempexp = $('#expand_from_list').val().trim();;
+    network_global_expansion = network_global;
+    $("#expansionnodename").empty();
+    $("#expansionnodename").append(queryTempexp);
+
+    $(".custom-menu").hide();
+    let fromDateTemp = $('#fromDateNA').val();
+    let fromDateStripped = fromDateTemp;
+    fromDateTemp = fromDateTemp + " 00:00:00";
+    let toDateTemp = $('#toDateNA').val();
+    let toDateStripped = toDateTemp;
+    toDateTemp = toDateTemp + " 00:00:00";
+    let noOfNodesTemp = $('#expandupto').val().trim();
+    let naTypeTemp;
+    if(crr_viewing_network() == null){
+        naTypeTemp = selected_graph_ids()[0].split('_')[4];
+    }else{
+        naTypeTemp = crr_viewing_network().split('_')[4];
+    }
+    console.log(selected_graph_ids());
+    console.log("I am printing net global",network_global_expansion);
+    networkGeneration('na/expansion',queryTempexp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp,"disabled").then(response => {
+    console.log("Hello Expander",response);
+
+    let newly_incoming_nodes = Array();
+    let newly_incoming_edges = Array();
+    let previous_nodes = Array();
+    let nodes_to_be_pushed = Array();
+    let previous_edges = Array();
+    
+    $.each(network_global_expansion.body.data.nodes._data, function(index, value) {
+        previous_nodes.push(value.id);
+    });  
+
+    $.each(network_global_expansion.body.data.edges._data, function(index, value) {
+        previous_edges.push({'from':value.from,'to':value.to,'label':value.label});
+    });
+
+    $.each(response,function(index,value){
+        newly_incoming_nodes.push(value[0]);
+        newly_incoming_nodes.push(value[1]);
+        let one_edge = {"from":value[0],"to":value[1],"label":value[2]};
+        newly_incoming_edges.push(one_edge);
+    });
+
+    
+    let newly_incoming_nodes_unique = [];
+    $.each(newly_incoming_nodes, function(i, e) {
+        if ($.inArray(e, newly_incoming_nodes_unique) == -1) newly_incoming_nodes_unique.push(e);
+    });
+        
+    
+    $.each(newly_incoming_nodes_unique, function(index, value) {
+        if (($.inArray(value, previous_nodes)) == -1) {
+            if(coming_from_binary_ops==true){
+                var new_value = {
+                    "id": value,
+                    "label": value,
+                    "color": "#FF8C00",
+                    "shape" : 'dot',
+                    "size": 30,
+                    "font": {
+                        "size": 25
+                    },
+                    "x":Math.floor(Math.random() * 5000),
+                    "y":Math.floor(Math.random() * 2000)
+                };            
+            }else{
+                if(naTypeTemp == "Hashtag-Hashtag"){
+                     image_icon = "public/icons/hashtag.svg"
+                }else if(naTypeTemp == "Mention-Mention"){
+                     image_icon = "public/icons/roshanmention.jpg"
+                }
+                var new_value = {
+                    "id": value,
+                    "label": value,
+                    "color": "red",
+                    "image":image_icon,
+                    "shape" : 'circularImage',
+                    "size": 80,
+                    "font": {
+                        "size": 25
+                    },
+                };
+            }
+
+            nodes_to_be_pushed.push(new_value);
+        }
+    });
+    network_global_expansion.body.data.nodes.add(nodes_to_be_pushed); 
+    network_global_expansion.body.data.edges.add(newly_incoming_edges);
+
+    console.log("global EDG before",global_edges);
+    global_edges = $.merge(previous_edges,newly_incoming_edges);
+    console.log(global_edges);  
+    $('#analysis_summary_charts').css("display", "none");
+    $('.NeighborsDiv').empty();   
+    $('.analysis_summary_div').css("display", "block");   
+
+    $('.NeighborsDiv').append('<table> <tr><th style="width:20px">New incoming members after expanding - <b>'+queryTempexp+' &nbsp </b></th></tr>');
+
+    if(nodes_to_be_pushed.length==0){
+        $('.NeighborsDiv').append('<br /> No neighbors found within the expansion limit');
+    }
+
+    for(let i = 0; i < nodes_to_be_pushed.length; i++){
+        $('.NeighborsDiv').append('<tr><td style="width:500px"> <a href="#target" class="click_events">'+nodes_to_be_pushed[i].id+'</a> &nbsp <label class="float-right">Expand by <input type="number"  name=" nodes" class="border smat-rounded center" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required>  nodes <button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" value='+nodes_to_be_pushed[i].id+' id="expand_from_list" data-dismiss="modal" class="btn btn-primary">GO</button></label></td></tr></table>');
+    } 
+  });
+
+});
+
+$('body').on("click","#expand_now",function(network_global){
+    $(".custom-menu").hide();
+    let fromDateTemp = $('#fromDateNA').val();
+    let fromDateStripped = fromDateTemp;
+    fromDateTemp = fromDateTemp + " 00:00:00";
+    let toDateTemp = $('#toDateNA').val();
+    let toDateStripped = toDateTemp;
+    toDateTemp = toDateTemp + " 00:00:00";
+    let noOfNodesTemp = $('#expandupto').val().trim();
+    if(crr_viewing_network() == null){
+         naTypeTemp = selected_graph_ids()[0].split('_')[4];
+    }else{
+         naTypeTemp = crr_viewing_network().split('_')[4];
+    }
+    networkGeneration('na/expansion',queryTempexp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp=naTypeTemp,"disabled").then(response => {
+
+    let newly_incoming_nodes = Array();
+    let newly_incoming_edges = Array();
+    let previous_nodes = Array();
+    let nodes_to_be_pushed = Array();
+    let previous_edges = Array();
+
+    
+    $.each(network_global_expansion.body.data.nodes._data, function(index, value) {
+        previous_nodes.push(value.id);
+    });  
+
+    $.each(network_global_expansion.body.data.edges._data, function(index, value) {
+        previous_edges.push({'from':value.from,'to':value.to,'label':value.label});
+    });
+
+    $.each(response,function(index,value){
+        newly_incoming_nodes.push(value[0]);
+        newly_incoming_nodes.push(value[1]);
+        let one_edge = {"from":value[0],"to":value[1],"label":value[2]};
+        newly_incoming_edges.push(one_edge);
+    });
+
+    
+    let newly_incoming_nodes_unique = [];
+    $.each(newly_incoming_nodes, function(i, e) {
+        if ($.inArray(e, newly_incoming_nodes_unique) == -1) newly_incoming_nodes_unique.push(e);
+    });
+        
+    
+    
+    $.each(newly_incoming_nodes_unique, function(index, value) {
+        if (($.inArray(value, previous_nodes)) == -1) {
+            if(coming_from_binary_ops==true){
+                var new_value = {
+                    "id": value,
+                    "label": value,
+                    "color": "#FF8C00",
+                    "shape" : 'dot',
+                    "size": 35,
+                    "font": {
+                        "size": 50
+                    },
+                    "x":Math.floor(Math.random() * 5000),
+                    "y":Math.floor(Math.random() * 2000)
+                };            
+            }else{
+                if(naTypeTemp == "Hashtag-Hashtag"){
+                     image_icon = "public/icons/hashtag.svg"
+                }else if(naTypeTemp == "Mention-Mention"){
+                     image_icon = "public/icons/roshanmention.jpg"
+                }
+                var new_value = {
+                    "id": value,
+                    "label": value,
+                    "color": "red",
+                    "image":image_icon,
+                    "shape" : 'circularImage',
+                    "size": 80,
+                    "font": {
+                        "size": 25
+                    },
+                };
+            }
+
+            nodes_to_be_pushed.push(new_value);
+        }
+    });
+
+    network_global_expansion.body.data.nodes.add(nodes_to_be_pushed); 
+    network_global_expansion.body.data.edges.add(newly_incoming_edges);
+    console.log(nodes_to_be_pushed);    
+    console.log(previous_nodes); 
+    global_edges = $.merge(previous_edges,newly_incoming_edges);  
+    $('#analysis_summary_charts').css("display", "none");
+    $('.NeighborsDiv').empty();   
+    $('.analysis_summary_div').css("display", "block");   
+
+    $('.NeighborsDiv').append('<table> <tr><th style="width:20px">New incoming members after expanding - <b>'+queryTempexp+' &nbsp </b></th></tr>');
+
+    for(let i = 0; i < nodes_to_be_pushed.length; i++){
+        $('.NeighborsDiv').append('<tr><td style="width:500px"> <a href="#target" class="click_events">'+nodes_to_be_pushed[i].id+'</a> <label class="float-right"> Expand by &nbsp <input type="number"  name=" nodes" class="border smat-rounded center" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required>  nodes <button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" value='+nodes_to_be_pushed[i].id+' id="expand_from_list" data-dismiss="modal" class="btn btn-primary float-right">GO</button></td></tr></table>');
+    } 
+  });
+});
 
 export const delete_node = (properties, data) => {
 
@@ -1099,6 +1347,7 @@ export const render_graph_union = (res) => {
     var major_array = res["major"];
     var opr_type = res["operation"];
     var networkTypes = res["networktype"];
+    coming_from_binary_ops = true;
 
     $(".nos_of_nodes").empty();
     $(".nos_of_nodes").text(nodes_arr.length);
@@ -1123,6 +1372,9 @@ export const render_graph_union = (res) => {
         let size_of_each_network = major_array[i].length - 2;
         $('.analysis_summary_div').append('<tr><td style="width:100px">'+ querydictfilename[selectedGraphs[i]] +'</td><td style="width:40px">'+size_of_each_network+'</td><td style="width:200px">'+networkTypes[i]+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+querynodeinfo[i]["color"]+'">&nbsp;</span></td></tr>');
     }
+
+    $('.analysis_summary_div').append('<table> <tr><th style="width:280px">Intersecting Node Color Code</th><th style="width:50px"><span class="badge badge-pill" style="background-color:'+"red"+'">&nbsp;</span></th></tr></table>');
+
     $('.analysis_summary_div').append('</table>');
 
 
@@ -1130,7 +1382,7 @@ export const render_graph_union = (res) => {
     for(var i=0; i<nodes_arr.length;i++){
         let color_code = nodes_arr[i]["color"];
         let count = i + 1;
-        $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+nodes_arr[i]["id"]+'</a>'+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
+        $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+nodes_arr[i]["id"]+'</a> &nbsp <label class="float-right">Expand by <input type="number"  name=" nodes" class="border smat-rounded center" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required>  nodes <button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" value='+nodes_arr[i]["id"]+' id="expand_from_list" data-dismiss="modal" class="btn btn-primary">GO</button></label>'+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
     }
     $('.analysis_summary_div').append('</table>');
 
@@ -1140,7 +1392,7 @@ export const render_graph_union = (res) => {
     const groupsN = networkTypes.length;
     
     const groups = []
-    for (let i = 1; i <= groupsN; i++) {
+    for (let i = 1; i <= groupsN+1; i++) {
         groups.push(i)
     }
     
@@ -1148,19 +1400,23 @@ export const render_graph_union = (res) => {
     const visNodes = [];
     let group;
     $.each(nodes_arr, function(index, value) {    
-        if(value.color=="blue"){
+        if(value.color=="#629632"){
             group = 1;
-        }else if(value.color=="yellow"){
+        }else if(value.color=="#79CDCD"){
             group = 2;            
-        }else if(value.color=="red"){
-            group = 3;            
-        }else if(value.color=="green"){
+        }else if(value.color=="#1abc9c"){
             group = 4;            
-        }else if(value.color=="pink"){
+        }else if(value.color=="#5b2c6f"){
             group = 5;            
-        }else if(value.color == "purple"){
+        }else if(value.color=="#ED5565"){
+            group = 6;            
+        }else if(value.color == "#5f6a6a"){
+            group = 7;
+        } else if(value.color =="#000000"){
+            group = 8;
+        }else if(value.color =="#FF0000"){
             group = 3;
-        }   
+        }    
         visNodes.push({
            "id": value.id,
            "label": value.label,
@@ -1212,6 +1468,14 @@ export const render_graph_union = (res) => {
             borderWidth: 1,
             // shadow: true
         },
+    interaction: {
+        hideEdgesOnDrag: true,
+        hover: true,
+        tooltipDelay: 100,
+        multiselect: true,
+        navigationButtons: true,
+        keyboard: true
+        },
         physics:
         {
             enabled: false
@@ -1219,64 +1483,32 @@ export const render_graph_union = (res) => {
     }
 
     network_global = new vis.Network(container, data, global_options2);
-    network_global.on('afterDrawing', (ctx) => afterNetworkDrawing(network_global, ctx));
-
-
-    //
-
-
-
-
-
-    // // Roshan Testing here 
-
-    // var nodes = new vis.DataSet();
-    // var edges = new vis.DataSet();
-
-    // // create a network
-    // var container = document.getElementById("union_displayer");
-    // var data = {
-    //     nodes: nodes,
-    //     edges: edges
-    // };
-
-    // network_global = new vis.Network(container, data, global_options);
-    // // network_global_union = network;
-
-
-    // network_global.focus(1, {
-    //     scale: 1
-    // });
-
-
-    // // to add node dynamically
-    // $.each(nodes_arr, function(index, value) {    
-    //     nodes.add({
-    //         "id": value.id,
-    //         "label": value.label,
-    //         "group": value.group,
-    //         "color": value.color,
-    //         "size": 25,
-    //         "font": { "size": 25 }
-    //      });
-    // });
-
-    // // to add edges dynamically
-    // $.each(edges_arr, function(index, value) {
-    //     setTimeout(function() {
-    //         edges.add({
-    //             "from": value.from,
-    //             "to": value.to,
-    //             "label": value.label
-    //         });
-
-    //     }, 10);
-    // });
+    // network_global.on('afterDrawing', (ctx) => afterNetworkDrawing(network_global, ctx));
 
     global_edges = edges_arr;
     
     var scaleOption = {scale:0.2};
     network_global.moveTo(scaleOption);
+
+    network_global.on('oncontext',function(properties){
+        event.preventDefault();
+    
+        //Show contextmenu
+        $(".custom-menu").finish().toggle(100).
+        
+        // In the right position (the mouse)
+        css({
+            top: event.pageY + "px",
+            left: event.pageX + "px"
+        });
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        queryTempexp = network_global.getNodeAt(properties.pointer.DOM);
+        console.log("OOLLAA",properties.pointer.DOM);
+        network_global_expansion = network_global;
+        $("#expansionnodename").empty();
+        $("#expansionnodename").append(queryTempexp);
+        coming_from_binary_ops = true;
+    });
     
     //Adding control buttons
 }
@@ -1661,15 +1893,42 @@ var global_options2 = {
         borderWidth: 1,
         // shadow: true
     },
+    groups: {
+        1: {
+            color: '#629632',
+        },
+        2: {
+            color: '#79CDCD',
+        },
+        3: {
+            color: '#FF0000',
+        },
+        4: {
+            color: '#1abc9c',
+        },
+        5: {
+            color: '#5b2c6f',
+        },
+        6: {
+            color: '#ED5565',
+        },
+        7: {
+            color: '#000000',
+        },
+        8: {
+            color: '#FF0000',
+        },
+        9: {
+            color: 'orange'
+        }
+    },
     edges: {
-        color: '#97C2FC',
-        length: 1500,
-        width: 0.15,
+        length: 2500,
+        width: 0.005,
         smooth: {
             type: 'continuous'
         },
         hoverWidth: 10
-            // shadow: true
     },
     interaction: {
         hideEdgesOnDrag: true,
@@ -1677,7 +1936,7 @@ var global_options2 = {
         tooltipDelay: 100,
         multiselect: true,
         navigationButtons: true,
-        keyboard: true
+        keyboard: true,
     },
     physics: false,
     layout: {
@@ -1880,7 +2139,7 @@ export const on_hover_change_color_of_neighbournodes = async(properties, nodes) 
     $('.NeighborsDiv').append('<table> <tr><th style="width:20px">Neighbors of - <b>'+selected_node+'</b></th></tr>');
 
     for(let i = 0; i < con_nodes.length; i++){
-        $('.NeighborsDiv').append('<tr><td style="width:500px"> <a href="#target" class="click_events">'+con_nodes[i]+'</a></td></tr></table>');
+        $('.NeighborsDiv').append('<tr><td style="width:500px"> <a href="#target" class="click_events">'+con_nodes[i]+'</a><label class="float-right">Expand by <input type="number"  name=" nodes" class="border smat-rounded center" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required>  nodes <button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" value='+con_nodes[i]+' id="expand_from_list" data-dismiss="modal" class="btn btn-primary">GO</button></label></td></tr></table>');
     }
 
 

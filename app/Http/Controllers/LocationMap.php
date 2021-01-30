@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DBModel\DBmodel;
 use App\DBModel\DBmodelAsync;
 use App\Http\Controllers\CommonController;
+use App\Http\Controllers\TweetTracking;
 use App\Http\Controllers\Home as Hm;
 use Illuminate\Http\Request;
 use App\CityState;
@@ -17,44 +18,26 @@ class LocationMap extends Controller
     // given tweet id.
     // param: tweet_id list
     // output: tweet information
-    public function tweet_info($tweetid_list_array)
+    public function tweet_info(Request $request)
     {
-        $input_args = array();
-        foreach ($tweetid_list_array as $value) {
-            array_push($input_args, array($value));
+        $tweetid_list_array = $request->input('tweetid_list_array');
+        $pname = null;
+        if ($request->input('pname')) {
+            $pname = $request->input('pname');
         }
-        $final_result = array();
-        $prepared_statement = "SELECT category,t_location,datetime,tid,author,tl_longitude,tl_latitude ,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,tweet_text,retweet_source_id,media_list,type from tweet_info_by_id_test WHERE tid=?";
-        $db_object = new DBmodelAsync;
 
-        $result_async_from_db = $db_object->executeAsync_query($input_args, $prepared_statement, 'raw');
-        foreach ($result_async_from_db as $rows) {
-            foreach ($rows as $row) {
-                $temp_arr = array("datetime" => $row["datetime"],"category" => $row["category"],"t_location" => $row["t_location"], "Latitude" => $row["tl_latitude"], "Longitude" => $row["tl_longitude"], "t" => $row["tid"], "author" => $row["author"], "author_id" => $row["author_id"], "author_profile_image" => $row["author_profile_image"], "author_screen_name" => $row["author_screen_name"], "sentiment" => $row["sentiment"], "quoted_source_id" => $row["quoted_source_id"], "tweet" => $row["tweet_text"], "retweet_source_id" => $row["retweet_source_id"], "media_list" => $row["media_list"], "type" => $row["type"]);
-                array_push($final_result, $temp_arr);
-            }
-        }
-        return json_encode($final_result);
+        $commonObj = new CommonController;
+        return $commonObj->get_tweets_info($tweetid_list_array, true, $pname);
     }
     public function tweet_info_for_tracking(Request $request)
     {
         $input_args = array();
-        $tweetid_list_array=$request->input('arr');
+        $tweetid_list_array = $request->input('arr');
         foreach ($tweetid_list_array as $value) {
             array_push($input_args, array($value));
         }
-        $final_result = array();
-        $prepared_statement = "SELECT category,t_location,datetime,tid,author,tl_longitude,tl_latitude ,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,tweet_text,retweet_source_id,media_list,type from tweet_info_by_id_test WHERE tid=?";
-        $db_object = new DBmodelAsync;
-
-        $result_async_from_db = $db_object->executeAsync_query($input_args, $prepared_statement, 'raw');
-        foreach ($result_async_from_db as $rows) {
-            foreach ($rows as $row) {
-                $temp_arr = array("datetime" => $row["datetime"],"category" => $row["category"],"t_location" => $row["t_location"], "Latitude" => $row["tl_latitude"], "Longitude" => $row["tl_longitude"], "t" => $row["tid"], "author" => $row["author"], "author_id" => $row["author_id"], "author_profile_image" => $row["author_profile_image"], "author_screen_name" => $row["author_screen_name"], "sentiment" => $row["sentiment"], "quoted_source_id" => $row["quoted_source_id"], "tweet" => $row["tweet_text"], "retweet_source_id" => $row["retweet_source_id"], "media_list" => $row["media_list"], "type" => $row["type"]);
-                array_push($final_result, $temp_arr);
-            }
-        }
-        return json_encode($final_result);
+        $commonObj = new CommonController;
+        return $commonObj->get_tweets_info($tweetid_list_array);
     }
 
 
@@ -75,10 +58,14 @@ class LocationMap extends Controller
         $from_datetime = $request->input('from');
         $to_datetime = $request->input('to');
         $option = $request->input('option');
+        $pname = null;
+        if ($request->input('pname')) {
+            $pname = $request->input('pname');
+        }
 
         $commonObj = new CommonController;
 
-        $r = $commonObj->get_tweets($to_datetime, $from_datetime, $query, '10sec', 'all', 'tweet');
+        $r = $commonObj->get_tweets($to_datetime, $from_datetime, $query, '10sec', 'all', $pname);
 
         $tweetid_list_array = array();
 
@@ -89,8 +76,7 @@ class LocationMap extends Controller
         if ($option == "tweet_id") {
             return $tweetid_list_array;
         } else if ($option == "tweet_info") {
-            // return $commonObj->get_tweets_info($tweetid_list_array);
-            return $this->tweet_info($tweetid_list_array);
+            return $commonObj->get_tweets_info($tweetid_list_array, true, $pname);
         }
     }
 
@@ -101,10 +87,8 @@ class LocationMap extends Controller
         $from_datetime = $request->input('from');
         $to_datetime = $request->input('to');
         $type = $request->input('type');
-        // $all_location = $this->get_location_statement($query);
         $r = $commonObj->get_top_data_cat_by_location($to_datetime, $from_datetime, 'top_latlng_hashtag', $query, '10sec');
         return $r;
-
     }
 
     public function get_hashtags(Request $request)
@@ -115,11 +99,8 @@ class LocationMap extends Controller
         $from_datetime = $request->input('from');
         $to_datetime = $request->input('to');
         $type = $request->input('type');
-        // $all_location = $this->get_location_statement($query);
         $r = $commonObj->get_top_data_lat_lng($to_datetime, $from_datetime, 'top_latlng_hashtag', $query, '10sec');
-
         return json_encode($r);
-
     }
 
     // This function is used for
@@ -136,6 +117,11 @@ class LocationMap extends Controller
             $query = $request->input('query');
             $from = $request->input('from');
             $to = $request->input('to');
+            $pname = null;
+            if ($request->input('pname')) {
+                $pname = $request->input('pname');
+            }
+
             if ($request->input('isDateTimeAlready') == 0) {
                 $fromTime = date('Y-m-d H:i:s', strtotime($from) + 0);
                 $toTime = date('Y-m-d H:i:s', strtotime($to) + 0);
@@ -143,35 +129,37 @@ class LocationMap extends Controller
                 $fromTime = $from;
                 $toTime = $to;
             }
+
             if ($request->input('filter') != 'all') {
                 $filter = $request->input('filter');
             } else {
                 $filter = null;
             }
+
             //A little extra processing for 10seconds plot.
             if ($rangeType == '10sec') {
                 $fromTime = date('Y-m-d H:i:s', strtotime($fromTime) - 3600);
                 $toTime = date('Y-m-d H:i:s', strtotime($toTime) + 0);
             }
+
             $arrTemp = ["range_type" => $rangeType, "fromTime" => $fromTime, "toTime" => $toTime, "query" => $query, "filter" => $filter];
             $commonObj = new CommonController;
-            $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter, 'tweet');
-            
-         
+            $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter, $pname);
+
+
             $tweetid_list_array = array();
             // array_push($tweetid_list_array,'1300689867836395526');
             // array_push($tweetid_list_array,'1305520073982054400');
-            
+
             foreach ($data['data'] as $tid) {
                 array_push($tweetid_list_array, $tid);
             }
 
             $tweetid_list_array = array_unique($tweetid_list_array);
 
-            // return $commonObj->get_tweets_info($tweetid_list_array);
-            return $this->tweet_info($tweetid_list_array);
-    }
-
+            return $commonObj->get_tweets_info($tweetid_list_array, true, $pname);
+            // return $this->tweet_info($tweetid_list_array);
+        }
     }
 
     public function location_tweet_home($intervalArg = null, $queryArg = null, Request $request)
@@ -186,7 +174,6 @@ class LocationMap extends Controller
             } else if ($intervalArg && $queryArg) {
                 $interval = $intervalArg;
                 $query = $queryArg;
-
             } else {
                 return response()->json(['error' => 'interval  or query not set'], 400);
             }
@@ -208,18 +195,18 @@ class LocationMap extends Controller
         $commonObj = new CommonController;
         $data = $commonObj->get_tweets($toTime, $fromTime, $query, '10sec', $filter, 'tweet');
         // return $data;
-        $tweetid_list_array = array();  
+        $tweetid_list_array = array();
         // array_push($tweetid_list_array,'1300689867836395526');
         // array_push($tweetid_list_array,'1305520073982054400');
-        
+
         foreach ($data['data'] as $tid) {
             array_push($tweetid_list_array, $tid);
         }
 
         $tweetid_list_array = array_unique($tweetid_list_array);
 
-        // return $commonObj->get_tweets_info($tweetid_list_array);
-        return $this->tweet_info($tweetid_list_array);
+        return $commonObj->get_tweets_info($tweetid_list_array);
+        // return $this->tweet_info($tweetid_list_array);
     }
 
     public function checkLocation_(Request $request)
@@ -232,7 +219,6 @@ class LocationMap extends Controller
             $code = $c['code'];
         }
         return json_encode($code);
-
     }
     public function getLocationNames()
     {
@@ -241,7 +227,7 @@ class LocationMap extends Controller
         $statement = "SELECT location from location_code";
         $result_code = $trigger->execute_query($statement, null, null);
         foreach ($result_code as $l) {
-            array_push($location,$l['location']);
+            array_push($location, $l['location']);
         }
         return json_encode($location);
     }
@@ -253,11 +239,11 @@ class LocationMap extends Controller
         $country = ' ';
         $loc = array();
 
-        $location = explode ("^", $temp)[1];
+        $location = explode("^", $temp)[1];
         // echo $location[0];
 
-        $locationCodeObj = LocationCode::where($location)->firstOrFail();
-        $code = $locationCodeObj["code"];
+        $locationCodeObj = LocationCode::select('code')->where('location', $location)->get();
+        $code = $locationCodeObj[0]["code"];
 
         // $trigger = new DBmodel;
         // $statement = "SELECT code from location_code WHERE location ='" . $location . "'";
@@ -266,18 +252,27 @@ class LocationMap extends Controller
         //     $code = $c['code'];
         // }
 
-        if ($code == 0) {$locationType = "city";}
-        elseif ($code == 1) {$locationType = "state";}
-        elseif ($code == 2) {$locationType = "country";}
+        if ($code == 0) {
+            $locationType = "city";
+        } elseif ($code == 1) {
+            $locationType = "state";
+        } elseif ($code == 2) {
+            $locationType = "country";
+        }
 
-        $locationObj = CityState::where($locationType, $location)->firstOrFail();
-        
+        $locationObj = CityState::select('city', 'state', 'country')->where($locationType, $location)->get();
+        $locationObj = $locationObj[0];
+
         $city_state_country_stm = '';
-        if ($code == 0) {$city_state_country_stm = "country='^" . $locationObj["country"] . "' AND state='^" . $locationObj["state"] . "' AND city='^" . $locationObj["city"] . "'";}
-        elseif ($code == 1) {$city_state_country_stm = "country='^" . $locationObj["country"] . "' AND state='^" . $locationObj["state"] . "'";}
-        elseif ($code == 2) {$city_state_country_stm = "country='^" .$locationObj["country"] . "'";}
+        if ($code == 0) {
+            $city_state_country_stm = "country='^" . $locationObj["country"] . "' AND state='^" . $locationObj["state"] . "' AND city='^" . $locationObj["city"] . "'";
+        } elseif ($code == 1) {
+            $city_state_country_stm = "country='^" . $locationObj["country"] . "' AND state='^" . $locationObj["state"] . "'";
+        } elseif ($code == 2) {
+            $city_state_country_stm = "country='^" . $locationObj["country"] . "'";
+        }
         // if (($city == ' ') && ($state == ' ') && ($country == ' ')) {
-            // echo nothing
+        // echo nothing
         // } else if (($city != ' ') && ($state != ' ') && ($country != ' ')) {
         //     $city_state_country_stm = "country='" . $country . "' AND state='" . $state . "' AND city='" . $city . "'";
         // } else if (($city == ' ') && ($state != ' ') && ($country != ' ')) {
@@ -294,7 +289,256 @@ class LocationMap extends Controller
         $location = $request->input('location');
         return json_encode($this->get_location_statement($location));
     }
+
+    public function generate_tweet_network(Request $request)
+    {
+
+        // $date_list = ["2020-10-31", "2020-11-01", "2020-11-02"];
+        $date_list = ["2020-12-02", "2020-12-03", "2020-12-04","2020-12-21","2020-12-22"];
+
+        $node_no = 1;
+        $hop_count = 1;
+
+        $current_hop_node_count = 1;
+        // $array_per_hop_node_count = new \SplQueue();
+        // $array_per_hop_node_count->enqueue(1);
+        // $array_per_hop_node_count->rewind();
+        $total_nodes = 0;
+
+        $tweet_id = $request->input('tweet_id');
+        echo $tweet_id;
+        $SourceTweetID = new \SplQueue();
+        $SourceTweetID->enqueue($tweet_id);
+
+        function r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list)
+        {
+            print_r($SourceTweetID);
+
+            $SourceTweetID->rewind();
+            $ST_id = $SourceTweetID->current();
+            $SourceTweetID->dequeue();
+            
+            $all_type_data = process_source($ST_id, $date_list);
+
+            foreach($all_type_data["Reply"] as $q){
+                $SourceTweetID->enqueue($q);
+            }
+            foreach($all_type_data["QuotedTweet"] as $q){
+                $SourceTweetID->enqueue($q);
+            }
+
+            $total_nodes= $total_nodes + sizeof($all_type_data["QuotedTweet"])+sizeof($all_type_data["Reply"]);
+            
+            prepare_the_graph($ST_id,$all_type_data);
+
+            if($node_no==$current_hop_node_count){
+                if ($hop_count<=3) {
+                    echo("=====================================");
+                    echo("=====================================");
+                    echo("=====================================");
+                    echo("=====================================");
+                    echo("=====================================");
+                    echo($hop_count);
+                    $current_hop_node_count = $total_nodes;
+                    $node_no = 1;
+                    $total_nodes = 0;
+                    $hop_count = $hop_count+1;
+                    r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list);
+                
+                }
+                
+            }
+            else{
+                if ($hop_count<=10) {
+                    
+                    $node_no = $node_no + 1;
+                    r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list);
+                }
+                else{
+                    return;
+                }
+            }
+                
+            
+
+            // prepare_the_graph($ST_id,$temp_RT_QT);
+            // _t_($SourceTweetID);
+            
+        }
+
+        function process_source($ST_id, $date_list)
+        {
+            $tweet_id_type = ["retweet", "QuotedTweet", "Reply"];
+            $trigger = new TweetTracking;
+            $all_type_data = array();
+            foreach ($tweet_id_type as $type) {
+                $temp_data = [];
+                foreach ($date_list as $date) {
+                    $result = $trigger->get_tweet_idlist_for_sourceid($to = $date, $from = null, $source_tweet_id = $ST_id, $tweet_id_list_type = $type);
+                    array_push($temp_data, $result["data"]);
+                }
+                $temp_data = call_user_func_array('array_merge', $temp_data);
+                $all_type_data[$type] = $temp_data;
+            }
+            echo json_encode($all_type_data);
+            return $all_type_data;
+        }
+
+        function prepare_the_graph($ST_id,$total_nodes){
+            
+            foreach ($total_nodes as $key => $value) {
+                for ($i=0; $i < sizeof($value) ; $i++) { 
+                    echo($ST_id.",".$value[$i]);
+                    $file = fopen("storage/1/temp.csv","a+");
+                    $line = $ST_id.",".$value[$i];
+                    
+                      fputcsv($file,array($ST_id,$value[$i],$key));
+                    
+                    
+                    fclose($file);
+                }
+                
+            }
+            // $list = array (
+            //     array("Peter", "Griffin" ,"Oslo", "Norway"),
+            //     array("Glenn", "Quagmire", "Oslo", "Norway")
+            //   );
+              
+            //   $file = fopen("/vishleshakee/storage/1/temp.csv","a+");
+              
+            //   foreach ($list as $line) {
+            //     fputcsv($file, $line);
+            //   }
+              
+            //   fclose($file);
+        };
+
+
+        r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list);
+
+
+
+
+
+        // $trigger = new TweetTracking;
+        // $trigger->get_tweet_idlist_for_sourceid($to=null, $from=null, $source_tweet_id=null, $tweet_id_list_type=null);
+        // return $trigger->get_tweet_idlist_for_sourceid($to="2020-10-31", $from=null, $source_tweet_id="1322562906014306311", $tweet_id_list_type="retweet");
+    }
+
+    public function generate_tweet_network_(Request $request)
+    {
+
+        // $date_list = ["2020-10-31", "2020-11-01", "2020-11-02"];
+        $date_list = $request->input('dateArr');
+        $dir_name = $request->input('userID');
+        // $node_no = 1;
+        $hop_count = 0;
+
+        // $current_hop_node_count = 1;
+        // $array_per_hop_node_count = new \SplQueue();
+        // $array_per_hop_node_count->enqueue(1);
+        // $array_per_hop_node_count->rewind();
+        // $total_nodes = 0;
+
+        $tweet_id = $request->input('id');
+        $SourceTweetID = new \SplQueue();
+        $SourceTweetID->enqueue($tweet_id);
+        $SourceTweetID->enqueue("H");
+
+        $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","w");
+        fclose($file);
+
+        function r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name)
+        {
+
+            print_r($SourceTweetID);
+            $SourceTweetID->rewind();
+            $ST_id = $SourceTweetID->current();
+            if ($hop_count!=10) {
+                
+            
+                if ($ST_id=="H") {
+                    $SourceTweetID->dequeue();
+                    $SourceTweetID->rewind();
+                    $temp_check = $SourceTweetID->current();
+                    if ($temp_check) {
+                        print_r($temp_check);
+                        $hop_count = $hop_count + 1;
+                        $SourceTweetID->enqueue("H");
+                        echo "Hope Count";
+                        echo($hop_count);
+                        r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name);
+                    }
+                    else {
+                        echo "Hope Exist till   :";
+                        echo($hop_count);
+                        return array($tweet_id);
+                    }
+                    
+                }
+                else {
+                    $SourceTweetID->rewind();
+                    $ST_id = $SourceTweetID->current();
+                    $SourceTweetID->dequeue();
+                    
+                    $all_type_data = process_source_($ST_id, $date_list);
+        
+                    foreach($all_type_data["Reply"] as $q){
+                        $SourceTweetID->enqueue($q);
+                    }
+                    foreach($all_type_data["QuotedTweet"] as $q){
+                        $SourceTweetID->enqueue($q);
+                    }
+                    
+                    prepare_the_graph_($ST_id,$all_type_data,$tweet_id,$dir_name);
+                    r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name);
+
+                }
+            }
+            else {
+                return;
+            }
+        }
+        function process_source_($ST_id, $date_list)
+            {
+                $tweet_id_type = ["retweet", "QuotedTweet", "Reply"];
+                $trigger = new TweetTracking;
+                $all_type_data = array();
+                foreach ($tweet_id_type as $type) {
+                    $temp_data = [];
+                    foreach ($date_list as $date) {
+                        $result = $trigger->get_tweet_idlist_for_sourceid($to = $date, $from = null, $source_tweet_id = $ST_id, $tweet_id_list_type = $type);
+                        array_push($temp_data, $result["data"]);
+                    }
+                    $temp_data = call_user_func_array('array_merge', $temp_data);
+                    $all_type_data[$type] = $temp_data;
+                }
+                echo json_encode($all_type_data);
+                return $all_type_data;
+            }
+
+            function prepare_the_graph_($ST_id,$total_nodes,$tweet_id,$dir_name){
+                
+                foreach ($total_nodes as $key => $value) {
+                    for ($i=0; $i < sizeof($value) ; $i++) { 
+                        echo($ST_id.",".$value[$i]);
+                        $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","a+");
+                        $line = $ST_id.",".$value[$i];
+                        
+                        fputcsv($file,array("QW".$ST_id,"QW".$value[$i],$key));
+                        
+                        
+                        fclose($file);
+                    }
+                    
+                }
+            }
+        r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name);
+        return json_encode("success");
+    }
+
+    public function tweetid_userInfo(Request $request)
+    {
+        $tweet_id = $request->input('id_array');
+    }
 }
-
-
-   

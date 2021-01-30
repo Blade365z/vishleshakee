@@ -24,11 +24,14 @@ http://172.16.117.160/vishleshakee/tracking?tweetID=1310236170706497538
 */
 
 import { generate_tweets_div, TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
-import { getTweetInfo, getFreqDataForTweets, getTweetsForSource, getDatesDist, getTweetsPlotDataForMap } from './helper.js';
+import { getTweetInfo, getFreqDataForTweets, getTweetsForSource, getDatesDist, getTweetsPlotDataForMap, getNetworkForSource } from './helper.js';
 import { displayErrorMsg, makeSmatReady } from '../utilitiesJS/smatExtras.js';
 import { getCurrentDate, ordinal_suffix_of } from '../utilitiesJS/smatDate.js';
 import { drawFreqDataForTweet, drawFreqDataForTweetMonth } from './chartHelper.js';
 import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
+import {
+    getMe
+} from '../home/helper.js';
 
 //Globals
 var tweetDiv = 'tweetDiv';
@@ -40,9 +43,12 @@ var historyJSON = {};
 var tweets = [];
 var analysisHistory = [], currentlyWatching = [];
 var allocatedIDRecords = [];
-
+var userID;
 //Logic
 jQuery(function () {
+    getMe().then(id => {
+        userID = id;
+    });
 
     $('#mainQuery').fadeIn('slow')
 
@@ -145,7 +151,7 @@ jQuery(function () {
                 analysisHistory.push(historyJSON);
                 let dateArr = response.datetime.split(' ');
                 fromDate = dateArr[0];
-                toDate = getCurrentDate();
+                toDate = getCurrentDate(); //change this if you want to make date dynamic
                 getDatesDist(currentQuery, fromDate, toDate, 'all').then(dateData => {
 
                     createTweetAnalysis(currentQuery, fromDate, toDate, 'trackAnalysisMain', response.author_profile_image, response.author, dateData.data, null, 'day', dateData.data);
@@ -158,6 +164,7 @@ jQuery(function () {
     });
 
     $('body').on('click', '#bring', async function () {
+        console.log("This is the source tweet 2", sourceTweet);
         getTweetsForSource(sourceTweet, '2020-10-31', null, 'all').then(response => {
             let arrTemp = response.data
         });
@@ -200,7 +207,6 @@ jQuery(function () {
     $('body').on('click', 'div .trackCategoryBox', function () {
         let valueArr = $(this).attr('value');
         valueArr = valueArr.split(/[|]/).filter(Boolean);
-        console.log('Rajdeep vars',valueArr);
         getRawTweets(valueArr[0], valueArr[1], valueArr[2]);
         //TODO::Radjeep
 
@@ -236,7 +242,7 @@ jQuery(function () {
             } else {
                 let dateArr = tweetRawData.datetime.split(' ');
                 fromDate = dateArr[0];
-                toDate = getCurrentDate();
+                toDate = getCurrentDate(); //change this if you want to make date dynamic
                 getDatesDist(value, fromDate, toDate, 'all').then(response => {
                     createTweetAnalysis(value, fromDate, toDate, 'trackAnalysisMain', tweetRawData.author_profile_image, tweetRawData.author, response.data, null, 'day', response.data);
                 })
@@ -244,7 +250,9 @@ jQuery(function () {
             }
         });
     });
-
+    $('body').on('click', 'div #generateNetworkTrack', function () {
+        alert();
+    });
     $(window).on('resize', function () {
         currentlyWatching.forEach(element => {
             if (allocatedIDRecords[element]) {
@@ -300,13 +308,16 @@ const tracker = async (searhIDTemp) => {
     }
     analysisHistory.push(historyJSON);
 
-    getTweetInfo(historyJSON[sourceTweet]['id']).then(tweetRawData => {
+    getTweetInfo(sourceTweet).then(tweetRawData => {
         if (tweetRawData) {
             let dateArr = tweetRawData.datetime.split(' ');
             fromDate = dateArr[0];
-            toDate = getCurrentDate();
+            $('.sourceProfPic').html('<div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweetRawData.author_profile_image + '" style="height:33px;border-radius:50%"></div>')
+            $('.sourceAuthor').html('<div> <p class="pt-1 m-0 font-weight-bold username" value="1731554581">Alok Sharma </p><p class="smat-dash-title pull-text-top m-0 "> @AlokSharma_RDG </p></div>')
+            toDate = getCurrentDate(); //change this if you want to make date dynamic
             getDatesDist(sourceTweet, fromDate, toDate, 'all').then(response => {
-
+                console.log('SOURCE', sourceTweet)
+                createNetworkForTrack(sourceTweet, response);
                 createTweetAnalysis(sourceTweet, fromDate, toDate, 'trackAnalysisMain', tweetRawData.author_profile_image, tweetRawData.author, response.data, null, 'day', response.data);
 
             })
@@ -473,10 +484,10 @@ const drawBoxesForCategories = async (offset, tweetID, date, groupByType, month 
     let counter = 0;
     // types.forEach(type => {
 
-  await Promise.all(types.map(async (type) => {
+    await Promise.all(types.map(async (type) => {
         await getFreqDataForTweets(tweetID, fromTmp, toTmp, type).then(response => {
             response.data.forEach(element => {
-                $('#categoryCard-'+type+'-'+tweetID+'-'+offset).css('pointer-events','auto')
+                $('#categoryCard-' + type + '-' + tweetID + '-' + offset).css('pointer-events', 'auto')
                 if (element) {
                     let ifAlready = parseInt($('#' + type + 'Count-' + tweetID + '-' + label).text());
                     ifAlready += element[1];
@@ -497,11 +508,11 @@ const drawBoxesForCategories = async (offset, tweetID, date, groupByType, month 
 
 
 const createTweetAnalysis = (tweetID, from, to, div, profilePic, author, datesData, allotedIDargs = null, groupByType = null, originalDateData = null) => {
+
     $('#trackAnalysisMain').css('display', 'none')
     let checkFlag = 0;
     if (originalDateData.length == 1 && originalDateData[0][1] == 1) {
         checkFlag = 1;
-        console.log('error');
     }
 
     let allotedID;
@@ -517,17 +528,21 @@ const createTweetAnalysis = (tweetID, from, to, div, profilePic, author, datesDa
     }
     let rangeType = groupByType;
 
-    let chartDom = '<div class="mt-4 mx-4"><div class="mb-1">Frequency Distribution of <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet </span> from '+from+' to '+to+'</div><ul class="nav nav-pills mb-2"  role="tablist"><li class="nav-item"><a class="nav-link active smat-rounded " id="retweetTab-' + allotedID + '" data-toggle="pill" href="#retweetTabContent-' + allotedID + '" role="tab" aria-controls="retweetTabContent-' + allotedID + '" aria-selected="true">Retweet Frequency</a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="quotedTab-' + allotedID + '" data-toggle="pill" href="#quotedTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Quoted Frequency </a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="replyTab-' + allotedID + '" data-toggle="pill" href="#replyTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Reply Frequency </a></li></ul></div><div class="tab-content" id="pills-tabContent"><div class="tab-pane fade show active  trackChartDiv" id="retweetTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="retweetTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="quotedTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="quotedTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="replyTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="replyTabContent-' + allotedID + '"></div> </div>';
+    let chartDom = '<div class="mt-4 mx-4"><div class="mb-1">Frequency Distribution of <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet </span> from ' + from + ' to ' + to + '</div> <div class="d-flex"> <ul class="nav nav-pills mb-2"  role="tablist"><li class="nav-item"><a class="nav-link active smat-rounded " id="retweetTab-' + allotedID + '" data-toggle="pill" href="#retweetTabContent-' + allotedID + '" role="tab" aria-controls="retweetTabContent-' + allotedID + '" aria-selected="true">Retweet Frequency</a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="quotedTab-' + allotedID + '" data-toggle="pill" href="#quotedTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Quoted Frequency </a></li> <li class="nav-item"><a class="nav-link smat-rounded   " id="replyTab-' + allotedID + '" data-toggle="pill" href="#replyTabContent-' + allotedID + '" role="tab" aria-controls="pills-profile" aria-selected="false">Reply Frequency </a></li></ul> </div><div class="tab-content" id="pills-tabContent"><div class="tab-pane fade show active  trackChartDiv" id="retweetTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="retweetTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="quotedTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="quotedTabContent-' + allotedID + '"></div><div class="tab-pane fade  trackChartDiv  " id="replyTabContent-' + allotedID + '" role="tabpanel" aria-labelledby="replyTabContent-' + allotedID + '"></div> </div>';
+
+    let networkDiv = '<div  class="row px-3"  ><div class="col-md-12 border p-0" > <div  > </div> </div><div class="col-md-0 border"></div> </div>'
+
     $('#trackAnalysisMain').fadeIn("slow")
     $('#' + div).html('');
     $('#' + div).html('<div class="my-3 pb-4  "><div class="justify-content-center" id="groupByItems-' + allotedID + '"></div><div class="row "><div class="col-sm-12"><div class="row justify-content-center pt-4  px-3 pl-1" id="hierarchy-' + allotedID + '"> </div></div></div><div id="connect" style="height:2px;"></div><div id="notFound-' + allotedID + '"></div><div id="analysisDOM-' + allotedID + '"></div>');
     drawDateBox(allotedID, tweetID, from, to, groupByType);
     printTweetHierarchy(analysisHistory[allotedID], 'hierarchy-' + allotedID, allotedID).then(response => {
         if (datesData.length < 1 || checkFlag == 1) {
+
             displayNoTrackFoundForTracking(tweetID, allotedID, from, to)
         } else {
             // $('#analysisDOM-' + allotedID).html('<div class="row justify-content-center"><div class="col-sm-3"> <div id="referenceLine-' + allotedID + '" style="display:none;"></div> <div class="trackDateList px-4" id="trackDates-' + allotedID + '"> </div>  </div><div class="col-sm-9"> <div class="row"> <div class="col-sm-4"> <div id="secondCol-' + allotedID + '"> <div id="datesOptional-' + allotedID + '" >  </div> <div  id="trackCategoryInfo-' + allotedID + '"  > </div> </div></div><div class="col-sm-8 pr-5"> <div class=" text-dark text-center">Showing <b class="font-weight-bold" id="currentlyShowingTweetType-' + allotedID + '"></b> for the tweet posted by <b>' + author + '</b> </div><div class="tweetRawTrackDiv bg-white shadow p-3 "  id="trackRawData-' + allotedID + '" style="border-radius:24px;"></div>   </div> </div> <div class="my-3 px-3">Locations of users(if shared) reposting <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet</span></div><div class="h-100 px-3" id="trackMap-' + allotedID + '"></div> </div> </div> <div>' + chartDom );
-            $('#analysisDOM-'+allotedID).html('<div class="row justify-content-center" > <div class="col-sm-3"><div id="referenceLine-' + allotedID + '" style="display:none;"></div> <div class="trackDateList px-4" id="trackDates-' + allotedID + '"> </div> </div><div class="col-sm-9">    <div class="row"><div class="col-sm-4">  <div id="secondCol-' + allotedID + '"> <div id="datesOptional-' + allotedID + '" >  </div> <div  id="trackCategoryInfo-' + allotedID + '"  > </div> </div>     </div><div class="col-sm-8">   <div class=" text-dark text-center">Showing <b class="font-weight-bold" id="currentlyShowingTweetType-' + allotedID + '"></b> for the tweet posted by <b>' + author + '</b> </div><div class="tweetRawTrackDiv bg-white shadow p-3 "  id="trackRawData-' + allotedID + '" style="border-radius:24px;"></div>   </div></div>   <div class="my-3 px-3">Locations of users(if shared) reposting <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet</span></div><div class="px-3" id="trackMap-' + allotedID + '"></div>         </div></div><div>'+chartDom+'</div>')
+            $('#analysisDOM-' + allotedID).html('<div class="row justify-content-center" > <div class="col-sm-2"><div id="referenceLine-' + allotedID + '" style="display:none;"></div> <div class="trackDateList px-4" id="trackDates-' + allotedID + '"> </div> </div><div class="col-sm-9">    <div class="row"><div class="col-sm-3">  <div id="secondCol-' + allotedID + '"> <div id="datesOptional-' + allotedID + '" >  </div> <div  id="trackCategoryInfo-' + allotedID + '"  > </div> </div>     </div><div class="col-sm-9 pr-5">   <div class=" text-dark text-center">Showing <b class="font-weight-bold" id="currentlyShowingTweetType-' + allotedID + '"></b> for the tweet posted by <b>' + author + '</b> </div><div class="tweetRawTrackDiv bg-white shadow p-3 "  id="trackRawData-' + allotedID + '" style="border-radius:24px;"></div>   </div></div>   <div class="my-3 px-3">Locations of users(if shared) reposting <b>' + author + '\'s</b> <span class="seeTweet clickable" value="' + tweetID + '">tweet</span></div><div class="px-3" id="trackMap-' + allotedID + '"></div>         </div></div><div>' + chartDom + '</div><div>' + networkDiv + '</div>')
             drawconnectingboxes(allotedID, tweetID, datesData, profilePic, author, groupByType);
             drawHierarchyLine(tweetID, allotedID);
             if (groupByType == 'month') {
@@ -683,7 +698,7 @@ const printTweetHierarchy = async (json, div, offset) => {
     let sourceTag = '';
     let sourceAuthor = '';
     let sourceID = null
-    let currentQueryBadge='';
+    let currentQueryBadge = '';
     for (const [key, value] of Object.entries(analysisHistory[offset])) {
         if (value['type'] == 'Tweet') {
             await getTweetInfo(key).then(response => {
@@ -704,15 +719,14 @@ const printTweetHierarchy = async (json, div, offset) => {
     // console.log(analysisHistory);
     $('#' + div).html(DOM);
     let namePrev = '';
-    console.log(json)
     for (let key in json) {
         if (json[json[key]['source']]) {
             namePrev = json[json[key]['source']]['author']
         }
-        sourceTag = json[key]['priority'] == highestPriority ? '<div class="text-center" style="margin-top:-17px;" ><span class="badge badge-danger " > Source Tweet</span></div>' : '';
-        currentQueryBadge= key==currentQuery?  '<div class="text-center" style="margin-top:-17px;" ><span class="badge badge-primary " > Query </span></div>' : '';
+        sourceTag = json[key]['priority'] == highestPriority ? '<div class="text-center" ><span class="badge badge-danger " > Source Tweet</span></div>' : '';
+        currentQueryBadge = key == currentQuery ? '<div class="text-center" style="margin-top:-17px;" ><span class="badge badge-primary " > Query </span></div>' : '';
         relationship = '<div class="pt-4"   ><button class="btn btn-sm btn-primary p-1 relationshipNode" data-container="body" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="top" data-content="The tweet posted by <b>' + json[key]['author'] + '</b> is a ' + tweetTypeDictShort[json[key]['type']] + '  of  <b>' + namePrev + '</b>"  style="display:none;">' + tweetTypeDictShort[json[key]['type']] + '</button></div>';
-        mainNode = '<div class="trackHierarchyNode" id="node-' + key + '-' + offset + '">' + sourceTag + currentQueryBadge +'<div class="profilePictureDiv trackProfilePic p-1 text-center " value="' + key + '"><img class="openTweetRaw" src="' + json[key]['author_profile_image'] + '" style="height:55px;border-radius:50%"  value="' + key + '"/> </div><div class=" text-truncate">' + json[key]['author'] + '</div> <div class="badge badge-primary p-1 seeTweet" value=' + key + '>See Tweet</div></div>';
+        mainNode = '<div class="trackHierarchyNode" id="node-' + key + '-' + offset + '">' + currentQueryBadge + '<div class="profilePictureDiv trackProfilePic p-1 text-center " value="' + key + '"><img class="openTweetRaw" src="' + json[key]['author_profile_image'] + '" style="height:55px;border-radius:50%"  value="' + key + '"/> </div><div class=" text-truncate">' + json[key]['author'] + '</div><div>' + sourceTag + '</div> <div class="badge badge-primary p-1 seeTweet" value=' + key + '>See Tweet</div></div>';
         if (json[key]['priority'] < highestPriority) {
             $('#heirarychyChild-' + offset + '-' + json[key]['priority']).html('<div class="d-flex">' + separator1 + relationship + separator2 + mainNode + '</div>');
         } else if (json[key]['priority'] == highestPriority) {
@@ -781,40 +795,39 @@ const getRawTweets = async (tweetID, date, type) => {
         let dateArr = date.split(/[*]/).filter(Boolean);
         let arr = [];
         var responseArray = await Promise.all(dateArr.map(function (x) {
+            console.log("This is the source tweet 3", x, tweetID);
             return getTweetsForSource(tweetID, x, null, type);
         }));
-        console.log('Rajdeep tweets:',responseArray.flat().length);
-        
+        console.log('Rajdeep tweets:', responseArray.flat().length);
+
         if (responseArray.flat().length < 1) {
             displayErrorMsg('trackRawData-' + offset, 'error', 'No Tweets Found.', false);
         } else {
-      
-               getTweetsPlotDataForMap( responseArray.flat()).then(tweetsRaw => {
-                   getCompleteMap("result-div-map", tweetsRaw);
-               });
+
+            getTweetsPlotDataForMap(responseArray.flat()).then(tweetsRaw => {
+                getCompleteMap("result-div-map", tweetsRaw);
+            });
             TweetsGenerator(responseArray.flat(), 6, 'trackRawData-' + offset, null, null, true, null);
         }
     } else {
-       
+        console.log("This is the source tweet 4", date, type, tweetID);
         getTweetsForSource(tweetID, date, null, type).then(response => {
-       
+
             if (response.length < 1) {
                 displayErrorMsg('trackRawData-' + offset, 'error', 'No Tweets Found.', false);
 
             } else {
-             
-                   getTweetsPlotDataForMap(response).then(tweetsRaw => {
-                       getCompleteMap("result-div-map", tweetsRaw);
-                   });
+
+                getTweetsPlotDataForMap(response).then(tweetsRaw => {
+                    getCompleteMap("result-div-map", tweetsRaw);
+                });
                 TweetsGenerator(response, 6, 'trackRawData-' + offset, null, null, true, null);
 
             }
         });
     }
-$('#result-div-map').fadeIn('slow')
+    $('#result-div-map').fadeIn('slow')
 }
-
-
 const updateDates = (id, fromDate, toDate) => {
     getTweetInfo(historyJSON[sourceTweet]['id']).then(tweetRawData => {
         if (tweetRawData) {
@@ -904,6 +917,7 @@ const getTweetsForMap = async (tweetID, from, to, offset, groupByType = null, or
     let idArray = [];
     await Promise.all(originalDateData.map(async (y) => {
         let ArrTmp = await Promise.all(types.map(function (x) {
+            console.log("This is the source tweet 5", tweetID, y[0]);
             return getTweetsForSource(tweetID, y[0], null, x)
         }));
         await idArray.push(ArrTmp);
@@ -921,6 +935,155 @@ const getTweetsForMap = async (tweetID, from, to, offset, groupByType = null, or
         getCompleteMap("result-div-map", response);
     });
 }
+
+
+
+
+const createNetworkForTrack = (id, dateList) => {
+    $('#trackNetworkMsg').html('<div class="d-flex justify-content-center"><div class=""><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div><div class="mt-2 mx-2">Loading network.Please wait.</div></div>');
+    let dateArr = [];
+    dateList.data.forEach(element => {
+        dateArr.push(element[0]);
+    });
+    getNetworkForSource(userID, id, dateArr).then(res => {
+        getTweetInfo(id).then(response => {
+            generate_tweets_div([response], 'networkTrackTweetDiv', true, false)
+        });
+        $('#trackNetworkMsg').html('');
+        $('#networkDiv').fadeIn('slow')
+        var nodes_arr = res["nodes"];
+        var edges_arr = res["edges"];
+
+        var global_options_tt = {
+            nodes: {
+                shape: 'dot',
+                color: '',
+                size: 70,
+                scaling: {
+                    min: 10,
+                    max: 30
+                },
+                font: {
+                    size: 30,
+                    face: 'courier'
+                },
+                borderWidth: 1,
+                // shadow: true
+            },
+            edges: {
+                color: '#a3c2c2',
+                length: 1800,
+                width: 0.3,
+                arrows: "from",
+                smooth: {
+                    type: 'continuous'
+                },
+                hoverWidth: 50
+                // shadow: true
+            },
+            interaction: {
+                hideEdgesOnDrag: true,
+                hover: true,
+                tooltipDelay: 100,
+                multiselect: true,
+                navigationButtons: true,
+                keyboard: true
+            },
+            physics: {
+                forceAtlas2Based: {
+                    gravitationalConstant: -26,
+                    centralGravity: 0.0003,
+                    springLength: 1800,
+                    springConstant: 0.18,
+                },
+                maxVelocity: 500,
+                solver: "forceAtlas2Based",
+                timestep: 0.35,
+                stabilization: { iterations: 2500 },
+            },
+            layout: {
+
+            }
+        };
+
+        console.log(res);
+
+        // update in network information division
+        $(".nos_of_nodes").empty();
+        $(".nos_of_nodes").text(nodes_arr.length);
+        $(".nos_of_edges").empty();
+        $(".nos_of_edges").text(edges_arr.length);
+
+
+        var nodes = new vis.DataSet();
+        var edges = new vis.DataSet();
+
+        // create a network
+        //var container = document.getElementsByClassName(id_value);
+        var container = document.getElementById("track_net");
+
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+
+        var network_global_tracking = new vis.Network(container, data, global_options_tt);
+
+
+        network_global_tracking.focus(1, {
+            scale: 1
+        });
+
+        // number of nodes
+
+        // to add node dynamically
+        // $(".loader").remove();
+        $.each(nodes_arr, function (index, value) {
+            nodes.add({
+                "id": value.id,
+                "label": value.label,
+                "shape": value.shape,
+                "size": value.size,
+                "borderWidth": value.borderwidth,
+                "border": value.border,
+                "color": value.color,
+                // "color":{
+                //     background: '#FFFFFF'
+                // },
+                "font": {
+                    "size": 30
+                }
+            });
+        });
+
+
+        // to add edges dynamically
+        $.each(edges_arr, function (index, value) {
+            setTimeout(function () {
+                edges.add({
+                    "from": value.from,
+                    "to": value.to,
+                    "label": value.label
+                });
+
+            }, 10);
+        });
+
+        network_global_tracking.on('hoverNode', function (properties) {
+            // alert(properties.node);
+            let id = properties.node.match(/[\d]*/g).filter(Boolean);
+            getTweetInfo(id[0]).then(response => {
+                $('#hoveredOnType').text(tweetTypeDict[response.type]);
+                $('#hoveredOnAuthor').text(response.author);
+                generate_tweets_div([response], 'networkTrackTweetDiv', true, false)
+            });
+        });
+        $('.vis-network').removeAttr('tabindex');
+    })
+    
+}
+
+
 
 //--------------------------------------
 

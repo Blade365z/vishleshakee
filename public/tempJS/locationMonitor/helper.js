@@ -23,6 +23,22 @@ export const get_current_time = (time) =>{
 }
 
 
+export const tweetChunkInfo = async (tweetid_list_array) => {
+    let dataArg;
+    dataArg = JSON.stringify({ tweetid_list_array });
+
+    let response = await fetch('LM/tweet_info', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: dataArg
+    });
+
+    let data = await response.json();
+    // return data;
+    return new Promise((resolve, reject)=>{
+        resolve(data);
+    });
+}
 
 export const findLocation = async (location) => {
     let dataArg;
@@ -67,9 +83,9 @@ export const checkLocation = async (place) => {
 }
 
 
-export const getTweetIdList = async (from,to,query,option) => {
+export const getTweetIdList = async (from,to,query,option,pname=null) => {
     let dataArg;
-    dataArg = JSON.stringify({ from, to, query, option });
+    dataArg = JSON.stringify({ from, to, query, option,pname });
 
     let response = await fetch('LM/getTweetId', {
         method: 'post',

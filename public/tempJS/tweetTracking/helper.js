@@ -83,3 +83,25 @@ export const getTweetsPlotDataForMap = async (arr) => {
     let data = await response.json()
     return data;
 }
+
+export const getNetworkForSource = async (userID,id,dateArr) => {
+    let response = await fetch('LM/generate_tweet_network_', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: JSON.stringify({id,dateArr,userID})
+    });
+    let data = await response.text();
+    //TODO :: check if success 
+    let readResponse = await fetch('na/graph_view_data_formator', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: JSON.stringify({dir_name:userID,input:id})
+    });
+    data = await readResponse.json();
+    return data;
+    //TODO::hit another rote;
+}
+
+
+
+

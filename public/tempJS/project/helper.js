@@ -9,14 +9,14 @@ var HeadersForApi = {
 };
 
 //Fetch Api calls
-export const createProjectAPI = async (projectName, user_id, project_id) => {
+export const createProjectAPI = async (projectName, user_id, project_id, project_description, option) => {
     console.log('New project created : ', projectName);
     let route = 'createKT'; //declare route here
     let response = await fetch(route, {
         method: 'post', //http method
         headers: HeadersForApi,
         body: JSON.stringify({
-            projectName, user_id, project_id   //declare body to be parsed in server
+            projectName, user_id, project_id, project_description, option   //declare body to be parsed in server
         })
     });
     // return response; //return here
@@ -143,6 +143,18 @@ export const checkAnalysisExistorNot = async (full_query_id) => {
     let response = await fetch('checkAnalysisExistorNot/' + full_query_id , {
         method: 'get',
         headers: HeadersForApi
+    });
+    let data = await response.json();
+    return data;
+}
+
+export const getRelatedSuggestions = async(query,from,to,limit) => {
+    let response = await fetch('getRelatedWords', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            query,from,to,limit //declare body to be parsed in server
+        })
     });
     let data = await response.json();
     return data;

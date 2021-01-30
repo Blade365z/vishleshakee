@@ -354,7 +354,7 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
     let rangeType = getRangeType(fromDate, toDate); //mala
     if (addToStatusTable) {
         if (searchType == 0) {
-            addNormalSearchToDB('uaStatusTable',unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);
+            addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);
         } else {
             //TODO::add to sparkstarsTable
         

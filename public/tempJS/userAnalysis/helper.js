@@ -148,7 +148,8 @@ export const getCooccurDataForUA = async (query, from, to, option, uniqueID, use
 export const addNormalSearchToDB  = async (queryID,userID,query,fromDate,toDate,status,module_type,hashtagID,mentionID) => {
     let dataArgs=JSON.stringify({
         queryID,userID,query,fromDate,toDate,status,module_type,hashtagID,mentionID
-    })
+    });
+
     let response = await fetch('normalStatus', {
         method: 'post',
         headers: HeadersForApi,

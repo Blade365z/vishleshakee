@@ -8,12 +8,12 @@ var HeadersForApi = {
 };
 
 
-export const get_tweet_location = async(query, from = null, to = null, rangeType, filter = null, isDateTimeAlready = 0) => {
+export const get_tweet_location = async(query, from = null, to = null, rangeType, filter = null, isDateTimeAlready = 0,pname=null) => {
     let dataArgs;
     if (from != null && to != null && isDateTimeAlready == 0) {
-        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready });
+        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready,pname});
     } else if (isDateTimeAlready == 1) {
-        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready });
+        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready,pname});
     }
     let response = await fetch('LM/getTweetInfo', {
         method: 'post',

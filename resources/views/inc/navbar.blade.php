@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-3 pt-2 px-0">
+<nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-3 pt-2 px-0">
   <div id="nav-logo">
 <a class="navbar-brand" href="home"><img src="public/img/vishnavLogo.png" height="30px" /> </a>
 </div>  
@@ -7,7 +7,7 @@
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav  ml-auto "  id="nav-main-tabs">
+    <ul class="navbar-nav w-100 "  id="nav-main-tabs">
 
      
         @if(Auth::check())
@@ -26,6 +26,9 @@
       <li class="nav-item mx-3 borderLeftRight " id="nav-UA">
         <a class="nav-link" href="userAnalysis">User Analysis</a>
       </li>
+      <li class="nav-item mx-3 borderLeftRight " id="nav-UA">
+        <a class="nav-link" href="project">Manage Projects</a>
+      </li>
       {{-- <li class="nav-item mx-3 borderLeftRight " id="nav-save">
         <a class="nav-link" href="saveAnalysis">Save Analysis</a>
       </li> --}}
@@ -34,7 +37,7 @@
   </div>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav  ml-auto  "  id="nav-main-tabs">
+    <ul class="navbar-nav   ml-auto  "  id="nav-main-tabs">
       <li class="nav-item mx-3  " id="nav-repoSwitch" style="display:none;">
         
         <label class="switch">
@@ -48,9 +51,9 @@
  
 
 
-      <li class="nav-item dropdown  mx-1">
+      <li class="nav-item dropdown  ml-auto">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fa fa-user-circle" aria-hidden="true"></i>
+      More
         </a>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="#">Help</a>

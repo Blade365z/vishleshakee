@@ -87,6 +87,70 @@
     /* height: 20px; */
     }
 
+
+    .custom-menu {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    font-family: sans-serif;
+    background: #FFF;
+    color: #333;
+    border-radius: 5px;
+    padding: 0;
+    }
+
+    /* Each of the items in the list */
+    .custom-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+    list-style-type: none;
+    transition: all .3s ease;
+    user-select: none;
+    }
+
+
+    ul.custom-menu li {
+        display:inline;
+    }
+
+    .loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 10px solid rgb(0, 225, 255);
+    border-bottom: 10px solid rgb(174, 0, 255);
+    width: 100px;
+    height: 100px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+    margin-block-start: 12%;
+    margin-left: 45%;
+    }
+
+    .loader_netgen {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 10px solid rgb(0, 225, 255);
+    border-bottom: 10px solid rgb(174, 0, 255);
+    width: 2px;
+    height: 2px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+    margin-right: 10%;
+    }
+
+    @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+    }
+
     </style>
 
     <div class="smat-mainHeading ">
@@ -97,9 +161,9 @@
     <div class="mb-3 row justify-content-center">
         <form id="naInputInputs">
 
-            <div id="naInputPanel">
+            <div id="naInputPanel" class="justify-content-center">
                 <div class="form-group   my-0  mr-3  border smat-rounded d-flex px-2 py-1  bg-white" id="naQueryInputBox">
-                    <input type="text" class="form-control typeahead" name="query" value="" id="queryNA"
+                    <input type="text" class="form-control typeahead" name="query" value="#COVID19" id="queryNA"
                         placeholder="Query" style="border:0px;" autocomplete="OFF" data-container="body"
                         data-trigger="focus" data-html="true" data-toggle="popover" data-placement="bottom"
                         data-content="Query by :- <b>Hashtag</b> ( use'#',example: #COVID19 ) or <b> Mention</b> ( use'@',example: @narendramodi  ) or <b> Keyword</b> (example: happy , select appropriate network choice with first entity type being Keyword) or <b> User </b> (example: Bob, , select appropriate network choice with first entity type being User ) "
@@ -119,7 +183,7 @@
                         data-language='en' required>
                 </div>
                 <div class="form-group  my-0  mr-3 border dateinputForm  smat-rounded d-flex px-2 py-1  bg-white">
-                    <input type="number" class="form-control" name=" nodes" value="5" id="nodesNA"
+                    <input type="number" class="form-control" name=" nodes" value="5000" id="nodesNA"
                         placeholder="Number of Nodes" style="border:0px;" autocomplete="OFF" required>
                 </div>
                 <div class="form-group  my-0  mr-3 border smat-rounded d-flex px-2 py-1  bg-white">
@@ -280,19 +344,19 @@
                             <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab" role="tablist">
                                 <li class="nav-item naTabs">
                                     <a class="nav-link active smat-rounded " id="netTabNA" data-toggle="pill" href="#netContentNA"
-                                        role="tab" aria-controls="netContentNA" aria-selected="true">Network</a>
+                                        role="tab" aria-controls="netContentNA" aria-selected="true">Network Analytics</a>
                                 </li>
                                 <li class="nav-item naTabs ">
                                     <a class="nav-link smat-rounded " id="unionTabNA" data-toggle="pill" href="#unionContentNA" role="tab"
-                                        aria-controls="unionContentNA" aria-selected="false">Union</a>
+                                        aria-controls="unionContentNA" aria-selected="false">Network Union</a>
                                 </li>
                                 <li class="nav-item naTabs ">
                                     <a class="nav-link smat-rounded " id="interSecTabNA" data-toggle="pill" href="#interSecContentNA"
-                                        role="tab" aria-controls="interSecContentNA" aria-selected="false">Intersection</a>
+                                        role="tab" aria-controls="interSecContentNA" aria-selected="false">Network Intersection</a>
                                 </li>
                                 <li class="nav-item naTabs ">
                                     <a class="nav-link smat-rounded " id="diffTabNA" data-toggle="pill" href="#diffContentNA" role="tab"
-                                        aria-controls="diffContentNA" aria-selected="false">Difference</a>
+                                        aria-controls="diffContentNA" aria-selected="false">Network Difference</a>
                                 </li>
                                 <li class="nav-item naTabs ">
                                 </li>
@@ -307,7 +371,7 @@
                                         <li class="nav-item naTabs-2">
                                             <a class="nav-link active smat-rounded " id="centralityTab" data-toggle="pill"
                                                 href="#centrality_algo_choice" role="tab"
-                                                aria-controls="centrality_algo_choice" aria-selected="true">Centrality</a>
+                                                aria-controls="centrality_algo_choice" aria-selected="true">Centrality Analysis</a>
                                         </li>
                                         <li class="nav-item naTabs-2 ">
                                             <a class="nav-link smat-rounded " id="commTab" data-toggle="pill"
@@ -322,7 +386,7 @@
                                         <li class="nav-item naTabs-2">
                                             <a class="nav-link smat-rounded " id="spTab" data-toggle="pill"
                                                 href="#spContent" role="tab" aria-controls="spContent"
-                                                aria-selected="false">Shortest Path</a>
+                                                aria-selected="false">Shortest Path Finding</a>
                                         </li>
                                         <li class="ml-auto">
                                             <div class=" my-0  mr-2 border smat-rounded d-flex px-2   bg-white">
@@ -692,6 +756,47 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="modal" id="exec_expand" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <p style="align-content: center;"></p>
+                        </div>
+                        <div class="modal-body">
+                            <div class="md-col-3"><div class="row"> ASSam <input type="text" class="form-control border smat-rounded  naInputs "
+                                id="difference_sequence" placeholder="Card sequence comma separated"
+                                style="border:0px;"></div></div>
+                            <div class="md-col-3">ASASS</div>
+                               <span>No. of Nodes :  <input type="text" class="form-control border smat-rounded  naInputs "
+                                id="difference_sequence" placeholder="Card sequence comma separated"
+                                style="border:0px;"></span>
+                            <button type="submit" class="btn btn-danger smat-rounded"
+                                id="difference_exec">Execute</button>                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="permission_revoked_dbdel" class="btn btn-danger" data-dismiss="modal">No</button>
+                            <button type="button" id="permission_granted_dbdel" data-dismiss="modal" class="btn btn-success">Yes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <ul class='custom-menu' style="height: 90px;">
+                    <li><i id="deleteexpansionCard" class="fa fa-window-close text-neg float-right" aria-hidden="true"></i></li>
+                    <br /> 
+                    <li>Expand  <b id="expansionnodename"></b></li>
+                    <li>upto &nbsp<input type="number"  name=" nodes" class="border smat-rounded" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required></li>
+                    <li> neighbors</li>   <br />  <li style="margin-top: 5px;margin-bottom: 5px;"> &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  &nbsp &nbsp &nbsp &nbsp<button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" id="expand_now" data-dismiss="modal" class="btn btn-primary float-right">GO</button></li>
+            </ul>
+
+
+    
+
+
 
 
     <div class=" modal" id="myModal_file_upload" role="dialog">

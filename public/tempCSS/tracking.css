@@ -7,17 +7,17 @@ ul {
  }
  
 .trackDateTitle {
-   font-size:1.6em;
+   font-size:1em;
 }
 .trackCategoryTitle{
-   font-size:1.3em;
+   font-size:1em;
 
 }
 .trackWeekTitle{
-   font-size:1.3em;
+   font-size:1em;
 }
 .trackCount , .trackCategoryCount{
-   font-size:1.34em;
+   font-size:1em;
 }
 .trackDateCard{
    color:var(--color-text);
@@ -84,4 +84,8 @@ ul {
 
 .noTrackFoundCard{
    width:400px;
+}
+
+#networkTrackTweetDiv  div {
+   border:0px !important;
 }

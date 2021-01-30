@@ -1,6 +1,6 @@
 :root {
     --color-white: white;
-    --color-bg: #F9F9F9;
+    --color-bg: #f3f3f3;
     --color-active: #297EB4;
     --color-normal: #297EB4;
     --color-sec: #3D3D3D;
@@ -33,8 +33,8 @@
 }
 .smat-notification-text{
     font-size:13px;
-    margin-left:10px;
 }
+
 #main-wrapper {
     margin-top: 1%;
 }
@@ -665,7 +665,7 @@ select{
         font-size: 13px;
     }
     #public-trending {
-        height:350px;
+        height:340px;
         overflow-x: hidden;
         overflow-y: scroll;
     }
@@ -1022,3 +1022,15 @@ select{
     border-radius: 50%;
   }
 
+
+
+.homeRightPanelLarge{
+    max-height: 100%;
+    transition: max-height 300ms ease-in;
+    overflow: hidden;
+}
+.homeRightPanelSmall{
+    max-height: 0px;
+    transition: max-height 300ms ease-out;
+    overflow: hidden;
+}

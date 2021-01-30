@@ -27,9 +27,11 @@ var SourceNode;
 var DestinationNode;
 
 var wellformedquery; 
+var naTypeTempforEXP;
 
 
 var currentviewingnetwork;
+var currentviewingnetwork_name;
 var anyNetworkViewedYet = false;
 var currentOperation;
 var currentViewTAB="centralityTab";
@@ -38,6 +40,12 @@ var checkSpartStatusInterval_centrality;
 var userID;
 var k_value;
 var summary_flag = false;
+
+var mynetworks=[];
+var query_mynetworks_mapping = {};
+
+let mynetworks_counter = 0;
+
 if (localStorage.getItem('smat.me')) {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     userID = userInfoTemp['id'];
@@ -49,13 +57,17 @@ jQuery(function () {
     $('body #netview').tooltip({title: "Double click to activate View Mode", html: true, placement: "top"}); 
     $('body #netdel').tooltip({title: "Double click to activate Delete Mode", html: true, placement: "top"}); 
     $("#modemsg").html('<p class="d-flex text-muted mb-1 text-center" style="font-size:0.8rem">View Mode Active</p>');
+    
     populate_track(userID).then(response => {
             $.each(response,function(key,value){
-                console.log(key,value);
-                transferQueryToStatusTable_track(value["query"],value["queryID"], "algo_option", "sparkID");
+                // console.log(key,value);
+                mynetworks.push(value["queryID"]);
+                mynetworks_counter = mynetworks_counter + 1;
+                query_mynetworks_mapping[value["queryID"]] = "vis-"+mynetworks_counter;
+                transferQueryToStatusTable_track(value["query"],value["queryID"], value["queryID"].split('_')[4],"algo_option", "sparkID");
             })
-             console.log(response);
-        })
+            //  console.log(response);
+        });
 
 
 
@@ -160,16 +172,18 @@ jQuery(function () {
         $("#show_analysis").removeClass("btn btn-primary");
         $("#show_analysis").addClass( "btn btn-info" );
         $("#show_neighbors").addClass("btn btn-primary");
+        $('.analysis_summary_div').hide();
     })
 
     $("body").on("click", "#show_analysis", function(){
         $('#analysis_summary_charts').show();
-        //$('.analysis_summary_div').show();
+        $('.analysis_summary_div').show();
         $(".NeighborsDiv").css('display', 'none');
         $("#show_neighbors").removeClass( "btn btn-primary" );
         $("#show_neighbors").addClass( "btn btn-info" );
         $("#show_analysis").addClass( "btn btn-primary" );
     })
+
 
     $("body").on("click",".network_button",function(){
         let button = $(this);
@@ -178,6 +192,9 @@ jQuery(function () {
             $("#delete_permission_db").modal('show');
             $("#permission_granted_dbdel").click(function() {
                 delete_queries_from_db(queryID,userID).then(response=>console.log("LKLK"));
+                mynetworks = mynetworks.filter(function(value) {
+                    return queryID !== value
+                })
                 $(button).remove();
             });
         }else{
@@ -195,11 +212,10 @@ jQuery(function () {
         totalNetworkatInstance = totalNetworkatInstance + 1;
 
         generateCards(totalQueries, name_text, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
-        let movingmessage = "Moved network &nbsp <b>"+name_text+" </b> &nbsp to Active Networks. Click on the &nbsp <u>view network</u> &nbsp text on the card to view the network.";               
+        let movingmessage = "Moved network &nbsp <b>"+name_text +' '+ query_mynetworks_mapping[filename]+" </b> &nbsp to Active Networks. Click on the &nbsp <u>view network</u> &nbsp text on the card to view the network.";               
 
         message_displayer(movingmessage,"success");
 
-        console.log(sequence);
         }
     });
 
@@ -232,7 +248,7 @@ jQuery(function () {
             totalNetworkatInstance = totalNetworkatInstance + 1;
 
             let filename = incoming + fromDateReceived + toDateReceived + 50 + networkType;
-            networkGeneration('na/genNetwork', incoming, fromDateReceived+" 00:00:00", toDateReceived+" 00:00:00", 50 , relationReceived, filename).then(response => {
+            networkGeneration('na/genNetwork', incoming, fromDateReceived+" 00:00:00", toDateReceived+" 00:00:00", 50 , relationReceived, filename,"enabled").then(response => {
                 generateCards(totalQueries, incoming, fromDateReceived, toDateReceived, 50, relationReceived, currentNetworkEngine, filename, 'naCards',"normal");    
                 message_displayer("NETWORK GENERATED SUCCESSFULLY","success");
                 return;
@@ -420,13 +436,22 @@ jQuery(function () {
             let noOfNodesTemp = $('#nodesNA').val().trim();
             // noOfNodesTemp = noOfNodesTemp - 1;
             let naTypeTemp = $('#typeNA').val();
+            naTypeTempforEXP = naTypeTemp;
             if((naTypeTemp == "Keyword-Hashtag")||(naTypeTemp == "Keyword-Mention")){
                 queryTemp = "*"+queryTemp;
             }
             let netCategory = $("#net_category").val();
             let naEngine = $('#networkEngineNA').val();
             let filename = queryTemp+"_"+fromDateStripped+"_"+toDateStripped+"_"+noOfNodesTemp+"_"+naTypeTemp;
-            networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename).then(response => {
+
+            for(let i=0;i<mynetworks.length;i++){
+                if(mynetworks[i] == filename){
+                    message_displayer('Network already exists in My Networks with name &nbsp <b>'+ filename.split('_')[0] +"&nbsp"+ query_mynetworks_mapping[filename]+'</b>. Click on the network card in My Networks to bring it to active networks for analysis',"info");
+                    return;
+                }
+            }
+
+            networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename,"enabled").then(response => {
                
                 if(response["res"]=="empty"){
                     totalQueries -= 1;
@@ -443,8 +468,11 @@ jQuery(function () {
                     queryTemp = queryTemp.substring(1);
                 }
 
+                mynetworks_counter = mynetworks_counter + 1;
+                query_mynetworks_mapping[filename] = "vis-"+mynetworks_counter;
+
                 //generateCards(totalQueries, queryTemp, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
-                message_displayer("  Network successfully generated and added to My Networks. Click on the card to move it to Active Networks","success");
+                message_displayer('Network successfully generated and added to My Networks with name &nbsp <b>'+ queryTemp+' '+ query_mynetworks_mapping[filename]+'</b> . Click on the card to move it to Active Networks',"success");
 
                 let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
                 let userID = userInfoTemp['id'];
@@ -461,11 +489,12 @@ jQuery(function () {
                     query_track("status",data_query_track).then(response => {
                     console.log("Insertion Successful");
                     $('#mynetworks').empty();
+
+                    mynetworks.push(filename);
                     populate_track(userID).then(response => {
                         $.each(response,function(key,value){
-                            transferQueryToStatusTable_track(value["query"], value["queryID"], "algo_option", "sparkID");
+                            transferQueryToStatusTable_track(value["query"], value["queryID"], value["queryID"].split('_')[4], "algo_option", "sparkID");
                         })
-                            console.log(response);
                     })
                 })
                 return;
@@ -496,14 +525,16 @@ jQuery(function () {
         let id = searchRecords[index - 1].id;
         currentlyShowing = id;
         let filename = cardIDdictionary[id];
+        currentviewingnetwork_name = filename;
         //showing_results_for(cardData);
         render_graph('na/graph_view_data_formator', filename).then(response => {
-            draw_graph(response, "networkDivid");
+            // $("#networkDivid").append('<div class="loader justify-content-center"></div>');
+           draw_graph(response, "networkDivid");
         });
 
         //updating network summary information
         $(".subject").empty();
-        $(".subject").text(searchRecords[index - 1].query);
+        $(".subject").html(searchRecords[index - 1].query);
         $(".from_date").empty();
         $(".from_date").text(searchRecords[index - 1].from);
         $(".to_date").empty();
@@ -548,7 +579,7 @@ $("body").on('click', ".authorName",function(){
     let netCategory = $("#net_category").val();
     let naEngine = $('#networkEngineNA').val();
     let filename = queryTemp + fromDateStripped + toDateStripped + noOfNodesTemp + naTypeTemp;
-    networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename).then(response => {
+    networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename,"enabled").then(response => {
         generateCards(totalQueries, name_text, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
         message_displayer("Network generated successfully","success");
         return;
@@ -591,7 +622,7 @@ $("#lpTabNA").on('click', function () {
         anyNetworkViewedYet = true;
     }
     let input = select_graph[0];
-    $('.subject').text(queryDictionaryFilename[input]);
+    $('.subject').html(queryDictionaryFilename[input]);
     render_graph('na/graph_view_data_formator', input).then(response => {
         draw_graph(response, "networkDivid");
     });
@@ -609,7 +640,7 @@ $("#centralityTab").on('click', function () {
         anyNetworkViewedYet = true;
     }
     let input = select_graph[0];
-    $('.subject').text(queryDictionaryFilename[input]);
+    $('.subject').html(queryDictionaryFilename[input]);
     render_graph('na/graph_view_data_formator', input).then(response => {
         draw_graph(response, "networkDivid");
     });
@@ -633,7 +664,7 @@ $("#spTab").on('click', function () {
         anyNetworkViewedYet = true;
     }
     let input = select_graph[0];
-    $('.subject').text(queryDictionaryFilename[input]);
+    $('.subject').html(queryDictionaryFilename[input]);
     render_graph('na/graph_view_data_formator', input).then(response => {
         draw_graph(response, "networkDivid");
     });
@@ -650,7 +681,7 @@ $("#commTab").on('click', function () {
         anyNetworkViewedYet = true;
     }
     let input = select_graph[0];
-    $('.subject').text(queryDictionaryFilename[input]);
+    $('.subject').html(queryDictionaryFilename[input]);
     render_graph('na/graph_view_data_formator', input).then(response => {
         draw_graph(response, "networkDivid");
     });
@@ -757,6 +788,10 @@ $("#naCards").on("click", "#deleteCard", function () {
     }
 });
 
+$('body').on('click',"#deleteexpansionCard",function(){
+    $(".custom-menu").hide();
+});
+
 $("#messagebox").on("click","#infopanel #deleteinfoCard", function () {
     $(this).parent().remove();
 });
@@ -853,6 +888,14 @@ export const getquerydictfilename = () =>{
     return queryDictionaryFilename;
 }
 
+export const naTypeTempforEXPs = () =>{
+    return naTypeTempforEXP;
+}
+
+export const crr_viewing_network = () =>{
+    return currentviewingnetwork_name;;
+}
+
 $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality_algo_choice').val()) {
 
     if(selected_graph_ids().length > 1){
@@ -866,7 +909,7 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
     if(anyNetworkViewedYet == false){
         var select_graph = selected_graph_ids();
         let input = select_graph[0];
-        $('.subject').text(queryDictionaryFilename[input]);
+        $('.subject').html(queryDictionaryFilename[input]);
         render_graph('na/graph_view_data_formator', input).then(response => {
             draw_graph(response, "networkDivid");
         });
@@ -982,7 +1025,7 @@ $("#link_prediction_exec").on('click', function (NAType = $("#networkEngineNA").
     if(anyNetworkViewedYet == false){
         var select_graph = selected_graph_ids();
         let input = select_graph[0];
-        $('.subject').text(queryDictionaryFilename[input]);
+        $('.subject').html(queryDictionaryFilename[input]);
         render_graph('na/graph_view_data_formator', input).then(response => {
             draw_graph(response, "networkDivid");
         });
@@ -1125,7 +1168,7 @@ $("#sp_exec").on('click', function (NAType = "networkx", algo_option = "") {
     if(anyNetworkViewedYet == false){
         var select_graph = selected_graph_ids();
         let input = select_graph[0];
-        $('.subject').text(queryDictionaryFilename[input]);
+        $('.subject').html(queryDictionaryFilename[input]);
         render_graph('na/graph_view_data_formator', input).then(response => {
             draw_graph(response, "networkDivid");
         });
@@ -1264,7 +1307,7 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
     if(anyNetworkViewedYet == false){
         var select_graph = selected_graph_ids();
         let input = select_graph[0];
-        $('.subject').text(queryDictionaryFilename[input]);
+        $('.subject').html(queryDictionaryFilename[input]);
         render_graph('na/graph_view_data_formator', input).then(response => {
             draw_graph(response, "networkDivid");
         });
@@ -1352,7 +1395,7 @@ $("#union_exec").on('click', function () {
         if(i==0){
             wellformedquery = queryDictionaryFilename[selectedGraphs[i]];
         }else{
-            wellformedquery = wellformedquery + " U " + queryDictionaryFilename[selectedGraphs[i]];
+            wellformedquery = wellformedquery + "<strong> &nbsp &#8899 &nbsp </strong>"+ queryDictionaryFilename[selectedGraphs[i]];
         }
     }
 
@@ -1733,9 +1776,11 @@ const transferQueryToStatusTable = (data, operation, algo, sparkID = 123, render
     message_displayer("APACHE SPARK : Query submitted successfully","info");
 }
 
-const transferQueryToStatusTable_track = (query_name, queryID, algo, sparkID = 123, renderDivID = 'networkDivid') => {
+
+
+const transferQueryToStatusTable_track = (query_name, queryID, natype, algo, sparkID = 123, renderDivID = 'networkDivid') => {
     $('#mynetworks').css('display', 'block');
-   $("#mynetworks").prepend('<button class="btn alert alert-info mx-1 btn_mynetwork network_button" value="' + queryID + '"><b>'+query_name+'</b></button>');
+    $("#mynetworks").prepend('<button class="btn alert alert-info mx-1 btn_mynetwork network_button" style="margin:5px" value="' + queryID + '"><b>'+query_name +"&nbsp"+ query_mynetworks_mapping[queryID]+'</b><br /></button>');
    if(network_del_db == "allowed"){
     $('body .btn_mynetwork').tooltip({title: "Click to delete network", html: true, placement: "bottom"}); 
    }else{

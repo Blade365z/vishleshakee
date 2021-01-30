@@ -28,6 +28,10 @@ Route::get('/configure', function () {
     return view('modules.configure');
 })->middleware('isAdmin');
 
+Route::get('/project', function () {
+    return view('modules.project');
+});
+
 Route::get('/home', function (Request $request) {
     $query = '';
     if ($request->input('query')) {
@@ -168,6 +172,7 @@ Route::group(['prefix' => 'na'], function () {
     Route::get('mysessionid', 'networkAnalysisController@mysessionid');
     // Route::get('centrality', 'networkAnalysisController@centrality');
     Route::post('centrality', 'networkAnalysisController@centrality');
+    Route::post('expansion', 'networkAnalysisController@network_expansion');
 
     Route::post('link_prediction_data_formator', 'networkAnalysisController@link_prediction_data_formator_new');
     Route::post('link_prediction', 'networkAnalysisController@linkPrediction');
@@ -225,6 +230,11 @@ Route::group(['prefix' => 'LM'], function () {
     Route::post('/getTweetInfoHome', 'LocationMap@location_tweet_home');
     Route::post('/getLocationNames', 'LocationMap@getLocationNames');
     Route::post('/tweet_info_for_tracking', 'LocationMap@tweet_info_for_tracking');
+    Route::post('/tweet_info', 'LocationMap@tweet_info');
+    Route::post('/generate_tweet_network', 'LocationMap@generate_tweet_network');
+    Route::post('/generate_tweet_network_', 'LocationMap@generate_tweet_network_');
+    Route::post('/tweetid_userInfo', 'LocationMap@tweetid_userInfo');
+
     
     
     
@@ -287,13 +297,13 @@ Route::get('checkAnalysisExistorNot/{full_query_id}', 'ProjectActivityController
 
 Route::post('deleteFromProjectActivityTable', 'ProjectActivityController@deleteFromProjectActivityTable');
 
-
-
-
-
 Route::get('/ShowProject', function () {
     return view('modules.ShowProject');
 })->middleware('auth');
+
+
+
+
 
 
 // log file route
@@ -304,3 +314,9 @@ Route::post('log', 'LogController@write_to_log_file');
 Route::get('checkStatus', 'CommonController@check_for_cassandra_data_streaming_status');
 Route::post('/destroy/{id}', 'queryStatusController@destroy');
 Route::post('/destroynets', 'queryStatusController@destroy_network_query_rec');
+
+
+
+//RoutesforProject.
+Route::post('getRelatedWords', 'ProjectActivityController@getRelatedWords');
+Route::post('getRelatedWordsTest', 'ProjectActivityController@getRelatedWords_test');

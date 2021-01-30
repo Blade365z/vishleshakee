@@ -277,8 +277,12 @@ jQuery(function () {
                                             </div>
                                         </div>`);
         let rangeType = getRangeType(fromDate, toDate);
+        let pname=null; 
+        if($(this).attr('projectName')){
+            pname = $(this).attr('projectName'); 
+        }
 
-        get_tweet_location(query, fromDate, toDate, rangeType, null).then(response => {
+        get_tweet_location(query, fromDate, toDate, rangeType, null,0,pname).then(response => {
             console.log("wwww");
             // console.log(response);
             getCompleteMap('result-div-map', response);
