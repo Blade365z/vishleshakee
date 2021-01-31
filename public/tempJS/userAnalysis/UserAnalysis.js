@@ -19,7 +19,6 @@ import { forwardToNetworkAnalysis, forwardToHistoricalAnalysis } from '../utilit
 import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './AdvanceHelper.js'
 import { getAnalysisForAProjectAPI, removeFromStatusTable, removeFromStatusTableNormal } from '../historicalAnalysis/helper.js';
 import { addTrackToDb } from '../config/helper.js';
-import { checkIfAnyProjActive } from '../project/createProject.js';
 
 
 //Global Declaration
@@ -37,7 +36,6 @@ var searchRecords = [];
 var suggestionsGlobal, suggInputBoxBuffer = [];
 
 _MODE = 'UA'
-checkIfAnyProjActive();
 
 //Logic Implementation 
 jQuery(function () {

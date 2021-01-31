@@ -1,5 +1,5 @@
 //void main
-import { roshan } from './visualizer.js';
+
 import {
     chartBuilder,render_graph, union, intersection, exportnetwork, selected_graph_ids, render_centrality_graph,
     sparkUpload, get_network, writedelete, difference, shortestpaths, community_detection, centrality, linkprediction,
@@ -60,13 +60,11 @@ jQuery(function () {
     
     populate_track(userID).then(response => {
             $.each(response,function(key,value){
-                // console.log(key,value);
                 mynetworks.push(value["queryID"]);
                 mynetworks_counter = mynetworks_counter + 1;
                 query_mynetworks_mapping[value["queryID"]] = "vis-"+mynetworks_counter;
                 transferQueryToStatusTable_track(value["query"],value["queryID"], value["queryID"].split('_')[4],"algo_option", "sparkID");
             })
-            //  console.log(response);
         });
 
 
@@ -487,7 +485,6 @@ jQuery(function () {
                     "module_type" : "na"
                 };
                     query_track("status",data_query_track).then(response => {
-                    console.log("Insertion Successful");
                     $('#mynetworks').empty();
 
                     mynetworks.push(filename);
@@ -630,7 +627,6 @@ $("#lpTabNA").on('click', function () {
 });
 
 $("#centralityTab").on('click', function () {
-    console.log("Selected Graph IDs",selected_graph_ids);
     if(selected_graph_ids().length > 1){
         message_displayer("Select a single network and proceed","error");
         return;   
@@ -950,7 +946,6 @@ $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality
         $(".analysis_summary_div").css("display", "none");
         if (currentNetworkEngine == "networkx") {
             render_centrality_graph(data["input"], "networkDivid", data["algo_option"],currentNetworkEngine).then(response => {
-                console.log("I am printing chart DATA",response);
                 chartBuilder(response["chartData"]);
                 $('.analysis_summary_div').html('');
                 $('.analysis_summary_div').append('<table class="table">  <thead> <tr><th>Node Rankings (Decreasing Order)</th><th>Score</th></tr>  </thead> <tbody id="tableBody"> </tbody></table>');
@@ -1342,7 +1337,6 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
     } else {
     }
 
-    console.log("Community",data);
     community_detection(url, data, NAType).then(response => {
         if (currentNetworkEngine == "networkx") {
             render_community_graph1(data["input"]).then(response => {

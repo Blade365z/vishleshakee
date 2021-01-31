@@ -908,7 +908,7 @@ class CommonController extends Controller
                     array_push($final_result, $temp_arr);
                 }
             }
-            echo json_encode($final_result);  
+            return json_encode($final_result);  
         }else{
             $stm_list = $qb_obj->get_statement(null, null, $tweet_id_list, null, $feature_option='tweet_info', null, $async=false);
             $row = $dbmodel_object->execute_query_first_require($stm_list[0], $ks); // return StdClass() object

@@ -207,7 +207,7 @@ def main():
 	create_keyspace(keyspace_name, session)
 	# time.sleep(5)
 	create_tables(session)
-	update_status_to_mysql(keyspace_name)
+	# update_status_to_mysql(keyspace_name)
 
 
 if __name__ == '__main__':

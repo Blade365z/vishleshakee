@@ -11,7 +11,6 @@ import { makeSuggestionsReady, makeSmatReady, makeDropDownReady, getRelationType
 import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './Advancehelper.js';
 import { forwardToNetworkAnalysis } from '../utilitiesJS/redirectionScripts.js';
 import { addNormalSearchToDB, populateRecentSearches } from '../userAnalysis/helper.js';
-import { checkIfAnyProjActive, checkAnalysisExistorNotFunction } from '../project/createProject.js';
 
 
 
@@ -37,7 +36,7 @@ var suggestionsGlobal, suggInputBoxBuffer = [];
 _MODE='HA';
 // ready function
 jQuery(function () {
-    checkIfAnyProjActive(); //for project
+    // checkIfAnyProjActive(); //for project
     $('[data-toggle="popover"]').popover(); //Initalizing popovers
     makeSmatReady();
     fromDate = getCurrentDate()
@@ -342,9 +341,9 @@ jQuery(function () {
             initiateHistoricalAnalysisAdvance(recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], recordsCaptured[0]['mentionUniqueID'], recordsCaptured[0]['hashtagUniqueID'], recordsCaptured[0]['userUniqueID'], recordsCaptured[0]['searchType'], recordsCaptured[0]['filename']);
         } else {
             // for project
-            if (localStorage.getItem('projectName')) {
-                checkAnalysisExistorNotFunction(userID, recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], 'ha');
-            }
+            // if (localStorage.getItem('projectName')) {
+            //     checkAnalysisExistorNotFunction(userID, recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], 'ha');
+            // }
 
 
             // for normal search........................pname for project

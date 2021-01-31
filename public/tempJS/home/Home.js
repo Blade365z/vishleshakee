@@ -31,10 +31,10 @@ const categoryColor = { 'normal': 'text-normal', 'com': 'text-com', 'sec': 'text
 var date = getCurrentDate();
 var TopTrendingData;
 var userID=null;
- 
+_MODE='HOME';
 jQuery(function () {
 
-  //  
+  //   
 
 
   $('[data-toggle="popover"]').popover(); //Initalizing popovers

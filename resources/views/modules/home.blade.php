@@ -223,7 +223,7 @@
             </div>
         </div>
         <div class="col-sm-3">
-            @if (Auth::check())
+            {{-- @if (Auth::check())
 
                 <div class="card card-body  px-3 py-3 mb-4">
 
@@ -234,7 +234,7 @@
                 </div>
 
           
-            @endif
+            @endif --}}
             <div class="homeRightPanelLarge" id="homeRightPanel">
                 <div class="card  px-3 py-3">
                     <div>

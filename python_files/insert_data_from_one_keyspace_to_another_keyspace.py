@@ -361,17 +361,17 @@ def insertion_of_token_co_occur_table(sessionGlobalKS, sessionNewKS, query, date
 
 
 
-def fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, keyspace_name, query, date, module_name):
+def fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, keyspace_name, query, date):
 	sessionGlobalKS.set_keyspace(keyspace_name)
-	if(module_name == 'ha'):
+	# if(module_name == 'ha'):
 		# print('ha')
-		## for token_count, token_count_hour_wise, token_count_day_wise table...........................................................BEGIN
-		insertion_of_token_count_table(sessionGlobalKS, sessionNewKS, query, date)
-		## for token_count, token_count_hour_wise, token_count_day_wise table...........................................................END
+	## for token_count, token_count_hour_wise, token_count_day_wise table...........................................................BEGIN
+	insertion_of_token_count_table(sessionGlobalKS, sessionNewKS, query, date)
+	## for token_count, token_count_hour_wise, token_count_day_wise table...........................................................END
 
-		## for token_co_occur, token_co_occur_hour_wise, token_co_occur_day_wise table..................................................BEGIN
-		insertion_of_token_co_occur_table(sessionGlobalKS, sessionNewKS, query, date)
-		## for token_co_occur, token_co_occur_hour_wise, token_co_occur_day_wise table..................................................END
+	## for token_co_occur, token_co_occur_hour_wise, token_co_occur_day_wise table..................................................BEGIN
+	insertion_of_token_co_occur_table(sessionGlobalKS, sessionNewKS, query, date)
+	## for token_co_occur, token_co_occur_hour_wise, token_co_occur_day_wise table..................................................END
 
 		
 def get_project_id_by_project_name_mysql(project_name):
@@ -385,20 +385,30 @@ def get_project_id_by_project_name_mysql(project_name):
 
 
 
-def update_status_to_mysql(keyspace_name, insertion_successful_flag, user_id, query, from_date, to_date, module_name):
+def update_status_to_project_table_mysql(keyspace_name, status):
 	mydb = create_connection_to_mysql()
 	mycursor = mydb.cursor()
-	project_id = get_project_id_by_project_name_mysql(keyspace_name)
-	if query[0] == '#':
-		aname = query[1:]
-		full_query = str(user_id)+project_id+'HASH'+aname+str(from_date)+str(to_date)+module_name
-	else:
-		full_query = str(user_id)+project_id+query+str(from_date)+str(to_date)+module_name
-	print(full_query,insertion_successful_flag )
-	sql = "UPDATE project_activities SET insertion_successful_flag = "+ str(insertion_successful_flag) +" WHERE full_query = '"+full_query+"'"
+	sql = "UPDATE projects SET status = "+ str(status) +" WHERE project_name = '"+keyspace_name+"'"
 	mycursor.execute(sql)
 	mydb.commit()
 	# logger.info(mycursor.rowcount, "record(s) affected")
+
+
+
+# def update_status_to_mysql(keyspace_name, insertion_successful_flag, user_id, query, from_date, to_date, module_name):
+# 	mydb = create_connection_to_mysql()
+# 	mycursor = mydb.cursor()
+# 	project_id = get_project_id_by_project_name_mysql(keyspace_name)
+# 	if query[0] == '#':
+# 		aname = query[1:]
+# 		full_query = str(user_id)+project_id+'HASH'+aname+str(from_date)+str(to_date)+module_name
+# 	else:
+# 		full_query = str(user_id)+project_id+query+str(from_date)+str(to_date)+module_name
+# 	print(full_query,insertion_successful_flag )
+# 	sql = "UPDATE project_activities SET insertion_successful_flag = "+ str(insertion_successful_flag) +" WHERE full_query = '"+full_query+"'"
+# 	mycursor.execute(sql)
+# 	mydb.commit()
+# 	# logger.info(mycursor.rowcount, "record(s) affected")
 
 
 
@@ -410,32 +420,35 @@ def main():
 	# take arguments
 	global_keyspace_name = "processed_keyspace"
 	new_keyspace_name = sys.argv[1]
-	query = sys.argv[2] ##"COVID19"
+	query = sys.argv[2] ##"COVID19" or "COVID19|#COVID"
 	from_date = sys.argv[3] ##"2020-12-01"
 	to_date = sys.argv[4] ##"2020-12-07"
-	module_name = sys.argv[5] ##"ha"
-	user_id = sys.argv[6]
+	user_id = sys.argv[5]
 	sessionNewKS.set_keyspace(new_keyspace_name)
-	try:
-		# for each date it should run.....
-		from_datetime_obj = datetime.strptime(from_date, '%Y-%m-%d')
-		to_datetime_obj = datetime.strptime(to_date, '%Y-%m-%d')
-		orig_to_date = 	to_datetime_obj.date()
-		while(1):
-			to_date = to_datetime_obj.date()
-			from_date = from_datetime_obj.date()
-			if(to_date < from_date):
-				break
-			fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, global_keyspace_name, query, to_date, module_name)
-			## python3 insert_data_from_one_keyspace_to_another_keyspace_new.py diljitdoshanjh "#COVID19" 2020-12-22 2020-12-23 ha
-			## print(new_keyspace_name, query, from_date, to_date, module_name)
-			## print(to_date, from_date)
-			to_datetime_obj=to_datetime_obj+timedelta(-1)
-
-		update_status_to_mysql(new_keyspace_name, 1, user_id, query, from_date, orig_to_date, module_name)
+	query_list = query.split("|")
+	try:	
+		orig_to_datetime_obj = datetime.strptime(to_date, '%Y-%m-%d')	
+		orig_to_date = orig_to_datetime_obj.date()
+		#  for each query it should run.....
+		for each_query in query_list:
+			print(each_query)
+			from_datetime_obj = datetime.strptime(str(from_date), '%Y-%m-%d')
+			to_datetime_obj = datetime.strptime(str(orig_to_date), '%Y-%m-%d')		
+			# for each date it should run.....
+			while(1):
+				to_date = to_datetime_obj.date()
+				from_date = from_datetime_obj.date()
+				if(to_date < from_date):
+					break
+				fetchFromGlobalKS(sessionGlobalKS, sessionNewKS, global_keyspace_name, each_query, to_date)
+				## python3 insert_data_from_one_keyspace_to_another_keyspace_new.py diljitdoshanjh "#COVID19" 2020-12-22 2020-12-23 ha
+				## print(new_keyspace_name, query, from_date, to_date, module_name)
+				## print(to_date, from_date)
+				to_datetime_obj=to_datetime_obj+timedelta(-1)
+		update_status_to_project_table_mysql(new_keyspace_name, 1)
 	except Exception as e:
-		print(e)
-		update_status_to_mysql(new_keyspace_name, -1, user_id, query, from_date, to_date, module_name)
+		# print(e)
+		update_status_to_project_table_mysql(new_keyspace_name, -1)
 
 
 

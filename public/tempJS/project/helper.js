@@ -9,14 +9,13 @@ var HeadersForApi = {
 };
 
 //Fetch Api calls
-export const createProjectAPI = async (projectName, user_id, project_id, project_description, option) => {
-    console.log('New project created : ', projectName);
+export const createProjectAPI = async (projectName, option, user_id, query, from_date, to_date) => {
     let route = 'createKT'; //declare route here
     let response = await fetch(route, {
         method: 'post', //http method
         headers: HeadersForApi,
         body: JSON.stringify({
-            projectName, user_id, project_id, project_description, option   //declare body to be parsed in server
+            projectName, option, user_id, query, from_date, to_date,    //declare body to be parsed in server
         })
     });
     // return response; //return here
@@ -146,7 +145,7 @@ export const checkAnalysisExistorNot = async (full_query_id) => {
     });
     let data = await response.json();
     return data;
-}
+} 
 
 export const getRelatedSuggestions = async(query,from,to,limit) => {
     let response = await fetch('getRelatedWords', {
@@ -159,3 +158,27 @@ export const getRelatedSuggestions = async(query,from,to,limit) => {
     let data = await response.json();
     return data;
 }
+
+export const checkIfProjectExitsByName = async(name)=>{
+    let response = await fetch(`checkIfProjectExitsByName/${name}`, {
+        method: 'get'
+    });
+    let data = await response.text();
+    return data;
+}
+
+
+
+export const storeToProjectTable = async (projectName, user_id, project_id, project_description) => {
+    let route = 'storeToProjectTable'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectName, user_id, project_id, project_description   //declare body to be parsed in server
+        })
+    });
+    // return response; //return here
+    let data = await response.json()
+    return data;
+};

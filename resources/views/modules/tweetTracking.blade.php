@@ -18,7 +18,7 @@
 
 
         <div class="row mt-3">
-            <div class="col-sm-6">
+            <div class="col-sm-6 ttContent">
                 <div class="text-dark font-weight-bold mb-1"> <span class="badge badge-danger  p-1">Source tweet
                         information: </span></div>
                 <div id="sourceInfo" style="display: none;">
@@ -36,48 +36,83 @@
         <div class="my-5 border">
             <div id="trackAnalysisMain" style="display: none">
             </div>
-            <div>
-                <h4 class="mx-1 my-0">Network for tweet posted by</h4>
-            </div>
-            <div  class="d-flex ">   
-                <div class="sourceProfPic">
+            <div class="ttContent networkContent">
+                <div>
+                    <h4 class="mx-3 my-0">Network for tweet posted by</h4>
                 </div>
-                <div class="sourceAuthor">
+                <div class="d-flex mx-3 mb-1">
+                    <div class="sourceProfPic">
+                    </div>
+                    <div class="sourceAuthor">
+                    </div>
                 </div>
-            </div>
-            <div class="" id="trackNetworkMsg"> 
-                
-            </div>
-            <div class="row px-3" style="display:none;" id="networkDiv">
-                <div class="col-md-8 p-0">
-                    <div class="border" id="track_net" style="height:650px;">
+                <div>
+                    <button class="btn btn-primary  btn-block  mb-2"  id="generateNetwork">Click here to generate network</button>
+                </div>
+                <div class="" id="trackNetworkMsg">
 
-                    </div>
                 </div>
-                <div class="col-md-4 p-0 border-top">
-                    <div class="text-dark">Hovered on <span class="font-weight-bold " id="hoveredOnType"></span> by <span  class="font-weight-bold "  id="hoveredOnAuthor"> </span> </div>
-                    <div class="" style="height:500px;overflow-y:auto;overflow-x:hidden;" id="networkTrackTweetDiv"> 
-                    </div>
-                    <div class="p-3" > 
-                        <div>
-                            <h4 class="text-dark font-weight-bold">Notations</h4>
-                        </div>  
-                        <div>
-                            <i class="fa fa-circle mr-1 " aria-hidden="true" title="Normal"></i> <span>Source Tweet</span>  
+                <div class="px-3 mb-4">
+                    <div class="row px-3 " style="display:none;" id="networkDiv">
+                        <div class="col-md-8 p-0">
+                            <div class="border" id="track_net" style="height:650px;">
+
+                            </div>
                         </div>
-                        <div>
-                            <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal" style="color:#ff704d"></i> <span>Quoted Tweet</span>  
-                        </div>
-                        <div>
-                            <i class="fa fa-circle mr-1" aria-hidden="true" title="Normal" style="color:#00e600"></i> <span>Reply Tweet</span>  
-                        </div>
-                        <div>
-                            <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal" style="color:#0099cc"></i> <span>Re-Tweet</span>  
+                        <div class="col-md-4 p-0 border">
+                            <div>
+                                <div class="text-dark" id="hoveredOnDiv" style="display:none;">Hovered on <span class="font-weight-bold " id="hoveredOnType"></span>
+                                    by
+                                    <span class="font-weight-bold " id="hoveredOnAuthor"> </span>
+                                </div>
+                                <div class="" style="height:400px;overflow-y:auto;overflow-x:hidden;"
+                                    id="networkTrackTweetDiv">
+                                </div>
+                            </div>
+                            <div class="px-3">
+                                <div class="text-dark">The network contains</div>
+                                <div class="d-flex ">
+                                    <div>
+                                        <h4 class="m-0 font-weight-bold text-dark" id="ttNodesCountNetwork">0</h4>
+                                        <p class="m-0">Nodes </p>
+                                    </div>
+                                    <div class="mx-2">
+                                        <h4 class="m-0 font-weight-bold text-dark" id="ttEdgesCountNetwork">0</h4>
+                                        <p class="m-0">Edges </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="px-3 py-1">
+                                <div>
+                                    <h4 class="text-dark font-weight-bold">Notations</h4>
+                                </div>
+                                <div>
+                                    <i class="fa fa-circle mr-1 " aria-hidden="true" title="Normal"></i> <span>Source
+                                        Tweet</span>
+                                </div>
+                                <div>
+                                    <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
+                                        style="color:#ff704d"></i>
+                                    <span>Quoted Tweet</span>
+                                </div>
+                                <div>
+                                    <i class="fa fa-circle mr-1" aria-hidden="true" title="Normal"
+                                        style="color:#00e600"></i>
+                                    <span>Reply Tweet</span>
+                                </div>
+                                <div>
+                                    <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
+                                        style="color:#0099cc"></i>
+                                    <span>Re-Tweet</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+
         <script type="module" src="public/amcharts4/core.js"></script>
         <script type="module" src="public/amcharts4/charts.js"></script>
         <script type="module" src="public/amcharts4/themes/animated.js"></script>
@@ -98,7 +133,6 @@
 
         <link href="public/tempCSS/vis.css" rel="stylesheet" />
         <script type="text/javascript" src="public/tempJS/networkAnalysis/vis.js"></script>
-        <script type="module" src="public/tempJS/networkAnalysis/NetworkAnalysis.js"></script>
 
         <!-- Network Clustering js files -->
         <script type="text/javascript" src="public/tempJS/networkAnalysis/cluster/utils.js"></script>

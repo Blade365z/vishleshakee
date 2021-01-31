@@ -55,7 +55,7 @@ ul {
    
 }
 .tweetRawTrackDiv{
-   height:500px;
+   min-height:270px;
   
 }
 .trackHierarchyNode{
@@ -88,4 +88,8 @@ ul {
 
 #networkTrackTweetDiv  div {
    border:0px !important;
+}
+
+#result-div-map{
+   min-height:300px;
 }

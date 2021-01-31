@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use App\CityState;
 use App\LocationCode;
 
+use function GuzzleHttp\json_decode;
+use function PHPSTORM_META\type;
+
 class LocationMap extends Controller
 {
 
@@ -292,6 +295,10 @@ class LocationMap extends Controller
 
     public function generate_tweet_network(Request $request)
     {
+        $pname = null;
+        if ($request->input('pname')) {
+            $pname = $request->input('pname');
+        }
 
         // $date_list = ["2020-10-31", "2020-11-01", "2020-11-02"];
         $date_list = ["2020-12-02", "2020-12-03", "2020-12-04","2020-12-21","2020-12-22"];
@@ -300,19 +307,15 @@ class LocationMap extends Controller
         $hop_count = 1;
 
         $current_hop_node_count = 1;
-        // $array_per_hop_node_count = new \SplQueue();
-        // $array_per_hop_node_count->enqueue(1);
-        // $array_per_hop_node_count->rewind();
         $total_nodes = 0;
 
         $tweet_id = $request->input('tweet_id');
-        echo $tweet_id;
         $SourceTweetID = new \SplQueue();
         $SourceTweetID->enqueue($tweet_id);
 
-        function r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list)
+        function r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list,$pname)
         {
-            print_r($SourceTweetID);
+            
 
             $SourceTweetID->rewind();
             $ST_id = $SourceTweetID->current();
@@ -329,21 +332,15 @@ class LocationMap extends Controller
 
             $total_nodes= $total_nodes + sizeof($all_type_data["QuotedTweet"])+sizeof($all_type_data["Reply"]);
             
-            prepare_the_graph($ST_id,$all_type_data);
+            prepare_the_graph($ST_id,$all_type_data,$pname);
 
             if($node_no==$current_hop_node_count){
                 if ($hop_count<=3) {
-                    echo("=====================================");
-                    echo("=====================================");
-                    echo("=====================================");
-                    echo("=====================================");
-                    echo("=====================================");
-                    echo($hop_count);
                     $current_hop_node_count = $total_nodes;
                     $node_no = 1;
                     $total_nodes = 0;
                     $hop_count = $hop_count+1;
-                    r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list);
+                    r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list,$pname);
                 
                 }
                 
@@ -352,18 +349,13 @@ class LocationMap extends Controller
                 if ($hop_count<=10) {
                     
                     $node_no = $node_no + 1;
-                    r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list);
+                    r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list,$pname);
                 }
                 else{
                     return;
                 }
             }
-                
-            
-
-            // prepare_the_graph($ST_id,$temp_RT_QT);
-            // _t_($SourceTweetID);
-            
+           
         }
 
         function process_source($ST_id, $date_list)
@@ -380,19 +372,24 @@ class LocationMap extends Controller
                 $temp_data = call_user_func_array('array_merge', $temp_data);
                 $all_type_data[$type] = $temp_data;
             }
-            echo json_encode($all_type_data);
             return $all_type_data;
         }
 
-        function prepare_the_graph($ST_id,$total_nodes){
-            
+        function prepare_the_graph($ST_id,$total_nodes,$pname){
+            $commonObj = new CommonController;
+            $temp_ST = json_decode($commonObj->get_tweets_info(array($ST_id), true,null),true);
+
             foreach ($total_nodes as $key => $value) {
-                for ($i=0; $i < sizeof($value) ; $i++) { 
-                    echo($ST_id.",".$value[$i]);
+                $temp_data = json_decode($commonObj->get_tweets_info($value, true,null),true);
+                
+                
+                for ($i=0; $i < sizeof($temp_data) ; $i++) { 
+                        
                     $file = fopen("storage/1/temp.csv","a+");
-                    $line = $ST_id.",".$value[$i];
+                    // $line = $ST_id.",".$value[$i];
+
                     
-                      fputcsv($file,array($ST_id,$value[$i],$key));
+                    fputcsv($file,array($ST_id."__".$temp_ST[0]["author"],$temp_data[$i]["tid"]."__".$temp_data[$i]["author"],$key));
                     
                     
                     fclose($file);
@@ -414,7 +411,7 @@ class LocationMap extends Controller
         };
 
 
-        r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list);
+        r($SourceTweetID, $node_no,$current_hop_node_count,$total_nodes,$hop_count,$date_list,$pname);
 
 
 
@@ -427,6 +424,10 @@ class LocationMap extends Controller
 
     public function generate_tweet_network_(Request $request)
     {
+        $pname = null;
+        if ($request->input('pname')) {
+        $pname = $request->input('pname');
+        }
 
         // $date_list = ["2020-10-31", "2020-11-01", "2020-11-02"];
         $date_list = $request->input('dateArr');
@@ -448,6 +449,7 @@ class LocationMap extends Controller
         $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","w");
         fclose($file);
 
+        // nested function
         function r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name)
         {
 
@@ -499,6 +501,8 @@ class LocationMap extends Controller
                 return;
             }
         }
+
+        // nested function
         function process_source_($ST_id, $date_list)
             {
                 $tweet_id_type = ["retweet", "QuotedTweet", "Reply"];
@@ -517,22 +521,62 @@ class LocationMap extends Controller
                 return $all_type_data;
             }
 
+            // nested function
             function prepare_the_graph_($ST_id,$total_nodes,$tweet_id,$dir_name){
-                
+
+                $commonObj = new CommonController;
+                $temp_ST = json_decode($commonObj->get_tweets_info(array($ST_id), true,null),true);
+
                 foreach ($total_nodes as $key => $value) {
-                    for ($i=0; $i < sizeof($value) ; $i++) { 
-                        echo($ST_id.",".$value[$i]);
+                    $temp_data = json_decode($commonObj->get_tweets_info($value, true,null),true);
+                    
+                    
+                    for ($i=0; $i < sizeof($temp_data) ; $i++) { 
+                            
                         $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","a+");
-                        $line = $ST_id.",".$value[$i];
+                        // $line = $ST_id.",".$value[$i];
+
                         
-                        fputcsv($file,array("QW".$ST_id,"QW".$value[$i],$key));
+                        fputcsv($file,array($ST_id."__".$temp_ST[0]["author"],$temp_data[$i]["tid"]."__".$temp_data[$i]["author"],$key));
                         
                         
                         fclose($file);
                     }
                     
                 }
+                
+                // foreach ($total_nodes as $key => $value) {
+                //     for ($i=0; $i < sizeof($value) ; $i++) { 
+                //         echo($ST_id.",".$value[$i]);
+                //         $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","a+");
+                //         $line = $ST_id.",".$value[$i];
+                        
+                //         fputcsv($file,array("QW".$ST_id,"QW".$value[$i],$key));
+                        
+                        
+                //         fclose($file);
+                //     }
+                    
+                // }
+
+                
             }
+
+            // nested function
+            // function process_source_tweet_info($tweetid_list){
+                
+
+            //     $commonObj = new CommonController;
+                
+            //     foreach ($tweetid_list as $key => $value) {
+            //         echo 
+            //         echo $value;
+            //         // echo $commonObj->get_tweets_info($$value, true, $pname);    
+                
+            //     }
+                
+
+            // }
         r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name);
         return json_encode("success");
     }

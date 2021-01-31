@@ -283,7 +283,6 @@ Route::group(['prefix' => 'configure'], function () {
 
 
 // project - feature
-Route::post('createKT', 'ProjectActivityController@create_table_keyspace');
 Route::post('insertKT', 'ProjectActivityController@insert_to_new_keyspace');
 Route::post('showP/{id}', 'ProjectActivityController@show');
 Route::post('getProjectName/{project_id}', 'ProjectActivityController@get_project_name');
@@ -320,3 +319,8 @@ Route::post('/destroynets', 'queryStatusController@destroy_network_query_rec');
 //RoutesforProject.
 Route::post('getRelatedWords', 'ProjectActivityController@getRelatedWords');
 Route::post('getRelatedWordsTest', 'ProjectActivityController@getRelatedWords_test');
+Route::get('checkIfProjectExitsByName/{name}', 'ProjectActivityController@checkIfProjectExitsByName');
+Route::post('createKT', 'ProjectActivityController@create_table_keyspace_api');
+Route::post('storeToProjectTable', 'ProjectActivityController@store_to_project_table_api');
+
+

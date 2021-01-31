@@ -64,8 +64,8 @@
           <a class="dropdown-item" href="configure">Configure</a>
           @endif
           @if (Auth::check())
-          <a class="dropdown-item" href="#" id="openCreateProjectModal"> Manage project(s) </a>
-          <a class="dropdown-item" target="_blank" href="ShowProject"> Show project(s) </a>
+          {{-- <a class="dropdown-item" href="#" id="openCreateProjectModal"> Manage project(s) </a>
+          <a class="dropdown-item" target="_blank" href="ShowProject"> Show project(s) </a> --}}
           <div class="dropdown-divider text-center"></div>
 
           <a href="logout" class="dropdown-item" onclick="clean()">Logout</a>

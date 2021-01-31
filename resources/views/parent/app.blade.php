@@ -25,6 +25,7 @@
         </div>
 
         @include("inc.navbar")
+        @include("inc.projectNav")
         @include("inc.createProjectModal")
         @include("inc.selectProjectModal")
         @include('inc.publicTweets')
@@ -43,7 +44,7 @@
     
     var _MODE = null;
 </script>
-<script type="module" src="public/tempJS/project/createProject.js"></script>
+<script type="module" src="public/tempJS/MAIN.js"></script>
 <script type="module" src="public/bootpag/bootpag-min.js"></script>
 <script src="public/datepicker/datepicker-min.js"></script>
 <script src="public/datepicker/datepicker-en.js"></script>

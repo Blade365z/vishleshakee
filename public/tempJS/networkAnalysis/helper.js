@@ -1241,8 +1241,6 @@ $('body').on("click","#expand_now",function(network_global){
 
     network_global_expansion.body.data.nodes.add(nodes_to_be_pushed); 
     network_global_expansion.body.data.edges.add(newly_incoming_edges);
-    console.log(nodes_to_be_pushed);    
-    console.log(previous_nodes); 
     global_edges = $.merge(previous_edges,newly_incoming_edges);  
     $('#analysis_summary_charts').css("display", "none");
     $('.NeighborsDiv').empty();   
@@ -1340,7 +1338,6 @@ export const getDeletedNodes = async () => {
 }
 
 export const render_graph_union = (res) => {
-    console.log("Rendering Union",res);
     var nodes_arr = res["nodes"];
     var edges_arr = res["edges"];
     var querynodeinfo = res["querynode"];
@@ -1388,7 +1385,6 @@ export const render_graph_union = (res) => {
 
 
     //SRS-003
-    console.log("Printing in SRS3",res);
     const groupsN = networkTypes.length;
     
     const groups = []
@@ -1440,10 +1436,10 @@ export const render_graph_union = (res) => {
     var edges = new vis.DataSet();
     edges.add(visEdges);
 
-    console.log(visNodes);
-    // console.log(visEdges);
-    console.log(groups);
 
+
+    
+    
     computeNodesPositionsDistricts(visNodes, groups);
     nodes.add(visNodes);
 
@@ -1503,7 +1499,6 @@ export const render_graph_union = (res) => {
         });
         document.addEventListener('contextmenu', event => event.preventDefault());
         queryTempexp = network_global.getNodeAt(properties.pointer.DOM);
-        console.log("OOLLAA",properties.pointer.DOM);
         network_global_expansion = network_global;
         $("#expansionnodename").empty();
         $("#expansionnodename").append(queryTempexp);
@@ -2110,7 +2105,6 @@ export const storeResultofSparkFromController = async (sparkID, query_list ,user
         userID
     });
 
-    console.log("storeResultofSparkFromController",dataArgs);
 
     let response = await fetch('na/getFromSparkAndStore', {
         method: 'post',

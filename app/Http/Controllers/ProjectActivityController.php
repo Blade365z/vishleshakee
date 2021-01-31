@@ -55,13 +55,11 @@ class ProjectActivityController extends Controller
 
 
 
-    public function create_table_keyspace(Request $request)
-    {
+    public function store_to_project_table_api(Request $request){
         $keyspace_name = $request->input('projectName');
         $user_id = $request->input('user_id');
         $project_id = $request->input('project_id');
         $project_description = $request->input('project_description');
-        $option = $request->input('option');
 
         // insert into mysql
         $datetimeobj = new DateTime();
@@ -70,16 +68,32 @@ class ProjectActivityController extends Controller
 
         $status = 0;
         $this->storeToProjectTable($project_id, $keyspace_name, $project_creation_date, $user_id, $status, $project_description);
-        
+        echo json_encode(array("res" => 'success'));
+    }
 
-        // $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name. " > /dev/null &");
 
+
+    public function create_table_keyspace_api(Request $request){
+        $keyspace_name = $request->input('projectName');
+        $option = $request->input('option');
+        $user_id = $request->input('user_id');
+        $query = $request->input('query');
+        $from_date = $request->input('from_date');
+        $to_date = $request->input('to_date');
+        $this->create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date);
+    }
+
+
+
+    public function create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date)
+    {
+        echo json_encode(array("res" => 'running'));
         if($option == 'baseDataset'){
             $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
             $d = shell_exec($command);
-            echo json_encode(array("res1" => $status));
+
+            $this->insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date);
         }else{
-            echo json_encode(array("res" => $status));
             $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
             exec("nohup " . $command . " > /dev/null 2>&1 &");
         }
@@ -91,39 +105,14 @@ class ProjectActivityController extends Controller
 
 
 
-    public function insert_to_new_keyspace($keyspace_name, $user_id, $project_id, $query, $from_date,  $to_date, $module_name, $full_query)
-    {
-        // $keyspace_name = $request->input('projectName');
-        // $user_id = $request->input('user_id');
-        // $project_id = $request->input('project_id');
-        // $query = $request->input('query');
-        // $from_date = $request->input('from_date');
-        // $to_date = $request->input('to_date');
-        // $module_name = $request->input('module_name');
-        // $full_query = $request->input('full_query');
-
-
-        // insert into mysql
-        $datetimeobj = new DateTime();
-        $analysis_datetime = $datetimeobj->format('Y-m-d H:m:s');
-        $insertion_successful_flag = 0;
-
-
-        if($query[0] == '#'){
-            $aname = ltrim($query, '#');
-            $full_query = $user_id.$project_id.'HASH'.$aname.$from_date.$to_date.$module_name;
-        }
-        else
-            $full_query = $user_id.$project_id.$query.$from_date.$to_date.$module_name;
-
-
-        $this->storeToProjectActivityTable($user_id, $project_id, $query, $analysis_datetime, $from_date, $to_date, $insertion_successful_flag, $module_name, $full_query);        
-        echo json_encode(array("res" => "running", "full_query" => $full_query));
-
+    public function insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date)
+    {      
         // triggered insert command
-        $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py ' . $keyspace_name . ' ' . $query . ' ' . $from_date . ' ' . $to_date . ' ' . $module_name . ' ' . $user_id);
+        $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py ' . $keyspace_name . ' ' . $query . ' ' . $from_date . ' ' . $to_date . ' ' . $user_id);
 
         exec("nohup " .$command. " > /dev/null 2>&1 &");
+
+
         // for testing.....
         // $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py parkjimin #ParkJimin 2020-12-22 2020-12-22 ha');
         // $d = shell_exec($command);
@@ -289,7 +278,15 @@ class ProjectActivityController extends Controller
         $statusObj = ProjectActivity::where('full_query', $request->input('full_query_id'))->delete();
         return $statusObj;
     }
-
+    
+    public function checkIfProjectExitsByName( $name){
+        $statusObj = Project::where('project_name', $name)->first();
+        if($statusObj){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
 
 
     

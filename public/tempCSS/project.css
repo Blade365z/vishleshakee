@@ -1,0 +1,11 @@
+
+.confirmPanelExpand{
+    max-height: 100%;
+    transition: max-height 700ms ease-in;
+    overflow: hidden;
+}
+.confirmPanelCollapse{
+    max-height: 0px !important;
+    transition: max-height 300ms ease-out;
+    overflow: hidden;
+}
