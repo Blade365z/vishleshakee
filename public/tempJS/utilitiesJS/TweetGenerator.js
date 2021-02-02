@@ -127,7 +127,6 @@ export const get_tweets_info_AjaxRequest = (slice_tid_list, callback) => {
 }
 
 export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysisBtnArg = false) => {
-  console.log(tweetData)
   let userIDTemp, feedback = '', analysisBtn = '';
   if (localStorage.getItem('smat.me')) {
     let userInfoJSON = JSON.parse(localStorage.getItem('smat.me'));
@@ -157,8 +156,10 @@ export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysis
     let sentiment = '', category = '', media = '', location = '';
     let senticlass = '';
     
-    console.log('CONFIDENCE',tweet.confidence)
-    let confidenceScore = tweet.confidence;
+    let confidenceScore = 0;
+    if( tweet.confidence){
+      confidenceScore = tweet.confidence;
+    }
     confidenceScore=confidenceScore.toFixed(2)*100;
 
 
