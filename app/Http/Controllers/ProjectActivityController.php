@@ -73,6 +73,25 @@ class ProjectActivityController extends Controller
 
 
 
+    public function store_to_project_activity_table_api(Request $request){        
+        $user_id = $request->input('user_id');
+        $project_id = $request->input('project_id');
+        $analysis_name = $request->input('analysis_name');
+        $from_date = $request->input('from_date');
+        $to_date = $request->input('to_date');
+        $module_name = $request->input('module_name');
+        $full_query = $request->input('full_query');
+
+        // insert into mysql
+        $datetimeobj = new DateTime();
+        $analysis_datetime = $datetimeobj->format('Y-m-d H:i:s');
+
+        $this->storeToProjectActivityTable($user_id, $project_id, $analysis_name, $analysis_datetime, $from_date, $to_date, $module_name, $full_query);
+        echo json_encode(array("res" => 'inserted'));
+    }
+
+
+
     public function create_table_keyspace_api(Request $request){
         $keyspace_name = $request->input('projectName');
         $option = $request->input('option');
@@ -109,9 +128,7 @@ class ProjectActivityController extends Controller
     {      
         // triggered insert command
         $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py ' . $keyspace_name . ' ' . $query . ' ' . $from_date . ' ' . $to_date . ' ' . $user_id);
-
         exec("nohup " .$command. " > /dev/null 2>&1 &");
-
 
         // for testing.....
         // $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py parkjimin #ParkJimin 2020-12-22 2020-12-22 ha');
@@ -190,7 +207,7 @@ class ProjectActivityController extends Controller
     /**
      * Store into projectActivity table
      */
-    public function storeToProjectActivityTable($user_id, $project_id, $analysis_name, $analysis_datetime, $from_date, $to_date, $insertion_successful_flag, $module_name, $full_query)
+    public function storeToProjectActivityTable($user_id, $project_id, $analysis_name, $analysis_datetime, $from_date, $to_date, $module_name, $full_query)
     {
         $statusObj = new ProjectActivity([
             'user_id' => $user_id,
@@ -199,13 +216,14 @@ class ProjectActivityController extends Controller
             'analysis_datetime' => $analysis_datetime,
             'from_date' => $from_date,
             'to_date' => $to_date,
-            'insertion_successful_flag' => $insertion_successful_flag,
             'module_name' => $module_name,
             'full_query' => $full_query,
         ]);
         $statusObj->save();
         return response()->json(['data' => 'Submitted Successfully to ProjectActivityTable!'], 200);
     }
+
+
 
     public function show(Request $request, $id)
     {

@@ -23,7 +23,10 @@ Script written by : Mala Das(maladas601@gmail.com), Amitabh Boruah(amitabhyo@gma
 export const getCurrentDate = (format = 'Y-m-d', utc = false) => {
     var currentDate11;
     var d = new Date();
-    currentDate11 = getDateInFormat(d, 'Y-m-d', utc);
+    if(format == 'Y-m-d')
+        currentDate11 = getDateInFormat(d, 'Y-m-d', utc);
+    else if(format == 'Y-m-d HH:MM:SS')
+        currentDate11 = getDateInFormat(d, 'Y-m-d HH:MM:SS', utc);
   
     return currentDate11;
 }

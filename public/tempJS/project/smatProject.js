@@ -5,7 +5,11 @@ import {
     checkIfAnyKeySpaceCreatingAPI,
     getProjectName,
     checkIfProjectExitsByName,
-    getAllProject
+    getAllProject,
+    getAllStoriesFromProject,
+    getAllAnalysisUnderStory,
+    getStoryInfo,
+    getBaseURL
 } from "./helper.js";
 import {
     displayErrorMsg,
@@ -14,6 +18,7 @@ import {
 import {
     generateUniqueID
 } from "../utilitiesJS/uniqueIDGenerator.js";
+
 import {
     getMe
 } from '../home/helper.js';
@@ -25,31 +30,62 @@ var confirmedDataSetToBeCreated;
 var tempProjToBeCreated = [];
 var projectCurrentlyCreatingFlag = 0;
 var projectPending = [];
-var currentlySelected=null;
+var currentlySelected = null;
 
 getMe().then(id => {
     checkRecordsForProjects(id);
     $('#listOfProjects').html('');
     getAllProject(id).then(res => {
+        $('#numberOfProjectsCreatedByYou').text(res.length)
+
         res.map(project => {
-            if(project.status=='1'){
-            $('#listOfProjects').append('<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' + project.project_id + '|' + project.project_name + '" id="' + project.project_id + '-btn"><div><h5 class="m-0">' + project.project_name + '<h5></div><div class="text-left">Created on: ' + project.project_creation_date + '</div></button>')
+            if (project.status == '1') {
+                $('#listOfProjects').append('<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' + project.project_id + '|' + project.project_name + '" id="' + project.project_id + '-btn"><div><h5 class="m-0">' + project.project_name + '<h5></div><div class="text-left">Created on: ' + project.project_creation_date + '</div></button>')
             }
         })
     });
 });
 
 
+var isFormOpen=0;
+$('#openProjectFormBtn').on('click',function(){
+    if(isFormOpen===0){
+        $('#projectCreationForm').removeClass('confirmPanelCollapse')
+        $('#projectCreationForm').addClass('confirmPanelExpand')   
+        $('#openProjectFormBtn').css('display','none');
+    }
+});
 
+$('#closeCreateProjectDiv').on('click',function(){
+    $('#projectCreationForm').removeClass('confirmPanelExpand')
+    $('#projectCreationForm').addClass('confirmPanelCollapse')   
+    $('#openProjectFormBtn').css('display','block');
+
+})
 $('[data-toggle="popover"]').popover(); //Initalizing popovers
 
 $("body").on('click', '.projectBtn', function () {
     $('#openProjectDiv').removeClass('confirmPanelExpand')
-    $('#openProjectDiv').addClass('confirmPanelCollapse')
+    $('#openProjectDiv').addClass('')
+
+
+    $('#storyContentDiv').removeClass('confirmPanelExpand')
+    $('#storyContentDiv').addClass('confirmPanelCollapse')   
+    
+    
     $('.projectBtn').removeClass('active')
     $(this).addClass('active');
     let value = $(this).attr('value').split(/[|]/).filter(Boolean);
-    currentlySelected=value;
+    currentlySelected = value;
+    $('#listOfStoriesOFProjectDiv').html('')
+    getAllStoriesFromProject(currentlySelected[0]).then(res => {
+
+        $('#numberOfStories').text(res.length)
+        res.map(story => {
+            $('#listOfStoriesOFProjectDiv').append('<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' + story.storyID + '">' + story.storyName + '</button>');
+
+        })
+    })
     getProjectName(value[0]).then(res => {
         $('#modifyDivProjName').text(res[0]['project_name'])
         $('#modifyDivProjCreatedOn').text(res[0]['project_creation_date'])
@@ -67,13 +103,14 @@ $("body").on('click', '.projectBtn', function () {
     // openProjectModifyDiv(value[0],value[1]);
 });
 
-$('body').on('click','#activeProject',function(){
+$('body').on('click', '#activeProject', function () {
     getProjectName(currentlySelected[0]).then(res => {
-            let projectMetaData = res[0];
-            localStorage.setItem('projectMetaData',JSON.stringify({projectMetaData}))
-            location.reload();
+        let projectMetaData = res[0];
+        localStorage.setItem('projectMetaData', JSON.stringify({ projectMetaData }))
+        location.reload();
     });
-  });
+
+});
 
 
 $("body").on("input", "#projectName", function () {
@@ -107,7 +144,7 @@ $("body").on("click", "#addProjectKeyboard", function () {
             tagTemp +
             '"><i class="fas fa-times"></i></div></div>'
         );
-        if (tagsArr.includes(tagTemp)) {} else {
+        if (tagsArr.includes(tagTemp)) { } else {
             tagsArr.push(tagTemp);
         }
     }
@@ -194,6 +231,14 @@ const openConfirmANDSuggestionBoxProject = (projName, from, to, description, sug
     $('#projectConfirmDiv').removeClass('confirmPanelCollapse');
     $('#projectConfirmDiv').addClass('confirmPanelExpand');
     $("#suggestionsConfirm").html("");
+
+    // $('#projectCreationForm').removeClass('confirmPanelExpand')
+    // $('#projectCreationForm').addClass('confirmPanelCollapse')   
+    // $('#openProjectFormBtn').css('display','block');
+
+    $('html, body').animate({
+        scrollTop: $("#projNameConfirm").offset().top
+    }, 1000);
     tagsArr.forEach(tag => {
         confirmedDataSetToBeCreated.push(tag)
         $("#suggestionsConfirm").append(
@@ -298,8 +343,21 @@ $("body").on("click", "div #cancelBtnProj", function () {
 
 const createProject = (proj_name, proj_description, query, from_date, to_date, option = null) => {
 
+    $('#projectCreationForm').removeClass('confirmPanelExpand')
+    $('#projectCreationForm').addClass('confirmPanelCollapse')   
+    $('#openProjectFormBtn').css('display','block');
+
+
+
     $('#projectConfirmDiv').removeClass('confirmPanelExpand');
     $('#projectConfirmDiv').addClass('confirmPanelCollapse')
+
+    $('.projField').val('')
+
+
+    tagsArr=[];
+    $('#projectDivPool').html('');
+    
     console.log(proj_name, proj_description, option);
     let project_id = generateUniqueID();
     getUserDetail().then(response => {
@@ -342,15 +400,16 @@ const checkRecordsForProjects = (id) => {
             let fadeInDelay = 0;
             response.forEach(element => {
                 fadeInDelay += 1
-        
-                projectPending.push(element.project_id);
-                makeRunningNotifcationForProject(element.project_id, element.project_name)
-                $('#' + element.project_id + '-Loader').fadeIn(fadeInDelay * 1000);
+                if(!projectPending.includes(element.project_id)){
+                    projectPending.push(element.project_id);
+                    makeRunningNotifcationForProject(element.project_id, element.project_name)
+                    $('#' + element.project_id + '-Loader').fadeIn(fadeInDelay * 1000);
+                }
             });
         }
     });
 }
-
+// $('#numberOfStories').text(res)
 const runLoggerToCheckStats = (userID) => setInterval(() => {
     if (projectPending.length < 1) {
         // projectCurrentlyCreatingFlag = 1;
@@ -364,9 +423,9 @@ const runLoggerToCheckStats = (userID) => setInterval(() => {
                 $('#listOfProjects').html('');
                 getAllProject(res[0]['user_id']).then(res => {
                     res.map(project => {
-                        if(project.status=='1'){
+                        if (project.status == '1') {
                             $('#listOfProjects').append('<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' + project.project_id + '|' + project.project_name + '" id="' + project.project_id + '-btn"><div><h5 class="m-0">' + project.project_name + '<h5></div><div class="text-left">Created on: ' + project.project_creation_date + '</div></button>')
-                            }
+                        }
                     })
                 });
                 updateNotificationToLocalStorage(res[0].project_name)
@@ -425,3 +484,33 @@ const projectReadyNotification = (id, name) => {
     $('#' + id + '-Loader').remove();
     $('#notificationNav').append('<div class="d-flex bg-success smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' + id + '-Loader" style="display:none;"><div id="' + id + '-Spinner"><i class="far fa-times-circle fa-2x closeProjectLoader  my-2 mx-1 text-white " style="cursor:pointer;" title="close" value="' + id + '" ></i></div><div class="text-white smat-notification-text" id="' + id + '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Created project suceessfully<p class="m-0"> <b class="">' + name + '</b></p></div></div></div>');
 }
+
+
+
+
+
+$('body').on('click', '.storyBtnProj', function () {
+    let value = $(this).val();
+    let baseUrl =  null
+    $('#storyContent').html('');
+    getBaseURL().then(res=>{
+        baseUrl = res;
+    });
+    
+    $('#storyContentDiv').removeClass('confirmPanelCollapse')
+    $('#storyContentDiv').addClass('confirmPanelExpand')
+    getStoryInfo(value).then(res => {
+        
+        $('#storyMetaDataName').text(res[0].storyName);
+        $('#storyMetaDataCreatedOn').text(res[0].createdOn);
+        $('#storyMetaDataDescription').text(res[0].storyDescription);
+        getAllAnalysisUnderStory(value).then(response => {
+            response.map(story=>{
+            $('#storyContent').append('<div class="border-top border-bottom"><div><h5 class="font-weight-bold mb-0 mt-2 ">'+story.analysisName+'</h5></div><div class="storyAnalysisMetadata"><div><p class="m-0">Created at: <span>'+story.created_at+'</span></p></div></div><div><p class="m-0">'+story.analysisDescription+'</p></div><div class="storyAnalysisContent" style="overflow-x:hidden;"><img  width="900" src="'+baseUrl+'/storage/plots/'+story.analysisID+'-plot.png" /></div></div>')
+            })
+        })
+    });
+
+});
+
+

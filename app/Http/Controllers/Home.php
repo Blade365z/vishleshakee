@@ -29,7 +29,6 @@ class Home extends Controller
     }
     public function me()
     {
-
         try {
             if (Auth::check()) {
                 $user = Auth::user()->username;

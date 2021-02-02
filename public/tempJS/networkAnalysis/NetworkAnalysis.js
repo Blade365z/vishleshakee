@@ -8,7 +8,7 @@ import {
     networkGeneration, storeResultofSparkFromController,getDeletedNodes,node_highlighting,selected_graph_query,getUserDetailsNA,message_displayer,
     node_highlighting_community,query_track,populate_track,delete_queries_from_db,diameter
 } from './helper.js';
-import { makeSuggestionsReady } from '../utilitiesJS/smatExtras.js'
+import { makeAddToStoryDiv, makeSuggestionsReady } from '../utilitiesJS/smatExtras.js'
 import { formulateUserSearch } from '../utilitiesJS/userSearch.js';
 
 
@@ -174,8 +174,9 @@ jQuery(function () {
     })
 
     $("body").on("click", "#show_analysis", function(){
+        $('.analysis_summary_div').hide();
         $('#analysis_summary_charts').show();
-        $('.analysis_summary_div').show();
+        // $('.analysis_summary_div').show();
         $(".NeighborsDiv").css('display', 'none');
         $("#show_neighbors").removeClass( "btn btn-primary" );
         $("#show_neighbors").addClass( "btn btn-info" );
@@ -287,6 +288,11 @@ jQuery(function () {
 
 
     $("#binaryopsnetworkselector").hide();
+
+    $('body').on('click', 'div .spark_delete', function () {
+        $(this).closest('tr').remove();    
+    });
+
 
     $('body').on('click', 'div .showBtn', function () {
         let args = $(this).attr('value');
@@ -452,14 +458,21 @@ jQuery(function () {
             networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename,"enabled").then(response => {
                
                 if(response["res"]=="empty"){
-                    totalQueries -= 1;
-                    totalNetworkatInstance = totalNetworkatInstance - 1;
+                    if(totalQueries>=1){
+                        totalQueries -= 1;
+                    }
+                    if(totalNetworkatInstance >=1){
+                        totalNetworkatInstance = totalNetworkatInstance - 1;
+                    }
                     message_displayer("DATA UNAVAILABLE FOR THE QUERY IN THE PROVIDED TIME RANGE. CHECK, YOUR INPUTS AND TRY WITH OTHER TIME RANGE","error");
                     return; 
                 }else if(response.message == "Request timed out"){
-                    totalQueries -= 1;
-                    totalNetworkatInstance = totalNetworkatInstance - 1;
-                    message_displayer("REQUEST TIMED OUT, UNABLE TO PROCESS YOUR REQUEST AT THIS MOMENT. TRY WITH SMALLER RANGE AND LESSER NODE COUNT OR TRY AGAIN LATER.","error");
+                    if(totalQueries>=1){
+                        totalQueries -= 1;
+                    }
+                    if(totalNetworkatInstance >=1){
+                        totalNetworkatInstance = totalNetworkatInstance - 1;
+                    }                    message_displayer("REQUEST TIMED OUT, UNABLE TO PROCESS YOUR REQUEST AT THIS MOMENT. TRY WITH SMALLER RANGE AND LESSER NODE COUNT OR TRY AGAIN LATER.","error");
                     return; 
                 }
                 if(queryTemp.charAt(0) == "*"){
@@ -518,7 +531,7 @@ jQuery(function () {
 
         let index = $(this).attr('value');
         currentviewingnetwork = index;
-        // let cardData = searchRecords[index - 1];
+        console.log(searchRecords,index);
         let id = searchRecords[index - 1].id;
         currentlyShowing = id;
         let filename = cardIDdictionary[id];
@@ -768,7 +781,9 @@ const generateCards = (id, query, fromDateTemp, toDateTemp, noOfNodesTemp, naTyp
 
 $("#naCards").on("click", "#deleteCard", function () {
     $(this).parent().parent().parent().parent().parent().remove();
-    totalNetworkatInstance = totalNetworkatInstance - 1;
+    if(totalNetworkatInstance>=1){
+        totalNetworkatInstance = totalNetworkatInstance - 1;
+    }
     if(totalNetworkatInstance <= 0){
         $("#networkDivid").empty();
         $("#messagebox").empty();
@@ -893,7 +908,7 @@ export const crr_viewing_network = () =>{
 }
 
 $("#centrality_exec").on('click', function (NAType, algo_option = $('#centrality_algo_choice').val()) {
-
+    makeAddToStoryDiv('networkDivid');
     if(selected_graph_ids().length > 1){
         message_displayer("PLEASE SELECT A SINGLE NETWORK","error");
         return;
@@ -1378,6 +1393,7 @@ $("#comm_exec").on('click', function (NAType = $("#NAEngine").val(), algo_option
 });
 
 $("#union_exec").on('click', function () {
+    makeAddToStoryDiv('union_displayer');
     if((selected_graph_ids().length == 0) || (selected_graph_ids().length == 1)){
         message_displayer("select at least 2 networks","error");
         return;
@@ -1482,7 +1498,7 @@ $("#union_exec").on('click', function () {
 
 
 $("#intersection_exec").on('click', function (NAType = "networkx") {
-
+    makeAddToStoryDiv('intersection_displayer');
     if((selected_graph_ids().length == 0) || (selected_graph_ids().length == 1)){
         message_displayer("select at least 2 networks","error");
         return;
@@ -1595,7 +1611,7 @@ $("#export").on('click', function (NAType = "networkx") {
 });
 
 $("#difference_exec").on('click', function (NAType = "networkx") {
-
+    makeAddToStoryDiv('difference_displayer');
     if((selected_graph_ids().length == 0) || (selected_graph_ids().length == 1)){
         message_displayer("select at least 2 networks","error");
         return;
@@ -1766,7 +1782,7 @@ const algoDict = { "degcen": 'Degree Centrality', "pgcen": "Page Rank Centrality
 const transferQueryToStatusTable = (data, operation, algo, sparkID = 123, renderDivID = 'networkDivid') => {
     $('#searchTable').css('display', 'block');
     let algoTitle = algoDict[algo];
-    $('#naStatusTable').append('<tr><th scope="row">' + data.id + '</th><td>' + data.query + '</td><td>' + operation + ' (' + algoTitle + ')' + '</td><td>' + data.from + '</td><td>' + data.to + '</td><td  id="' + sparkID + 'Status">Running...</td><td><button class="btn btn-secondary smat-rounded mx-1 showBtn" value="' + data.id + '|' + sparkID + '|' + renderDivID + '"  id="' + sparkID + 'Btn" disabled > Show </button><button class="btn btn-neg mx-1  smat-rounded"> Delete </button></td></tr>');
+    $('#naStatusTable').append('<tr><th scope="row">' + data.id + '</th><td>' + data.query + '</td><td>' + operation + ' (' + algoTitle + ')' + '</td><td>' + data.from + '</td><td>' + data.to + '</td><td  id="' + sparkID + 'Status">Running...</td><td><button class="btn btn-secondary smat-rounded mx-1 showBtn" value="' + data.id + '|' + sparkID + '|' + renderDivID + '"  id="' + sparkID + 'Btn" disabled > Show </button><button  class="spark_delete btn btn-neg mx-1  smat-rounded"> Delete </button></td></tr>');
     message_displayer("APACHE SPARK : Query submitted successfully","info");
 }
 
@@ -1814,4 +1830,5 @@ $('body #netview').dblclick(function(event) {
     $("#modemsg").html('<p class="d-flex text-muted mb-1 text-center" style="font-size:0.8rem">View Mode Active</p>');
     $('body .btn_mynetwork').tooltip( "dispose" );
     $('body .btn_mynetwork').tooltip({title: "Click to use the network", html: true, placement: "bottom"}); 
-    $('body .btn_mynetwork').tooltip('enable'); });
+    $('body .btn_mynetwork').tooltip('enable'); 
+});

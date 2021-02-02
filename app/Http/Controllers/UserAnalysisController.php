@@ -73,6 +73,10 @@ class UserAnalysisController extends Controller
         $common_object = new CC;
         return $common_object->get_user_info($userID, false);
     }
+
+
+
+
     public function getFrequencyDataForUser(Request $request)
     {
         if ($request->input('to') && $request->input('from') && $request->input('query') && $request->input('rangeType')) {
@@ -89,6 +93,11 @@ class UserAnalysisController extends Controller
                 $toTime = $to;
             }
 
+            $pname = null;
+            if ($request->input('pname')){
+                $pname = $request->input('pname');
+            }
+
             //A little extra processing for 10seconds plot.
             if ($rangeType == '10sec') {
                 $fromTime = date('Y-m-d H:i:s', strtotime($fromTime) - 3600);
@@ -96,7 +105,7 @@ class UserAnalysisController extends Controller
             }
 
             $commonObj = new CommonController;
-            $data = $commonObj->get_frequency_distribution_data($toTime, $fromTime, $query, $rangeType, true, true);
+            $data = $commonObj->get_frequency_distribution_data($toTime, $fromTime, $query, $rangeType, true, true,  $pname);
             return $data;
 
         } else {
@@ -104,6 +113,9 @@ class UserAnalysisController extends Controller
         }
     }
 
+
+
+    
     public function getTweetIDUA(Request $request)
     {
 

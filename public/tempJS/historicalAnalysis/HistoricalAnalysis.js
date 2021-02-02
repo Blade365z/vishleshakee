@@ -2,15 +2,19 @@
 //imports 
 
 import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
-import { getFreqDistDataForHA, getTweetIDsForHA, getSentiDistDataForHA, getCooccurDataForHA, getQueryStatues, removeFromStatusTable, removeFromStatusTableNormal, getAnalysisForAProjectAPI, removeFromProjectActivityTable } from './helper.js';
+import { getFreqDistDataForHA, getTweetIDsForHA, getSentiDistDataForHA, getCooccurDataForHA, getQueryStatues, removeFromStatusTable, removeFromStatusTableNormal  } from './helper.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
 import { getCurrentDate, getRangeType, dateProcessor, getDateRange} from '../utilitiesJS/smatDate.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { generateUniqueID } from '../utilitiesJS/uniqueIDGenerator.js';
-import { makeSuggestionsReady, makeSmatReady, makeDropDownReady, getRelationType, displayErrorMsg, toShowSelectedProject } from '../utilitiesJS/smatExtras.js';
+import { makeSuggestionsReady, makeSmatReady, makeDropDownReady, getRelationType, displayErrorMsg, makeAddToStoryDiv  } from '../utilitiesJS/smatExtras.js';
 import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './Advancehelper.js';
 import { forwardToNetworkAnalysis } from '../utilitiesJS/redirectionScripts.js';
 import { addNormalSearchToDB, populateRecentSearches } from '../userAnalysis/helper.js';
+
+// for project
+import { checkIfAnyProjectActive, getProjectDetailsFromLocalStorage, madeFullQuery } from '../project/commonFunctionsProject.js';
+import { getAnalysisForAProjectAPI, removeFromProjectActivityTable, storeToProjectActivityTable } from '../project/helper.js';
 
 
 
@@ -33,74 +37,35 @@ if (localStorage.getItem('smat.me')) {
 
 var suggestionsGlobal, suggInputBoxBuffer = [];
 
+
+var projectDetails;
+
 _MODE='HA';
 // ready function
 jQuery(function () {
-    // checkIfAnyProjActive(); //for project
     $('[data-toggle="popover"]').popover(); //Initalizing popovers
     makeSmatReady();
     fromDate = getCurrentDate()
     toDate = dateProcessor(toDate, '-', 0);
 
 
-    
-    // normal searches
-    populateRecentSearches(userID, 0, 'ha').then(response => {
-        if (response.length < 1) {
-            displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
-        }
-        response.forEach(element => {
-            updateStatusTable(element.query, element.fromDate, element.toDate, 0, true, element.queryID, false);
-        });
-    });
 
-
-
-
-    // get past advance searches from MySQL Table......... 
-    getQueryStatues(userID, 'ha').then(response => {
-        if (response.length < 1) {
-            displayErrorMsg('tableInitialTitleAdv', 'normal', 'No recent advance searches found in records.', false);
-        }
-        if (response) {
-            statusTableFlag = 1;
-            $('#showTableBtn span').text(" Hide Search History ");
-            $('#searchTable').css('display', 'block');
-            response.forEach(element => {
-                updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID);
-                addToStatusTable(element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.status);
-            });
-        }
-
-        //pass redirect queries only after having the past advance searches from mysql
-        if (incoming) {
-
-            if (incoming.includes('&') || incoming.includes('|')) {
-                searchType = 1;
-                setTimeout(() => {
-                    openSpecificTab('advQueryTab', 'recentSearchTab'); 
-                }, 200);
-         
-            } else {
-                searchType = 0;
-                setTimeout(() => {
-                    openSpecificTab('normalQueryTab', 'recentSearchTab');
-                }, 200);
-               
-            }
-            
-            updateStatusTable(incoming, fromDateReceived, toDateReceived, searchType, false, null, true);
-
-        }
-    });
-
-
-
-
-    
-    // for project queries
-    if (localStorage.getItem('projectName')) {
-        updateProjStatsTable('ha');
+    // check if any project is active
+    if (checkIfAnyProjectActive()){
+        // no advance search 
+        $("#addQueryButton").remove();
+        $("#advQueryTab").remove();
+        // if yes
+        projectDetails = getProjectDetailsFromLocalStorage();
+        console.log(projectDetails);
+        let proj_name = projectDetails.projectMetaData.project_name;
+        let proj_id = projectDetails.projectMetaData.project_id;
+        $("#recent_searches_word_id").html('Recent Searches for <b class="projName">'+ proj_name +'</b>');
+        getDataForProjectTable(userID, proj_name, proj_id, _MODE);  
+    }else{
+        // if not then normal
+        $("#recent_searches_word_id").html('Recent Searches');
+        getDataFromMySqlTablesFor_normal_advance();
     }
 
 
@@ -228,7 +193,18 @@ jQuery(function () {
             }
         }
         // console.log(searchType);
-        updateStatusTable(q, fromDate, toDate, searchType);
+        // check if any project is active
+        if (checkIfAnyProjectActive()){           
+            console.log('project');
+            let proj_name = projectDetails.projectMetaData.project_name;
+            let proj_id = projectDetails.projectMetaData.project_id;
+            let full_query = madeFullQuery(projectDetails, q, _MODE, fromDate, toDate);
+            updateStatusTable(q, fromDate, toDate, 0, false, full_query, false, proj_name, proj_id);
+        }
+        else{
+            console.log('no project');
+            updateStatusTable(q, fromDate, toDate, searchType);
+        }       
         resetQueryPanel(mainInputCounter);
     });
 
@@ -277,10 +253,12 @@ jQuery(function () {
                                         </div>`);
         let rangeType = getRangeType(fromDate, toDate);
         let pname=null; 
-        if($(this).attr('projectName')){
-            pname = $(this).attr('projectName'); 
+        if (checkIfAnyProjectActive()){           
+            let pname = projectDetails.projectMetaData.project_name;       
+            console.log('location');
+            console.log(pname);
         }
-
+        localStorage.getItem('projectMetaData') && makeAddToStoryDiv('result-div-map')
         get_tweet_location(query, fromDate, toDate, rangeType, null,0,pname).then(response => {
             console.log("wwww");
             // console.log(response);
@@ -340,12 +318,6 @@ jQuery(function () {
             // console.log(recordsCaptured[0]['query']);
             initiateHistoricalAnalysisAdvance(recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], recordsCaptured[0]['mentionUniqueID'], recordsCaptured[0]['hashtagUniqueID'], recordsCaptured[0]['userUniqueID'], recordsCaptured[0]['searchType'], recordsCaptured[0]['filename']);
         } else {
-            // for project
-            // if (localStorage.getItem('projectName')) {
-            //     checkAnalysisExistorNotFunction(userID, recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], 'ha');
-            // }
-
-
             // for normal search........................pname for project
             initiateHistoricalAnalysis(recordsCaptured[0]['query'], recordsCaptured[0]['from'], recordsCaptured[0]['to'], recordsCaptured[0]['mentionUniqueID'], recordsCaptured[0]['hashtagUniqueID'], recordsCaptured[0]['userUniqueID'], recordsCaptured[0]['searchType'], pname);
         }
@@ -364,7 +336,7 @@ jQuery(function () {
                 pname = $(this).attr('projectName'); 
             }  
             $(this).parent().parent().remove();
-            //for project
+            //for project TODO mala
             if(pname)
                 removeFromProjectActivityTable(idCaptured);
             else
@@ -400,13 +372,73 @@ jQuery(function () {
 
 
 
+const getDataForProjectTable = (userID, projectName, projectID, module_name) => {
+    // normal searches for project
+    console.log(userID, projectName, projectID, module_name);
+    getAnalysisForAProjectAPI(userID, projectID, module_name).then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
+        }
+        response.forEach(element => {
+            updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName);
+        });
+    });
+}
 
 
 
 
+const getDataFromMySqlTablesFor_normal_advance = () => {
+    // normal searches
+    populateRecentSearches(userID, 0, 'ha').then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
+        }
+        response.forEach(element => {
+            updateStatusTable(element.query, element.fromDate, element.toDate, 0, true, element.queryID, false);
+        });
+    });
 
 
 
+
+    // get past advance searches from MySQL Table......... 
+    getQueryStatues(userID, 'ha').then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitleAdv', 'normal', 'No recent advance searches found in records.', false);
+        }
+        if (response) {
+            statusTableFlag = 1;
+            $('#showTableBtn span').text(" Hide Search History ");
+            $('#searchTable').css('display', 'block');
+            response.forEach(element => {
+                updateStatusTable(element.query, element.fromDate, element.toDate, 1, true, element.queryID);
+                addToStatusTable(element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.status);
+            });
+        }
+
+        //pass redirect queries only after having the past advance searches from mysql
+        if (incoming) {
+
+            if (incoming.includes('&') || incoming.includes('|')) {
+                searchType = 1;
+                setTimeout(() => {
+                    openSpecificTab('advQueryTab', 'recentSearchTab'); 
+                }, 200);
+         
+            } else {
+                searchType = 0;
+                setTimeout(() => {
+                    openSpecificTab('normalQueryTab', 'recentSearchTab');
+                }, 200);
+               
+            }
+            
+            updateStatusTable(incoming, fromDateReceived, toDateReceived, searchType, false, null, true);
+
+        }
+    });
+}
 
 
 
@@ -437,7 +469,7 @@ const getStatusFromMySql = (userID) => {
 }
 
 
- const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable = false, filename = null, highlight = false, projectName=null, analysis_insertion_status=null) => {
+ const updateStatusTable = (query, fromDate, toDate, searchType, fromStatusTable = false, filename = null, highlight = false, projectName=null, project_id=null) => {
     // alert('called')
     let uniqueTimeStamp = filename == null ? new Date().getTime() : filename;
     let queryElement = decodeQuery(query);
@@ -450,27 +482,29 @@ const getStatusFromMySql = (userID) => {
     //normal search ....add to Status Table
     if (searchType == 0) {
         // openSpecificTab('normalQueryTab', 'recentSearchTab');
-        if (!filename) {
-            addNormalSearchToDB(uniqueTimeStamp, userID, query, fromDate, toDate, 'Success', 'ha', hashtagUniqueID, mentionUniqueID);
-        }
+        // if (!filename) {
+            if (!fromStatusTable) {
+                if(projectName){     
+                    console.log('project store');
+                    let full_query = filename;
+                    storeToProjectActivityTable(userID, project_id, query, fromDate, toDate, _MODE, full_query);
+                }else{
+                    console.log('no project store');
+                    addNormalSearchToDB(uniqueTimeStamp, userID, query, fromDate, toDate, 'Success', 'ha', hashtagUniqueID, mentionUniqueID);
+                }     
+            }       
+        // }
 
         let div_id;
         $('#tableInitialTitle').html('');
 
 
-        if(projectName){
-            let a_status;
-            if(analysis_insertion_status == 1)
-                a_status = 'success';
-            else if(analysis_insertion_status == 0)
-                a_status = 'inserting';
-            else if(analysis_insertion_status == -1)
-                a_status = 'error';
-                
-            div_id = "#ProjectStatusTable";
-            $('<tr class="statusTableRow ' + highlightTag + '"><td><div>' + queryElement + '</div><div>from: '+fromDate+' to: '+toDate+'</div></td><td >'+a_status+'</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + uniqueTimeStamp + '" projectName="'+projectName+'"> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" type="0" value="' + uniqueTimeStamp + '" projectName="'+projectName+'" > Delete </button></tzd></tr>').prependTo(div_id);
+        if(projectName){                
+            div_id = "#haNormalStatusTable";
+            $('<tr class="statusTableRow ' + highlightTag + '"><td><div>' + queryElement + '</div><div>from: '+fromDate+' to: '+toDate+'</div></td><td >Success</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + uniqueTimeStamp + '" projectName="'+projectName+'"> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" type="0" value="' + uniqueTimeStamp + '" projectName="'+projectName+'" > Delete </button></tzd></tr>').prependTo(div_id);
         }            
         else{
+            // if not project
             div_id = "#haNormalStatusTable";      
             $('<tr class="statusTableRow ' + highlightTag + '"><td><div>' + queryElement + '</div><div>from: '+fromDate+' to: '+toDate+'</div> </td><td >Success</td><td><button class="btn btn-primary smat-rounded mx-1 showBtn" value="' + uniqueTimeStamp + '"> Show </button><button class="btn btn-danger mx-1  smat-rounded deleteBtn" type="0" value="' + uniqueTimeStamp + '"  > Delete </button></td></tr>').prependTo(div_id);      
         }
@@ -723,6 +757,8 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
     //Loader...userID
     $('#' + chartDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     $('#' + chartTweetDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
+    
+    localStorage.getItem('projectMetaData') && makeAddToStoryDiv(chartDivID)
     if (rangeType == 'day') {
         if (filename) {
             getFreqDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
@@ -822,6 +858,8 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
     //Loader...
     $('#' + chartDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
     $('#' + chartTweetDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
+    localStorage.getItem('projectMetaData') && makeAddToStoryDiv(chartDivID)
+    
     if (rangeType == 'day') {
         if (filename) {
             getSentiDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
@@ -906,16 +944,18 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
 const plotDistributionGraphHA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null, pname=null) => {
     //Loader...
     let chartDivID = option + '-chart';
+    let chartSummaryDivID=option + '-summary';
     $('#' + div).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
 
     // $('#' + div).html('<div class="d-flex " ><span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span><button class="btn btn-primary mt-1  mr-3 analyzeNetworkButton smat-rounded"   value="' + query + '|' + toDate + '|' + fromDate + '|' + option + '|' + uniqueID + '|' + userID + '" > <span> Analyse network </span> </button></div><div class="px-5 co_occur_plot" id="' + chartDivID + '"></div>');
 
     // $('#' + chartDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
+    
     if (filename) {
         // console.log("generate advance");
         getCooccurDataForAdvanceHA(query, fromDate, toDate, option, uniqueID, userID, filename).then(response => {
             // console.log(response);
-            $('#' + div).html('<div class="d-flex " ><span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span><button class="btn btn-primary mt-1  mr-3 analyzeNetworkButton smat-rounded"   value="' + query + '?' + toDate + '?' + fromDate + '?' + option + '?' + uniqueID + '?' + userID + '" > <span> Analyse network </span> </button></div><div class="px-5 co_occur_plot" id="' + chartDivID + '"></div>');
+            $('#' + div).html('<div class="d-flex " id="'+chartSummaryDivID+'"><span class=" mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span><button class="btn btn-primary mt-1  mr-auto analyzeNetworkButton smat-rounded"   value="' + query + '?' + toDate + '?' + fromDate + '?' + option + '?' + uniqueID + '?' + userID + '" > <span> Analyse network </span> </button></div><div class="px-5 co_occur_plot" id="' + chartDivID + '"></div>');
             response[0].nodes == 0 ? $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>') : generateBarChartForCooccur(query, response[0]['data'], chartDivID, option, fromDate, toDate);
             $('#' + option + '-total').text(response[0]['nodes']);
         });
@@ -923,9 +963,10 @@ const plotDistributionGraphHA = (query, fromDate, toDate, option, uniqueID, user
         getCooccurDataForHA(query, fromDate, toDate, option, uniqueID, userID, pname).then(response => {
             // console.log(response);
             let relType = getRelationType(query, option);
-            $('#' + div).html('<div class="d-flex " ><span class="ml-auto mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span><button class="btn btn-primary mt-1  mr-3  analyzeNetworkButton  smat-rounded"   value="' + query + '?' + toDate + '?' + fromDate + '?' + relType + '?' + uniqueID + '?' + userID + '" > <span> Analyse network </span> </button></div><div class="px-5 co_occur_plot" id="' + chartDivID + '"></div>');
+            $('#' + div).html('<div class="d-flex " id="'+chartSummaryDivID+'" ><span class="mr-3"><p class="m-0 smat-box-title-large font-weight-bold text-dark" id="' + option + '-total">0</p><p class="pull-text-top smat-dash-title m-0 ">Total Nodes</p></span><button class="btn btn-primary mt-1  mr-auto  analyzeNetworkButton  smat-rounded"   value="' + query + '?' + toDate + '?' + fromDate + '?' + relType + '?' + uniqueID + '?' + userID + '" > <span> Analyse network </span> </button></div><div class="px-5 co_occur_plot" id="' + chartDivID + '"></div>');
             response[0].nodes == 0 ? $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>') : generateBarChartForCooccur(query, response[0]['data'], chartDivID, option, fromDate, toDate);
             $('#' + option + '-total').text(response[0]['nodes']);
+            localStorage.getItem('projectMetaData') && makeAddToStoryDiv(chartDivID,chartSummaryDivID);
         });
     }
 }
@@ -1044,33 +1085,4 @@ const openSpecificTab = (tabID, tabClass) => {
     $(tab).addClass('active')
     $(tab).addClass('show')
 
-}
-
-
-const refreshProjContentsHA = () =>{
-    updateProjStatsTable();
-}
-
-
-
-
-// for project
-const updateProjStatsTable = (type) => {
-    $('#ProjectStatusTable').html('')
-    let projectName = null;
-    projectName = localStorage.getItem("projectName");
-    let project_id = localStorage.getItem("project_id");
-    getAnalysisForAProjectAPI(userID, project_id,type).then(response => {
-        if (response.length < 1) {
-            displayErrorMsg('tableInitialTitleProject', 'normal', 'No analysis found in records.', false);
-        }
-        response.forEach(element => {
-            updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName, element.insertion_successful_flag);
-        });
-    });
-}
-
-
-function alert1(){
-    console.log("alert");
 }

@@ -183,7 +183,7 @@
                         data-language='en' required>
                 </div>
                 <div class="form-group  my-0  mr-3 border dateinputForm  smat-rounded d-flex px-2 py-1  bg-white">
-                    <input type="number" class="form-control" name=" nodes" value="5000" id="nodesNA"
+                    <input type="number" class="form-control" name=" nodes" value="50" id="nodesNA"
                         placeholder="Number of Nodes" style="border:0px;" autocomplete="OFF" required>
                 </div>
                 <div class="form-group  my-0  mr-3 border smat-rounded d-flex px-2 py-1  bg-white">
@@ -656,11 +656,11 @@
 
 
                         <div class=" ml-auto d-flex">
-                            <Button class="btn btn-primary smat-rounded mx-2" id="usenetwork"><span>Use
+                            <Button class="btn btn-primary btn-sm smat-rounded mr-2" id="usenetwork"><span>Use
                                     Network</span></Button> <br /> <br />
                             {{-- <Button class="btn smat-btn smat-rounded mx-2"><span>Expand
                                     Network</span></Button> <br /> <br /> --}}
-                            <Button class="btn btn-primary smat-rounded mx-2" id="export"><span>Export
+                            <Button class="btn btn-primary  btn-sm smat-rounded mr-2" id="export"><span>Export
                                     Network</span></Button> <br /> <br />
                         </div>
                     </div>
@@ -855,8 +855,7 @@
     <!-- END -->
 
     <!-- Need to Replace -->
-    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
-    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
-    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
-
+    <script type="module" src="public/amcharts4/core.js"></script>
+    <script type="module" src="public/amcharts4/charts.js"></script>
+    <script type="module" src="public/amcharts4/themes/animated.js"></script>
 @endsection

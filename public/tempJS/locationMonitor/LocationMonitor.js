@@ -16,7 +16,7 @@ import {
     forwardToHistoricalAnalysis,
     forwardToUserAnalysis
 } from '../utilitiesJS/redirectionScripts.js';
-
+import {makeAddToStoryDiv} from '../utilitiesJS/smatExtras.js'
 
 var hashtag_info, global_tweetid_list, locations;
 var interval, currentPlace;
@@ -172,7 +172,7 @@ button.onAdd = function (LM_Map) {
 };
 
 button.addTo(LM_Map);
-
+makeAddToStoryDiv('lmMap','lmPanel')
 
 
 jQuery(function () {
@@ -334,8 +334,8 @@ function trigger() {
             clearInterval(i);
         }
         $('#currentlyTrendingLocDiv').html('<div class="text-center smat-loader " ><i class="fa fa-circle-o-notch donutSpinner mt-5" aria-hidden="true"></i></div>');
-        // global_datetime = get_current_time(interval);
-        global_datetime = ["2020-12-25 00:00:00", "2020-12-26 06:23:10"];
+        global_datetime = get_current_time(interval);
+        // global_datetime = ["2020-12-25 00:00:00", "2020-12-26 06:23:10"];
         to_datetime = global_datetime[1];
         from_datetime = global_datetime[0];
         console.log(global_datetime);
@@ -512,7 +512,7 @@ const rander_map = (data) => {
                 }
 
 
-                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
+                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet_text + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
 
 
                 L.marker([parseFloat(data[i]["Latitude"]), parseFloat(data[i]["Longitude"])], {
@@ -543,7 +543,7 @@ const rander_map = (data) => {
                 }
 
 
-                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
+                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet_text + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
 
 
                 L.marker([parseFloat(data[i]["Latitude"]), parseFloat(data[i]["Longitude"])], {
@@ -574,7 +574,7 @@ const rander_map = (data) => {
                 }
 
 
-                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
+                let div_element = '<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> </div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet_text + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details">  <span>' + location + '</span>    <span class=" mx-2" >  <i class="fa fa-circle text-' + senticlass + '" aria-hidden="true" title="' + sentiment + '"></i>  ' + sentiment + '</span>              </p> </div></div>';
 
 
                 L.marker([parseFloat(data[i]["Latitude"]), parseFloat(data[i]["Longitude"])], {
@@ -738,87 +738,6 @@ const wordCloudLM = (hashtag_latlng, div, response) => {
     series.rotationThreshold = 0;
     series.minFontSize = am4core.percent(8);
     series.maxFontSize = am4core.percent(30);
-    var data = [{
-            'token': '#50DaysForSRKDay',
-            'count': 2344,
-            'color': '#297EB4'
-        },
-        {
-            'token': '#SushantSinghRajput',
-            'count': 2344,
-            'color': '#297EB4'
-        },
-        {
-            'token': '#coronavirus',
-            'count': 1244,
-            'color': '#FF00FF'
-        },
-        {
-            'token': '#bantiktok',
-            'count': 4544,
-            'color': '#297EB4'
-        },
-        {
-            'token': '#iitguwahati',
-            'count': 1244,
-            'color': '#3D3D3D'
-        },
-        {
-            'token': '#covid19',
-            'count': 4244,
-            'color': '#FF00FF'
-        },
-        {
-            'token': '#IndiaWantsCBIInvestigation',
-            'count': 3344,
-            'color': '#3D3D3D'
-        },
-        {
-            'token': '#hello123',
-            'count': 832,
-            'color': '#FF00FF'
-        },
-        {
-            'token': '#python',
-            'count': 1232,
-            'color': '#3D3D3D'
-        },
-        {
-            'token': '#indiavschina',
-            'count': 1111,
-            'color': '#3D3D3D'
-        }, , {
-            'token': '#iitguwahati',
-            'count': 2244,
-            'color': '#3D3D3D'
-        },
-        {
-            'token': '#TIKTOK',
-            'count': 2211,
-            'color': '#FF00FF'
-        },
-        {
-            'token': '#SSR',
-            'count': 2013,
-            'color': '#3D3D3D'
-        },
-        {
-            'token': '#galwanValley',
-            'count': 832,
-            'color': '#FF00FF'
-        },
-        {
-            'token': '#IndianArmy',
-            'count': 1922,
-            'color': '#3D3D3D'
-        },
-        {
-            'token': '#indiavschina',
-            'count': 1711,
-            'color': '#3D3D3D'
-        },
-    ]
-
 
     var dataformat = [];
     $.each(response, function (v, c) {

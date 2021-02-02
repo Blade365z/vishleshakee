@@ -153,27 +153,3 @@ export const removeFromStatusTableNormal = async(id)=>{
     })
                    
 }
-
-
-
-export const removeFromProjectActivityTable = async (full_query_id) => {
-    let response = await fetch('deleteFromProjectActivityTable', {
-        method: 'post',
-        headers: HeadersForApi,
-        body: JSON.stringify({
-            full_query_id   //declare body to be parsed in server
-        })
-    });
-    let data = await response.json();
-    return data;
-};
-
-
-export const getAnalysisForAProjectAPI = async (userID, projectID,type) => {
-    let response = await fetch('getAnalysisForUserUnderProject/' + userID + '/' + projectID+'/'+type, {
-        method: 'get',
-        headers: HeadersForApi
-    });
-    let data = await response.json();
-    return data;
-}

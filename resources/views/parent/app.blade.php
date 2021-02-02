@@ -26,6 +26,7 @@
 
         @include("inc.navbar")
         @include("inc.projectNav")
+        @include("inc.story")
         @include("inc.createProjectModal")
         @include("inc.selectProjectModal")
         @include('inc.publicTweets')
@@ -45,6 +46,8 @@
     var _MODE = null;
 </script>
 <script type="module" src="public/tempJS/MAIN.js"></script>
+<script type="module" src="public/tempJS/project/commonFunctionsProject.js"></script>
+<script  src="public/html2canvas/html2canvas-min.js"></script>
 <script type="module" src="public/bootpag/bootpag-min.js"></script>
 <script src="public/datepicker/datepicker-min.js"></script>
 <script src="public/datepicker/datepicker-en.js"></script>

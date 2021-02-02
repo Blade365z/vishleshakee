@@ -330,6 +330,7 @@ export const update_view_graph_for_link_prediction = (res,src,k_value) => {
 
 
     $('#analysis_summary_charts').css("display", "none");
+    $('#analysis_summary_charts').empty();
     $('.analysis_summary_div').empty();
     $(".analysis_summary_div").css("display", "block");
 
@@ -470,6 +471,7 @@ export const render_community_graph1 = async (input) => {
 
 export const render_graph_community = (res,id_value) =>{
     $('#analysis_summary_charts').empty();
+    $('.NeighborsDiv').hide();
     $('#analysis_summary_charts').css("display", "block");
     $("#analysis_summary_charts").append(`<div class="shadow analysis_chart_div" id="chartDiv" style="overflow-x:auto;overflow-y:auto;"></div>
         <div class="shadow analysis_chart_div" id="chartDiv1" style="overflow-x:auto;overflow-y:auto;"></div>`);
@@ -1362,24 +1364,24 @@ export const render_graph_union = (res) => {
     $('.analysis_summary_div').empty();
     $(".analysis_summary_div").css("display", "block");
 
-    $('.analysis_summary_div').append('<table> <tr><th style="width:100px">Network Name</th><th style="width:40px">Network Size</th><th style="width:200px">Network Type</th><th style="width:60px">Color Code</th></tr>');
+    $('.analysis_summary_div').append('<table> <tr><th style="width:100px">Network Name</th><th style="width:40px">Network Size</th><th style="width:200px">Network Type</th><th style="width:80px">Color Code</th></tr>');
     for(var i=0; i<querynodeinfo.length;i++){
         let color_code = querynodeinfo[i]["color"];
         let count = i + 1;
         let size_of_each_network = major_array[i].length - 2;
-        $('.analysis_summary_div').append('<tr><td style="width:100px">'+ querydictfilename[selectedGraphs[i]] +'</td><td style="width:40px">'+size_of_each_network+'</td><td style="width:200px">'+networkTypes[i]+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+querynodeinfo[i]["color"]+'">&nbsp;</span></td></tr>');
+        $('.analysis_summary_div').append('<tr><td style="width:100px">'+ querydictfilename[selectedGraphs[i]] +'</td><td style="width:40px">'+size_of_each_network+'</td><td style="width:210px">'+networkTypes[i]+'</td><td style="background-color:white;width:80px"><span class="badge badge-pill" style="background-color:'+querynodeinfo[i]["color"]+'">&nbsp;</span></td></tr>');
     }
 
-    $('.analysis_summary_div').append('<table> <tr><th style="width:280px">Intersecting Node Color Code</th><th style="width:50px"><span class="badge badge-pill" style="background-color:'+"red"+'">&nbsp;</span></th></tr></table>');
+    $('.analysis_summary_div').append('<table> <tr><th style="width:250px">Intersecting Node Color Code</th><th style="width:50px"><span class="badge badge-pill" style="background-color:'+"red"+'">&nbsp;</span></th></tr></table>');
 
     $('.analysis_summary_div').append('</table>');
 
 
-    $('.analysis_summary_div').append('<table> <tr><th style="width:350px">Node Name</th><th style="width:60px">Color Code</th></tr>');
+    $('.analysis_summary_div').append('<table> <tr><th style="width:330px">Node Name</th><th style="width:80px">Color Code</th></tr>');
     for(var i=0; i<nodes_arr.length;i++){
         let color_code = nodes_arr[i]["color"];
         let count = i + 1;
-        $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+nodes_arr[i]["id"]+'</a> &nbsp <label class="float-right">Expand by <input type="number"  name=" nodes" class="border smat-rounded center" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required>  nodes <button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" value='+nodes_arr[i]["id"]+' id="expand_from_list" data-dismiss="modal" class="btn btn-primary">GO</button></label>'+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
+        $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+nodes_arr[i]["id"]+'</a> &nbsp <label class="float-right">Expand by <input type="number"  name=" nodes" class="border smat-rounded center" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required>  nodes <button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" value='+nodes_arr[i]["id"]+' id="expand_from_list" data-dismiss="modal" class="btn btn-primary">GO</button></label>'+'</td><td style="background-color:white;width:80px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
     }
     $('.analysis_summary_div').append('</table>');
 
@@ -1506,6 +1508,10 @@ export const render_graph_union = (res) => {
     });
     
     //Adding control buttons
+
+    network_global.on('hoverNode', function(properties) {
+            on_hover_neighbors_binary_ops(properties, nodes);
+    });
 }
 
 export const intersection = async (url,data,NAType) => {
@@ -1715,7 +1721,7 @@ export const render_intersection_difference = (res,id_value,option) => {
         if(info.length == 0){
             $('.analysis_summary_div').append('<b>No intersecting nodes.</b>');
         }else{
-            $('.analysis_summary_div').append('<table> <tr><th style="width:350px">Node Name</th><th style="width:60px">Color Code</th></tr>');
+            $('.analysis_summary_div').append('<table> <tr><th style="width:350px">Node Name</th><th style="width:80px">Color Code</th></tr>');
             if(option == "difference"){
                 var color_code = "#5c2480";
             }else{
@@ -1723,7 +1729,7 @@ export const render_intersection_difference = (res,id_value,option) => {
             }
             for(var i=0; i<info.length;i++){
                 let count = i + 1;
-                $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+ info[i]["nodes"] +'</a>'+'</td><td style="background-color:white;width:60px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
+                $('.analysis_summary_div').append('<tr><td style="width:350px">'+'<a href="#target" class="click_events">'+ info[i]["nodes"] +'</a>'+'</td><td style="background-color:white;width:110px"><span class="badge badge-pill" style="background-color:'+color_code+'">&nbsp;</span></td></tr>');
             }
             $('.analysis_summary_div').append('</table>');
         }      
@@ -1779,6 +1785,10 @@ export const render_intersection_difference = (res,id_value,option) => {
         
         var scaleOption = {scale:0.2};
         network_global.moveTo(scaleOption);
+
+        network_global.on('hoverNode', function(properties) {
+            on_hover_neighbors_binary_ops(properties, nodes);
+        });
     
     }
 
@@ -2128,7 +2138,7 @@ export const on_hover_change_color_of_neighbournodes = async(properties, nodes) 
 
     $('#analysis_summary_charts').css("display", "none");
     $('.NeighborsDiv').empty();   
-    $('.analysis_summary_div').css("display", "block");   
+    $('.analysis_summary_div').css("display", "none");   
 
     $('.NeighborsDiv').append('<table> <tr><th style="width:20px">Neighbors of - <b>'+selected_node+'</b></th></tr>');
 
@@ -2174,6 +2184,28 @@ export const on_hover_change_color_of_neighbournodes = async(properties, nodes) 
     let updated_nodes = Object.values(nodes["_data"]);
     nodes.update(updated_nodes);
 }
+
+
+export const on_hover_neighbors_binary_ops = async(properties,nodes) =>{
+    let selected_node = properties["node"];
+
+    console.log("Printing Selected Node!");
+    console.log(selected_node);
+
+    let nodes_new = Object.keys(nodes._data);
+    let con_nodes = network_global.getConnectedNodes(selected_node);
+
+    $('#analysis_summary_charts').css("display", "none");
+    $('.NeighborsDiv').empty();   
+    $('.analysis_summary_div').css("display", "none");   
+
+    $('.NeighborsDiv').append('<table> <tr><th style="width:20px">Neighbors of - <b>'+selected_node+'</b></th></tr>');
+
+    for(let i = 0; i < con_nodes.length; i++){
+        $('.NeighborsDiv').append('<tr><td style="width:500px"> <a href="#target" class="click_events">'+con_nodes[i]+'</a><label class="float-right">Expand by <input type="number"  name=" nodes" class="border smat-rounded center" value="5" id="expandupto" placeholder="Number of Nodes" style="border:8px; widows: 10px;width: 50px;padding: 1px;" autocomplete="OFF" required>  nodes <button style="padding: 5px;width: 60px;margin-bottom:13px" type="button" value='+con_nodes[i]+' id="expand_from_list" data-dismiss="modal" class="btn btn-primary">GO</button></label></td></tr></table>');
+    }
+}
+
 
 
 export const on_hover_out_set_back = async(nodes) => {

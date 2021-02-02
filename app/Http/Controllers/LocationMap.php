@@ -429,17 +429,9 @@ class LocationMap extends Controller
         $pname = $request->input('pname');
         }
 
-        // $date_list = ["2020-10-31", "2020-11-01", "2020-11-02"];
         $date_list = $request->input('dateArr');
         $dir_name = $request->input('userID');
-        // $node_no = 1;
         $hop_count = 0;
-
-        // $current_hop_node_count = 1;
-        // $array_per_hop_node_count = new \SplQueue();
-        // $array_per_hop_node_count->enqueue(1);
-        // $array_per_hop_node_count->rewind();
-        // $total_nodes = 0;
 
         $tweet_id = $request->input('id');
         $SourceTweetID = new \SplQueue();
@@ -526,7 +518,6 @@ class LocationMap extends Controller
 
                 $commonObj = new CommonController;
                 $temp_ST = json_decode($commonObj->get_tweets_info(array($ST_id), true,null),true);
-
                 foreach ($total_nodes as $key => $value) {
                     $temp_data = json_decode($commonObj->get_tweets_info($value, true,null),true);
                     
@@ -534,49 +525,12 @@ class LocationMap extends Controller
                     for ($i=0; $i < sizeof($temp_data) ; $i++) { 
                             
                         $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","a+");
-                        // $line = $ST_id.",".$value[$i];
-
-                        
-                        fputcsv($file,array($ST_id."__".$temp_ST[0]["author"],$temp_data[$i]["tid"]."__".$temp_data[$i]["author"],$key));
-                        
-                        
+                        fputcsv($file,array('QW'.$ST_id.'*$#*##||____||##*#$*'.$temp_ST[0]['author'],'QW'.$temp_data[$i]['tid'].'*$#*##||____||##*#$*'.$temp_data[$i]['author'],"$key"));
                         fclose($file);
                     }
                     
-                }
-                
-                // foreach ($total_nodes as $key => $value) {
-                //     for ($i=0; $i < sizeof($value) ; $i++) { 
-                //         echo($ST_id.",".$value[$i]);
-                //         $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","a+");
-                //         $line = $ST_id.",".$value[$i];
-                        
-                //         fputcsv($file,array("QW".$ST_id,"QW".$value[$i],$key));
-                        
-                        
-                //         fclose($file);
-                //     }
-                    
-                // }
-
-                
+                }   
             }
-
-            // nested function
-            // function process_source_tweet_info($tweetid_list){
-                
-
-            //     $commonObj = new CommonController;
-                
-            //     foreach ($tweetid_list as $key => $value) {
-            //         echo 
-            //         echo $value;
-            //         // echo $commonObj->get_tweets_info($$value, true, $pname);    
-                
-            //     }
-                
-
-            // }
         r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name);
         return json_encode("success");
     }

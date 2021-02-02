@@ -15,7 +15,7 @@ import { getFreqDistData, getTopCooccurData, getMe, getSentiDistData, getTopData
 import { generateFrequencyChart, generateSentimentChart, generateBarChart } from './chartHelper.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { get_tweet_location_home,getCompleteMap } from '../utilitiesJS/getMap.js';
-import { makeSuggestionsReady, makeSmatReady, getRelationType, removeVariableFromLocalStorage } from '../utilitiesJS/smatExtras.js'
+import { makeSuggestionsReady, makeSmatReady, getRelationType } from '../utilitiesJS/smatExtras.js'
 import { getCurrentDate } from '../utilitiesJS/smatDate.js';
 import {forwardToHistoricalAnalysis, forwardToNetworkAnalysis, forwardToUserAnalysis} from '../utilitiesJS/redirectionScripts.js';
 
@@ -43,7 +43,7 @@ jQuery(function () {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
     userID = userInfoTemp['id'];
     let mainPublicCardHeight = $('#main-public-dash').height();
-    let heightTobeDeducted = userID!==null ? 190 : 100
+    let heightTobeDeducted = userID!==null ? 90 : 90
     $('#public-trending').css('height', mainPublicCardHeight -heightTobeDeducted );
   } 
 

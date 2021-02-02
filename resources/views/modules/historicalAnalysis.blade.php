@@ -69,7 +69,7 @@
                 <div class="row">
                     <div class="col">
                         <div>
-                            <p class="m-0 smat-box-title"> Recent Searches</p>
+                            <p class="m-0 smat-box-title" id="recent_searches_word_id"> Recent Searches</p>
                         </div>
                         <div>
                             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
@@ -141,7 +141,7 @@
 
                         </div>
                     </div>
-                    <div class="col projContent" style="display: none;">
+                    {{-- <div class="col projContent" style="display: none;">
                         <div>
                             <p class="m-0 smat-box-title">Saved in <b class="projName"></b></p>
                         </div>
@@ -165,8 +165,7 @@
 
                             </div>
                         </div>
-
-                    </div>
+                    </div> --}}
                 </div>
 
             </div>

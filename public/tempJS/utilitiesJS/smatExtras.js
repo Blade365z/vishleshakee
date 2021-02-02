@@ -149,18 +149,13 @@ export const actionLog = async (user_id, action_msg) => {
 }
 
 
-export const removeVariableFromLocalStorage = () =>{
-    localStorage.removeItem("project_id");
-    localStorage.removeItem("projectName");
-    localStorage.removeItem('uid');
-}
-
-
-export const toShowSelectedProject = () => {
-    if(localStorage.getItem('projectName')){
-        let pname = localStorage.getItem('projectName');
-        let div1 = 'CP: <span style="color: #3490dc;">'+pname+'</span>';
-        $("#selected_project_name_id").html(div1);
+export const makeAddToStoryDiv = (div,toAppendBtnInsomeOtherDiv=null) => {
+    let toBeCapturedDiv=div;
+    let whereToAppendDiv=div
+    if(toAppendBtnInsomeOtherDiv){
+        whereToAppendDiv=toAppendBtnInsomeOtherDiv
     }
-   
+    let uid=whereToAppendDiv+'-'+'-addToStoryBtn';
+$('#'+uid).remove();
+    $('#'+whereToAppendDiv).after('<div class="clickable font-weight-bold mt-2  addToStory mb-3" value="'+toBeCapturedDiv+'" id="'+uid+'"> <i class="fas fa-bookmark mr-1"></i> Add to story</div>')
 }

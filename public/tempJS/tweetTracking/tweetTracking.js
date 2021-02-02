@@ -148,7 +148,7 @@ jQuery(function () {
         if (response.type === 'Tweet') {
             if (response) {
                 historyJSON[currentQuery] = { 'id': currentQuery, 'type': 'Tweet', 'source': response.replyto_source_id, 'priority': 1, 'author': response.author, 'author_profile_image': response.author_profile_image };
-
+                        sourceTweet=currentQuery;
                 analysisHistory.push(historyJSON);
                 let dateArr = response.datetime.split(' ');
                 fromDate = dateArr[0];
@@ -918,7 +918,7 @@ const displayNoTrackFoundForTracking = (tweetID, offset, from, to) => {
             $('.ttContent').remove();
             $('#notFound-' + offset).html('<div class="card noTrackFoundCard" style="margin-left:' + x1 + 'px"><div class="card-body"><div>No tracking available for Re-Tweet</div><div class=" " > No Tracking data found from <b>' + from + '</b> to <b>' + to + '</b></div></div></div>');
         } else {
-
+$('#networkContent').css('display','none')
             $('#notFound-' + offset).html('<div class="card noTrackFoundCard" style="margin-left:' + x1 + 'px"><div class="card-body"><div>The Tweet by <b>' + response.author + '</b> has neither been Re-Tweeted nor Quoted/Replied</div><div class=" " > No Tracking data found from <b>' + from + '</b> to <b>' + to + '</b></div></div></div>');
         }
     })
@@ -964,6 +964,7 @@ const createNetworkForTrack = (id, dateList) => {
     $('#generateNetwork').remove();
     $('#trackNetworkMsg').html('<div class="d-flex justify-content-center"><div class=""><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div><div class="mt-2 mx-2">Loading network.Please wait.</div></div>');
     let dateArr = [];
+    console.log(dateList);
     dateList.data.forEach(element => {
         dateArr.push(element[0]);
     });
@@ -1086,12 +1087,17 @@ const createNetworkForTrack = (id, dateList) => {
 
             }else if(value.id == "QW"+currentQuery){
                 node_color = "yellow";
+                centralityValues[value.id] = 20;
             }
 
-            if(centralityValues[value.id]>10){
-                centralityValues[value.id] = centralityValues[value.id] + 30;
+            if(centralityValues[value.id]>50){
+                centralityValues[value.id] = (centralityValues[value.id] * 1)+40;
             }else{
-                centralityValues[value.id] = centralityValues[value.id] * 15;
+                centralityValues[value.id] = (centralityValues[value.id] * 1.5)+20;
+            }
+
+            if(centralityValues[value.id]>180){
+                centralityValues[value.id] = 180;
             }
             nodes.add({
                 "id": value.id,
@@ -1133,6 +1139,8 @@ const createNetworkForTrack = (id, dateList) => {
                 generate_tweets_div([response], 'networkTrackTweetDiv', true, false)
             });
         });
+        var scaleOption = {scale:0.2};
+        network_global_tracking.moveTo(scaleOption);
         $('.vis-network').removeAttr('tabindex');
     })
 

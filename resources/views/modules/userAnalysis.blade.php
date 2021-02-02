@@ -80,7 +80,7 @@
                 <div class="row">
                     <div class="col">
                         <div>
-                            <p class="m-0 smat-box-title"> Recent Searches</p>
+                            <p class="m-0 smat-box-title" id="recent_searches_word_id"> Recent Searches</p>
                         </div>
                         <div>
                             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">

@@ -322,5 +322,20 @@ Route::post('getRelatedWordsTest', 'ProjectActivityController@getRelatedWords_te
 Route::get('checkIfProjectExitsByName/{name}', 'ProjectActivityController@checkIfProjectExitsByName');
 Route::post('createKT', 'ProjectActivityController@create_table_keyspace_api');
 Route::post('storeToProjectTable', 'ProjectActivityController@store_to_project_table_api');
+Route::post('storeToProjectActivityTable', 'ProjectActivityController@store_to_project_activity_table_api');
+
+
+
+//Routes For Story
+Route::post('uploadStoryContent', 'storyController@uploadStoryContent');
+Route::post('createNewStory', 'storyController@createNewStory');
+Route::get('checkIfStoryExists/{projectID}/{storyName}', 'storyController@checkIfStoryExists');
+Route::get('getStories/{projectID}', 'storyController@getAllStoryUnderProject');
+Route::get('getAllAnalysisUnderStory/{storyID}', 'storyController@getAllAnalysisUnderStory');
+Route::get('getStoryInfo/{storyName}', 'storyController@getStoryInfo');
+Route::get('getBaseUrl', 'storyController@getBaseUrl');
+
+
+
 
 

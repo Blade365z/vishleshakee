@@ -36,7 +36,7 @@
         <div class="my-5 border">
             <div id="trackAnalysisMain" style="display: none">
             </div>
-            <div class="ttContent networkContent">
+            <div class="ttContent networkContent"  id="networkContent">
                 <div>
                     <h4 class="mx-3 my-0">Network for tweet posted by</h4>
                 </div>
@@ -87,7 +87,7 @@
                                     <h4 class="text-dark font-weight-bold">Notations</h4>
                                 </div>
                                 <div>
-                                    <i class="fa fa-circle mr-1 " aria-hidden="true" title="Normal"></i> <span>Source
+                                    <i class="fa fa-circle mr-1 " aria-hidden="true" style="color:#CF6ED2"title="Normal"></i> <span>Source
                                         Tweet</span>
                                 </div>
                                 <div>
@@ -104,6 +104,11 @@
                                     <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
                                         style="color:#0099cc"></i>
                                     <span>Re-Tweet</span>
+                                </div>
+                                <div>
+                                    <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
+                                        style="color:yellow"></i>
+                                    <span>Query Tweet</span>
                                 </div>
                             </div>
                         </div>

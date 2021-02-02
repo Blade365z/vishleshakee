@@ -12,7 +12,7 @@ IMPORTANT NOTE
 Script written by : Mala Das(maladas601@gmail.com), Amitabh Boruah(amitabhyo@gmail.com)
 */
 
-;
+const colorMap = {'pos':'success','neg':'danger','neu':'warning'};
 
 
 export const TweetsGenerator = (data_list, max_per_page, chart_draw_div_id, fromDate, toDate, filterOptions = false, rangeType = null) => {
@@ -57,7 +57,7 @@ export const TweetsGenerator = (data_list, max_per_page, chart_draw_div_id, from
     filterOptions = '';
   }
 
-  $('#' + chart_draw_div_id).html(title + '<div id="' + tweetDiv + '"> </div><div> <div class="float-center mt-1" id="' + tweet_div_page_selection + '"></div>  </div>')
+  $('#' + chart_draw_div_id).html(title + '<div id="' + tweetDiv + '" > </div><div> <div class="float-center mt-1" id="' + tweet_div_page_selection + '"></div>  </div>')
   $('#'+tweetDiv).css('height',parseInt(parentHeight)-heightOffset+'px');
   $('#'+tweetDiv).css('overflow-y','auto');
   $('#'+tweetDiv).css('overflow-x','hidden');
@@ -127,6 +127,7 @@ export const get_tweets_info_AjaxRequest = (slice_tid_list, callback) => {
 }
 
 export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysisBtnArg = false) => {
+  console.log(tweetData)
   let userIDTemp, feedback = '', analysisBtn = '';
   if (localStorage.getItem('smat.me')) {
     let userInfoJSON = JSON.parse(localStorage.getItem('smat.me'));
@@ -155,6 +156,12 @@ export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysis
     }
     let sentiment = '', category = '', media = '', location = '';
     let senticlass = '';
+    
+    console.log('CONFIDENCE',tweet.confidence)
+    let confidenceScore = tweet.confidence;
+    confidenceScore=confidenceScore.toFixed(2)*100;
+
+
     category = (tweet.category == 'normal') ? 'Normal' : ((tweet.category == 'sec') ? 'Security' : ((tweet.category == 'com') ? 'Communal' : 'Communal & Security'));
     if (tweet.sentiment === 0) {
       sentiment = 'Postive';
@@ -170,9 +177,10 @@ export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysis
     if (tweet.t_location) {
       location = tweet.t_location;
     }
+    let confidenceBar = '<div class="mt-1 border" style="width:100px;"><div class="tweet-details"> </div><div class="bg-'+colorMap[senticlass]+'" style="height:10px;width:'+confidenceScore+'%"></div></div>'
 
 
-    $('#' + div).append('<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> ' + feedback + '</div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet_text + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details"> <span>  ' + tweet.datetime + '  &nbsp </span> <span>' + location + '</span> &nbsp ' + analysisBtn + '   <span class=" mx-2" >  <b>' + sentiment + '</b> Tweet</span>              </p> </div></div>');
+    $('#' + div).append('<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> <div class="px-1 pt-1 mx-2  " >  <i class="fa fa-circle   text-' + tweet.category + '" aria-hidden="true" title="' + category + '"></i> </div> ' + feedback + '</div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet_text + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details"> <span>  ' + tweet.datetime + '  &nbsp </span> <span>' + location + '</span> &nbsp ' + analysisBtn + '   <span class=" mx-2" >  <b>' + sentiment + '</b> Tweet</span>  </p> <span>'+confidenceBar+'</span> <span class="mx-2 font-weight-bold">'+confidenceScore+'% </span>    </div></div>');
 
 
 

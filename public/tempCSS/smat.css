@@ -49,7 +49,7 @@
     opacity: 50%;
 }
 #tweets-modal-div{
-    max-height:500px;
+    height:500px;
 }
 @font-face {
     font-family: Roboto;

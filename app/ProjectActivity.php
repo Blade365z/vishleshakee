@@ -15,7 +15,6 @@ class ProjectActivity extends Model
         'analysis_datetime',
         'from_date',
         'to_date',
-        'insertion_successful_flag',
         'module_name',
         'full_query'
     ];

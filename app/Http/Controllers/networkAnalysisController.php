@@ -8,6 +8,7 @@ use CURLFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Exception;
 
 ini_set('max_execution_time', '300');
 ini_set('memory_limit', '1024M'); 
@@ -233,6 +234,7 @@ class networkAnalysisController extends Controller
         $unique_node_temp_arr = array();
         $final_node_arr = array();
         $edges_temp_arr = array();
+        $coming_from_tweet_tracking = false;
         //  $GraphData_obj = new GraphData;
         if (isset($_GET['option'])) {
             $option = $_GET['option'];
@@ -263,25 +265,35 @@ class networkAnalysisController extends Controller
                             array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => 'public/icons/hashtag.svg', "size" => 50, "borderwidth" => 5, "border" => "#EA9999"));
                         }
                         else if (substr($connection[$i], 0, 2) == "QW") {
+                            $coming_from_tweet_tracking = true;
                             if($flag_tweet_tracker_processor == false){
-                                array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 100, 'color' => "black"));
+                                $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
+                                array_push($final_node_arr, array("id" => $parsed_string[0], "label" => $parsed_string[1], "shape" => 'dot', "size" => 100, 'color' => "#CF6ED2"));
                                 $flag_tweet_tracker_processor = true;
                             }else{
-                                if($connection[2]=="QuotedTweet"){
-                                    if($i == 1){
-                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, 'color' => "#ff704d"));
-                                    }
+                                try{
+                                    if($connection[2]=="QuotedTweet"){
+                                        if($i == 1){
+                                            $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
+                                            array_push($final_node_arr, array("id" => $parsed_string[0], "label" =>$parsed_string[1], "shape" => 'dot', "size" => 50, 'color' => "#ff704d"));
+                                        }
 
-                                }elseif($connection[2]=="retweet"){
-                                    if($i == 1){
-                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, 'color' => "#0099cc"));
+                                    }elseif($connection[2]=="retweet"){
+                                        if($i == 1){
+                                            $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
+                                            array_push($final_node_arr, array("id" => $parsed_string[0], "label" => $parsed_string[1] , "shape" => 'dot', "size" => 50, 'color' => "#0099cc"));
+                                        }
+                                    }elseif($connection[2]=="Reply"){
+                                        if($i == 1){
+                                            $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
+                                            array_push($final_node_arr, array("id" => $parsed_string[0], "label" => $parsed_string[1], "shape" => 'dot', "size" => 50, 'color' => "#00e600"));
+                                        }
+                                    }else{
+                                        $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
+                                        array_push($final_node_arr, array("id" => $parsed_string[0], "label" => $parsed_string[1], "shape" => 'dot', "size" => 50, "color"=>"pink"));
                                     }
-                                }elseif($connection[2]=="Reply"){
-                                    if($i == 1){
-                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, 'color' => "#00e600"));
-                                    }
-                                }else{
-                                    array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'dot', "size" => 50, "color"=>"pink"));
+                                }catch(Exception $e){
+                                    continue;
                                 }
                             }
                         } 
@@ -318,15 +330,23 @@ class networkAnalysisController extends Controller
 
         // unique edges generation
         foreach ($network_arr as $hash_list) {
-            $flag = true;
-            foreach ($edges_temp_arr as $one) {
-                if (($one["from"] == $hash_list[0] && $one["to"] == $hash_list[1]) || ($one["to"] == $hash_list[0] && $one["from"] == $hash_list[1])) {
-                    $flag = false;
-                    break;
+            try{
+                $flag = true;
+                foreach ($edges_temp_arr as $one) {
+                    if (($one["from"] == $hash_list[0] && $one["to"] == $hash_list[1]) || ($one["to"] == $hash_list[0] && $one["from"] == $hash_list[1])) {
+                        $flag = false;
+                        break;
+                    }
                 }
-            }
-            if ($flag == true) {
-                array_push($edges_temp_arr, array("from" => $hash_list[0], "to" => $hash_list[1], "label" => $hash_list[2]));
+                if ($flag == true) {
+                    if($coming_from_tweet_tracking==true){
+                        array_push($edges_temp_arr, array("from" => explode("*$#*##||____||##*#$*",$hash_list[0])[0], "to" =>  explode("*$#*##||____||##*#$*",$hash_list[1])[0], "label" => $hash_list[2]));
+                    }else{
+                        array_push($edges_temp_arr, array("from" => $hash_list[0], "to" => $hash_list[1], "label" => $hash_list[2]));
+                    }
+                }
+            }catch(Exception $e){
+                continue;
             }
         }
         $final_result["nodes"] = $final_node_arr;

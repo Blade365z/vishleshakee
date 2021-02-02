@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
-//API Calls comes here for project
 
+//API Calls comes here for project
 //API HEADERS for the http api requests
 var HeadersForApi = {
     "Content-Type": "application/json",
@@ -126,15 +126,6 @@ export const getAnalysisDetailsFromProjectActivitesAPI = async (userID, query) =
 }
 
 
-export const getAnalysisForAProjectAPI = async (userID, projectID, type) => {
-    let response = await fetch('getAnalysisForUserUnderProject/' + userID + '/' + projectID + '/' + type, {
-        method: 'get',
-        headers: HeadersForApi
-    });
-    let data = await response.json();
-    return data;
-}
-
 
 
 
@@ -182,3 +173,90 @@ export const storeToProjectTable = async (projectName, user_id, project_id, proj
     let data = await response.json()
     return data;
 };
+
+
+
+
+export const getAnalysisForAProjectAPI = async (userID,projectID,module_name) => {
+    let type = module_name;
+    let response = await fetch('getAnalysisForUserUnderProject/' + userID + '/' + projectID+'/'+type, {
+        method: 'get',
+        headers: HeadersForApi
+    });
+    let data = await response.json();
+    return data;
+}
+
+
+
+// export const getAnalysisForAProjectAPI = async (userID,projectID,type) => {
+//     let response = await fetch('getAnalysisForUserUnderProject/' + userID + '/' + projectID + '/' + type, {
+//         method: 'get',
+//         headers: HeadersForApi
+//     });
+//     let data = await response.json();
+//     return data;
+// }
+
+
+export const removeFromProjectActivityTable = async (full_query_id) => {
+    let response = await fetch('deleteFromProjectActivityTable', {
+        method: 'post',
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            full_query_id   //declare body to be parsed in server
+        })
+    });
+    let data = await response.json();
+    return data;
+};
+
+
+
+export const storeToProjectActivityTable = async (user_id, project_id, analysis_name, from_date, to_date, module_name, full_query) => {
+    let route = 'storeToProjectActivityTable'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            user_id, project_id, analysis_name, from_date, to_date, module_name, full_query //declare body to be parsed in server
+        })
+    });
+    // return response; //return here
+    let data = await response.json()
+    return data;
+};
+
+
+
+export const getAllStoriesFromProject = async (projectID) => {
+    let response = await fetch(`getStories/${projectID}`, {
+        method: 'get',
+    });
+    let data = await response.json();
+    return data;
+}
+
+
+export const getAllAnalysisUnderStory = async(storyID) => {
+    let response = await fetch(`getAllAnalysisUnderStory/${storyID}`, {
+        method: 'get',
+    });
+    let data = await response.json();
+    return data;
+}
+export const getStoryInfo= async(storyID)=>{
+    let response = await fetch(`getStoryInfo/${storyID}`, {
+        method: 'get',
+    });
+    let data = await response.json();
+    return data; 
+}
+
+export const getBaseURL = async() => {
+    let response = await fetch(`getBaseUrl`, {
+        method: 'get',
+    });
+    let data = await response.text();
+    return data; 
+}

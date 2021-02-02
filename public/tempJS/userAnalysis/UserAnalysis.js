@@ -14,11 +14,17 @@ import { getCurrentDate, getRangeType, dateProcessor, getDateInFormat, getDateRa
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { generateUniqueID } from '../utilitiesJS/uniqueIDGenerator.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
-import { displayErrorMsg, getRelationType, makeDropDownReady, makeSmatReady, makeSuggestionsReady } from '../utilitiesJS/smatExtras.js'
+import { displayErrorMsg, getRelationType, makeDropDownReady, makeSmatReady, makeSuggestionsReady ,makeAddToStoryDiv} from '../utilitiesJS/smatExtras.js'
 import { forwardToNetworkAnalysis, forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.js';
 import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './AdvanceHelper.js'
-import { getAnalysisForAProjectAPI, removeFromStatusTable, removeFromStatusTableNormal } from '../historicalAnalysis/helper.js';
+import {  removeFromStatusTable, removeFromStatusTableNormal } from '../historicalAnalysis/helper.js';
 import { addTrackToDb } from '../config/helper.js';
+
+
+// for project
+import { checkIfAnyProjectActive, getProjectDetailsFromLocalStorage, madeFullQuery } from '../project/commonFunctionsProject.js';
+import { getAnalysisForAProjectAPI, removeFromProjectActivityTable, storeToProjectActivityTable } from '../project/helper.js';
+
 
 
 //Global Declaration
@@ -35,6 +41,8 @@ var mainInputCounter = 0, searchType = 0;
 var searchRecords = [];
 var suggestionsGlobal, suggInputBoxBuffer = [];
 
+
+var projectDetails = []; //for project
 _MODE = 'UA'
 
 //Logic Implementation 
@@ -67,22 +75,12 @@ jQuery(function () {
         SearchID = incoming;
         initateUserSearch(SearchID);
     }
-    populateRecentSearches(userID, 0, 'ua').then(response => {
-        if (response.length < 1) {
-            displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
-        }
-        response.forEach(element => {
-            addQueryToStatusTable('uaStatusTable',0, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, false, element.hashtagID, element.mentionID);
-        });
-    });
-    populateRecentSearches(userID, 1, 'ua').then(response => {
-        if (response.length < 1) {
-            displayErrorMsg('tableInitialTitleAdv', 'normal', 'No recent advance searches found in records.', false);
-        }
-        response.forEach(element => {
-            addQueryToStatusTable('uaAdvStatusTable',1, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.hashtagID, element.mentionID, false, element.status);
-        });
-    });
+
+    
+   
+    getDataFromMySqlTablesFor_normal_advance();
+    
+
 
     // project queries
     if (localStorage.getItem('projectName')) {
@@ -140,8 +138,9 @@ jQuery(function () {
             toDate = $('#toDateUA').val();
             initateUserSearch(SearchID);
         }
-
     });
+
+
 
     $('#uaSearchForm').on('submit', function (e) {
         e.preventDefault();
@@ -351,8 +350,8 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
     let unique_name_timestamp = new Date().getTime()  //mala
     let rangeType = getRangeType(fromDate, toDate); //mala
     if (addToStatusTable) {
-        if (searchType == 0) {
-            addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);
+        if (searchType == 0) {            
+            addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);        
         } else {
             //TODO::add to sparkstarsTable
         
@@ -372,11 +371,13 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
         // if (localStorage.getItem('projectName')) {
         //     checkAnalysisExistorNotFunction(userID, SearchID, fromDate, toDate, 'ua');
         // }
+        let pname= null;
+       
 
 
         getUserDetails(SearchID).then(data => makePageReady(data));
         // window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
-        frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false);
+        frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false, null, pname);
 
         sentimentDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'sentiContentUA', false);
         //forHashtagsGraph
@@ -522,8 +523,8 @@ Please NOTE :
 2.Set append Args to True when append is requeired
 */
 let freqParentDiv = 'freqContentUA';
-export const frequencyDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null) => {
-
+export const frequencyDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname=null) => {
+       
     let chartType = 'freq-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
@@ -542,7 +543,11 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
         $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="uaTab freqDistChart border resultDiv-' + rangeType + '  chartDiv" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="freqDistTweets resultDiv-' + rangeType + '   border" id="' + chartTweetDivID + '"></div><div class="freqDistSummary border d-flex pt-2 resultDiv-' + rangeType + ' "  id="' + summaryDivID + '" ></div></div></div></div>');
     }
     //Loader...
-    $('#' + chartDivID).html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
+    $('#' + chartDivID).html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
+
+    localStorage.getItem('projectMetaData') &&  makeAddToStoryDiv(chartDivID) 
+
+    
     $('#' + chartTweetDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
     if (rangeType == 'day') {
         if (filename) {
@@ -555,7 +560,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0, pname).then(response => {
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
@@ -639,6 +644,8 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
     } else {
         $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="uaTab resultDiv-' + rangeType + '  sentiDistChart  chartDiv border"  id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv-' + rangeType + ' border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary resultDiv-' + rangeType + '  border d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
     }
+    localStorage.getItem('projectMetaData') &&  makeAddToStoryDiv(chartDivID) 
+
     //Loader...
     $('#' + chartDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     $('#' + chartTweetDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
@@ -898,6 +905,10 @@ const addQueryToStatusTable = (tableID,searchType, sparkID = null, query, fromDa
     });
 
 }
+
+
+
+
 const decodeQuery = (query) => {
     query = query.replace('(', '');
     query = query.replace(')', '');
@@ -998,6 +1009,41 @@ const updateProjStatsTable = (type) => {
         }
         response.forEach(element => {
             addQueryToStatusTable('ProjectStatusTable',0,null,element.analysis_name,element.from_date,element.to_date,null,true,null,null,false,'Success');
+        });
+    });
+}
+
+
+
+const getDataFromMySqlTablesFor_normal_advance = () => {
+    populateRecentSearches(userID, 0, 'ua').then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
+        }
+        response.forEach(element => {
+            addQueryToStatusTable('uaStatusTable',0, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, false, element.hashtagID, element.mentionID);
+        });
+    });
+    populateRecentSearches(userID, 1, 'ua').then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitleAdv', 'normal', 'No recent advance searches found in records.', false);
+        }
+        response.forEach(element => {
+            addQueryToStatusTable('uaAdvStatusTable',1, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.hashtagID, element.mentionID, false, element.status);
+        });
+    });
+}
+
+
+const getDataForProjectTable = (userID, projectName, projectID, module_name) => {
+    // normal searches for project
+    console.log(userID, projectName, projectID, module_name);
+    getAnalysisForAProjectAPI(userID, projectID, module_name).then(response => {
+        if (response.length < 1) {
+            displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
+        }
+        response.forEach(element => {
+            updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName);
         });
     });
 }

@@ -65,12 +65,12 @@ export const getUserDetails = async (id) => {
 Input----> IF(Day,Hour):query,fromDate,toDate,rangeType ELSE : Time 
 Output----> Freq. Data(json)
 */
-export const getFreqDistDataForUA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0) => {
+export const getFreqDistDataForUA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0, pname=null) => {
     let dataArg;
     if (toTime) {
-        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready, pname });
     } else {
-        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready, pname });
     }
     // console.log(dataArg);
     let response = await fetch('UA/getFrequencyDataForUser', {
@@ -83,6 +83,9 @@ export const getFreqDistDataForUA = async (query, from, to, toTime = null, range
     return data;
 
 }
+
+
+
 export const getSentiDistDataForUA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0) => {
     let dataArg;
     if (toTime) {
@@ -160,6 +163,9 @@ export const addNormalSearchToDB  = async (queryID,userID,query,fromDate,toDate,
         console.log(data.message);
     }    
 }
+
+
+
 
 export const populateRecentSearches = async( userID,type,mode) => {
     let response = await fetch('normalStatus/'+userID, {
