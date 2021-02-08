@@ -168,6 +168,11 @@ class LocationMap extends Controller
     public function location_tweet_home($intervalArg = null, $queryArg = null, Request $request)
     {
         if (!$request->input('fromTime') || !$request->input('toTime')) {
+            $pname = null;
+            if ($request->input('pname')) {
+                $pname = $request->input('pname');
+            }
+
             if ($request->input('interval') && $request->input('query')) {
                 $interval = $request->input('interval');
                 if ($interval > 86400) {
@@ -196,7 +201,8 @@ class LocationMap extends Controller
             $filter = null;
         }
         $commonObj = new CommonController;
-        $data = $commonObj->get_tweets($toTime, $fromTime, $query, '10sec', $filter, 'tweet');
+        // $data = $commonObj->get_tweets($toTime, $fromTime, $query, '10sec', $filter, 'tweet');
+        $data = $commonObj->get_tweets($toTime, $fromTime, $query, '10sec', $filter,$pname);
         // return $data;
         $tweetid_list_array = array();
         // array_push($tweetid_list_array,'1300689867836395526');
@@ -208,7 +214,7 @@ class LocationMap extends Controller
 
         $tweetid_list_array = array_unique($tweetid_list_array);
 
-        return $commonObj->get_tweets_info($tweetid_list_array);
+        return $commonObj->get_tweets_info($tweetid_list_array, true, $pname);
         // return $this->tweet_info($tweetid_list_array);
     }
 

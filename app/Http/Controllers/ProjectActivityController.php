@@ -304,8 +304,5 @@ class ProjectActivityController extends Controller
         }else{
             return 0;
         }
-    }
-
-
-    
+    }   
 }

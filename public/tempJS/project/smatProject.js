@@ -9,7 +9,8 @@ import {
     getAllStoriesFromProject,
     getAllAnalysisUnderStory,
     getStoryInfo,
-    getBaseURL
+    getBaseURL,
+    updateStoryAnalysis
 } from "./helper.js";
 import {
     displayErrorMsg,
@@ -47,19 +48,19 @@ getMe().then(id => {
 });
 
 
-var isFormOpen=0;
-$('#openProjectFormBtn').on('click',function(){
-    if(isFormOpen===0){
+var isFormOpen = 0;
+$('#openProjectFormBtn').on('click', function () {
+    if (isFormOpen === 0) {
         $('#projectCreationForm').removeClass('confirmPanelCollapse')
-        $('#projectCreationForm').addClass('confirmPanelExpand')   
-        $('#openProjectFormBtn').css('display','none');
+        $('#projectCreationForm').addClass('confirmPanelExpand')
+        $('#openProjectFormBtn').css('display', 'none');
     }
 });
 
-$('#closeCreateProjectDiv').on('click',function(){
+$('#closeCreateProjectDiv').on('click', function () {
     $('#projectCreationForm').removeClass('confirmPanelExpand')
-    $('#projectCreationForm').addClass('confirmPanelCollapse')   
-    $('#openProjectFormBtn').css('display','block');
+    $('#projectCreationForm').addClass('confirmPanelCollapse')
+    $('#openProjectFormBtn').css('display', 'block');
 
 })
 $('[data-toggle="popover"]').popover(); //Initalizing popovers
@@ -70,9 +71,9 @@ $("body").on('click', '.projectBtn', function () {
 
 
     $('#storyContentDiv').removeClass('confirmPanelExpand')
-    $('#storyContentDiv').addClass('confirmPanelCollapse')   
-    
-    
+    $('#storyContentDiv').addClass('confirmPanelCollapse')
+
+
     $('.projectBtn').removeClass('active')
     $(this).addClass('active');
     let value = $(this).attr('value').split(/[|]/).filter(Boolean);
@@ -344,8 +345,8 @@ $("body").on("click", "div #cancelBtnProj", function () {
 const createProject = (proj_name, proj_description, query, from_date, to_date, option = null) => {
 
     $('#projectCreationForm').removeClass('confirmPanelExpand')
-    $('#projectCreationForm').addClass('confirmPanelCollapse')   
-    $('#openProjectFormBtn').css('display','block');
+    $('#projectCreationForm').addClass('confirmPanelCollapse')
+    $('#openProjectFormBtn').css('display', 'block');
 
 
 
@@ -355,9 +356,9 @@ const createProject = (proj_name, proj_description, query, from_date, to_date, o
     $('.projField').val('')
 
 
-    tagsArr=[];
+    tagsArr = [];
     $('#projectDivPool').html('');
-    
+
     console.log(proj_name, proj_description, option);
     let project_id = generateUniqueID();
     getUserDetail().then(response => {
@@ -400,7 +401,7 @@ const checkRecordsForProjects = (id) => {
             let fadeInDelay = 0;
             response.forEach(element => {
                 fadeInDelay += 1
-                if(!projectPending.includes(element.project_id)){
+                if (!projectPending.includes(element.project_id)) {
                     projectPending.push(element.project_id);
                     makeRunningNotifcationForProject(element.project_id, element.project_name)
                     $('#' + element.project_id + '-Loader').fadeIn(fadeInDelay * 1000);
@@ -485,28 +486,47 @@ const projectReadyNotification = (id, name) => {
     $('#notificationNav').append('<div class="d-flex bg-success smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' + id + '-Loader" style="display:none;"><div id="' + id + '-Spinner"><i class="far fa-times-circle fa-2x closeProjectLoader  my-2 mx-1 text-white " style="cursor:pointer;" title="close" value="' + id + '" ></i></div><div class="text-white smat-notification-text" id="' + id + '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Created project suceessfully<p class="m-0"> <b class="">' + name + '</b></p></div></div></div>');
 }
 
+$('body').on('click', '.editBtnStoryAnalysis , .cancelEditAnalysisBtn ', function () {
+    let editID = $(this).attr('value');
+    $('#' + editID + '-edit').toggle();
+    $('#' + editID + '-storyAnalysisMetadata').toggle();
+});
 
+$('body').on('click', '.updateStoryAnalysisBtn', function () {
+    let ID = $(this).attr('value')
+    let updatedName = $('#' + ID + '-editableAnalysisName').val().trim();
+    let updatedDesc = $('#' + ID + '-editableAnalysisDescription').val().trim();
+    updateStoryAnalysis(ID, updatedName, updatedDesc).then(res => {
+        if (res.error) {
+            displayErrorMsg(ID + '-errorMsg', 'error', res.error);
+        } else {
+            console.log(res)
+            printStory(res.data[0].analysisID, res.data[0].analysisName, res.data[0].analysisDescription, baseUrl, res.data[0].created_at, ID + '-storyAnalysis', true).then(() => {
+                displayErrorMsg(ID + '-errorMsg', 'success', res.status);
+            })
 
+        }
+    })
+});
 
-
+var baseUrl = null;
 $('body').on('click', '.storyBtnProj', function () {
     let value = $(this).val();
-    let baseUrl =  null
     $('#storyContent').html('');
-    getBaseURL().then(res=>{
+    getBaseURL().then(res => {
         baseUrl = res;
     });
-    
     $('#storyContentDiv').removeClass('confirmPanelCollapse')
     $('#storyContentDiv').addClass('confirmPanelExpand')
+    let contentDiv = 'storyContent';
     getStoryInfo(value).then(res => {
-        
+
         $('#storyMetaDataName').text(res[0].storyName);
         $('#storyMetaDataCreatedOn').text(res[0].createdOn);
         $('#storyMetaDataDescription').text(res[0].storyDescription);
         getAllAnalysisUnderStory(value).then(response => {
-            response.map(story=>{
-            $('#storyContent').append('<div class="border-top border-bottom"><div><h5 class="font-weight-bold mb-0 mt-2 ">'+story.analysisName+'</h5></div><div class="storyAnalysisMetadata"><div><p class="m-0">Created at: <span>'+story.created_at+'</span></p></div></div><div><p class="m-0">'+story.analysisDescription+'</p></div><div class="storyAnalysisContent" style="overflow-x:hidden;"><img  width="900" src="'+baseUrl+'/storage/plots/'+story.analysisID+'-plot.png" /></div></div>')
+            response.map(story => {
+                printStory(story.analysisID, story.analysisName, story.analysisDescription, baseUrl, story.created_at, contentDiv)
             })
         })
     });
@@ -514,3 +534,17 @@ $('body').on('click', '.storyBtnProj', function () {
 });
 
 
+
+
+const printStory = async (analysisID, analysisName, analysisDescription, baseUrl, createdAt, div, toReplace = false) => {
+    let editTableForm = null;
+    let StoryOptionsBtns = null;
+    editTableForm = '<div class="my-2" id="' + analysisID + '-edit" style="display:none;"><h3 class="m-0"><span class="text-dark">Edit</span> <span>' + analysisName + '</span></h3><form class="analysisEditableForm"><div class="form-group" style="width:60%"><label  class="font-weight-bold m-0 text-dark" for="' + analysisID + '-editableInput">Analysis Name</label><input class="form-control border " id="' + analysisID + '-editableAnalysisName" value="' + analysisName + '"/></div>  <div class="form-group" style="width:60%"><label class="font-weight-bold m-0 text-dark" for="' + analysisID + '-editableInput">Analysis Description</label><textarea class="form-control border " id="' + analysisID + '-editableAnalysisDescription" value="' + analysisDescription + '">' + analysisDescription + '</textarea></div>   </form> <div><button class="btn btn-primary smat-rounded updateStoryAnalysisBtn" value="' + analysisID + '">Update </button> <button class="btn btn-danger smat-rounded cancelEditAnalysisBtn"    value="' + analysisID + '"  >Cancel</button> </div></div>'
+    StoryOptionsBtns = '<div class="ml-auto d-flex pt-2"> <div class="mx-2 clickable editBtnStoryAnalysis" value="' + analysisID + '"  title="Edit analysis"><i class="fas fa-edit" ></i> </div> <div class="mx-2   clickable DeleteBtnStoryAnalysis" value="' + analysisID + '" title="Delete analysis"> <i class="fas fa-trash-alt"></i> </div> </div>'
+    let STORYDOM = '<div class="border-top border-bottom"  id="' + analysisID + '-storyAnalysis"> <div class="p-2" id="' + analysisID + '-errorMsg"> </div>' + editTableForm + '<div class="storyAnalysisMetadata" id="' + analysisID + '-storyAnalysisMetadata"><div class="d-flex"><div><h5 class="font-weight-bold mb-0 mt-2 ">' + analysisName + '</h5></div>' + StoryOptionsBtns + '</div><div><p class="m-0">Created at: <span>' + createdAt + '</span></p></div><div><p class="m-0">' + analysisDescription + '</p></div></div><div class="storyAnalysisContent" style="overflow-x:hidden;"><img  width="900" src="' + baseUrl + '/storage/plots/' + analysisID + '-plot.png" /></div></div>'
+    if (toReplace) {
+        $('#' + div).html(STORYDOM)
+    } else {
+        $('#' + div).append(STORYDOM)
+    }
+}

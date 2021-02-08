@@ -18,6 +18,7 @@ import { get_tweet_location_home,getCompleteMap } from '../utilitiesJS/getMap.js
 import { makeSuggestionsReady, makeSmatReady, getRelationType } from '../utilitiesJS/smatExtras.js'
 import { getCurrentDate } from '../utilitiesJS/smatDate.js';
 import {forwardToHistoricalAnalysis, forwardToNetworkAnalysis, forwardToUserAnalysis} from '../utilitiesJS/redirectionScripts.js';
+import { checkIfAnyProjectActive} from '../project/commonFunctionsProject.js';
 
 //Global variables 
 var MODE = '000', interval = 900, query = '';
@@ -404,7 +405,13 @@ const generatePublicLocations = (queryArg, intervalArg,btnClass) => {
   
   let capturedClass = $(this).attr('value');
   capturedClass = capturedClass == 'all' ? null : capturedClass;
-  get_tweet_location_home(intervalArg, queryArg, queriedTweetFromTime, queriedTweetToTime, capturedClass).then(response => {
+  let pname=null; 
+        if (checkIfAnyProjectActive()){           
+            let pname = projectDetails.projectMetaData.project_name;       
+            console.log('location');
+            console.log(pname);
+        }
+  get_tweet_location_home(intervalArg, queryArg, queriedTweetFromTime, queriedTweetToTime, capturedClass,pname).then(response => {
     MODE = '004';
     makePublicAnalysisReady(MODE);
 

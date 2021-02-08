@@ -15,7 +15,7 @@ class storyController extends Controller
             $storyName = $request->input('storyName');
             $analysisName = $request->input('analysisName');
             $analysisDesc = $request->input('analysisDesc');
-            $analysisID = uniqid(); 
+            $analysisID = uniqid();
             $image = $request->input('image');
             $location = "storage/plots/";
             $image_parts = explode(";base64,", $image);
@@ -69,15 +69,34 @@ class storyController extends Controller
         $statusObj = story::where('projectID', '=', $projectID)->get();
         return $statusObj;
     }
-    public function getStoryInfo($storyID){
+    public function getStoryInfo($storyID)
+    {
         $statusObj = story::where('storyID', '=', $storyID)->get();
         return $statusObj;
     }
-    public function getAllAnalysisUnderStory($storyID){
+    public function getAllAnalysisUnderStory($storyID)
+    {
         $statusObj = storyContent::where('storyID', '=', $storyID)->get();
         return $statusObj;
     }
-    public function getBaseUrl(){
+    public function getBaseUrl()
+    {
         echo url('');
+    }
+    public function updateStoryAnalysis(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+        ]);
+        try {
+            $crawlerListObj = storyContent::where('analysisID', $request->input('id'))->update(array(
+                'analysisName' => $request->input('name'),
+                'analysisDescription' => $request->input('desc'),
+            ));
+              $statusObj = storyContent::where('analysisID', '=', $request->input('id'))->get();
+            return response()->json(array('status'=>'Updated Successfully!','data' => $statusObj), 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some error occured!'],404);
+        }
     }
 }

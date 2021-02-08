@@ -24,15 +24,15 @@ export const get_tweet_location = async(query, from = null, to = null, rangeType
     return data;
 }
 
-export const get_tweet_location_home = async (interval = null, query, fromTime = null, toTime = null, filter = null) => {
+export const get_tweet_location_home = async (interval = null, query, fromTime = null, toTime = null, filter = null,pname =null) => {
     let dataArgs;
     if (interval == null && fromTime != null) {
-        dataArgs = JSON.stringify({ fromTime, toTime, query });
+        dataArgs = JSON.stringify({ fromTime, toTime, query,pname});
     } else {
-        dataArgs = JSON.stringify({ interval, query });
+        dataArgs = JSON.stringify({ interval, query,pname});
     }
     if (filter !== null) {
-        dataArgs = JSON.stringify({ fromTime, toTime, query, filter });
+        dataArgs = JSON.stringify({ fromTime, toTime, query, filter,pname});
     }
     let response = await fetch('LM/getTweetInfoHome', {
         method: 'post',

@@ -25,7 +25,7 @@ http://172.16.117.160/vishleshakee/tracking?tweetID=1310236170706497538
 
 import { generate_tweets_div, TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { getTweetInfo, getFreqDataForTweets, getTweetsForSource, getDatesDist, getTweetsPlotDataForMap, getNetworkForSource } from './helper.js';
-import { displayErrorMsg, makeSmatReady } from '../utilitiesJS/smatExtras.js';
+import { displayErrorMsg, makeAddToStoryDiv, makeSmatReady } from '../utilitiesJS/smatExtras.js';
 import { getCurrentDate, ordinal_suffix_of } from '../utilitiesJS/smatDate.js';
 import { drawFreqDataForTweet, drawFreqDataForTweetMonth } from './chartHelper.js';
 import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
@@ -968,6 +968,7 @@ const createNetworkForTrack = (id, dateList) => {
     dateList.data.forEach(element => {
         dateArr.push(element[0]);
     });
+    makeAddToStoryDiv('track_net')
     getNetworkForSource(userID, id, dateArr).then(res => {
         getTweetInfo(id).then(response => {
             generate_tweets_div([response], 'networkTrackTweetDiv', true, false)

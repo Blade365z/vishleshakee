@@ -260,3 +260,18 @@ export const getBaseURL = async() => {
     let data = await response.text();
     return data; 
 }
+
+
+export const updateStoryAnalysis = async (id,name,desc) => {
+    let route = 'updateStoryAnalysis'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            id,name,desc
+        })
+    });
+    // return response; //return here
+    let data = await response.json()
+    return data;
+}
