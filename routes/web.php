@@ -335,6 +335,7 @@ Route::get('getStories/{projectID}', 'storyController@getAllStoryUnderProject');
 Route::get('getAllAnalysisUnderStory/{storyID}', 'storyController@getAllAnalysisUnderStory');
 Route::get('getStoryInfo/{storyName}', 'storyController@getStoryInfo');
 Route::get('getBaseUrl', 'storyController@getBaseUrl');
+Route::post('ReadPlotsFromDir', 'storyController@ReadPlotsFromDir');
 
 Route::post('updateStoryAnalysis', 'storyController@updateStoryAnalysis');
 

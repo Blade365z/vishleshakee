@@ -19,7 +19,7 @@
                             style="border:0px;" autocomplete="OFF" placeholder="Search a Hashtag or Mention"
                             style="border:0px;" data-container="body" data-trigger="focus"
                             data-html="true" data-toggle="popover" data-placement="right"
-                            data-content="Query by :- <b>Hashtag</b> ( use'#',example: #COVID19 ) or <b> Mention</b> ( use'@',example: @narendramodi ) "
+                            data-content="Query by :- <b>Hashtag</b> ( use'#',example: #COVID19 ) or <b> Mention</b> ( use'@',example: @narendramodi ) or <b> Keyword</b> ( use'*',example: *suicide )  "
                             required>
                     </div>
                 </div>

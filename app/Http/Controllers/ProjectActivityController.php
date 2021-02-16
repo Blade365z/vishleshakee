@@ -99,18 +99,25 @@ class ProjectActivityController extends Controller
         $query = $request->input('query');
         $from_date = $request->input('from_date');
         $to_date = $request->input('to_date');
-        $this->create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date);
+        $query_list = $request->input('query_list');
+        $this->create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date, $query_list);
     }
 
 
 
-    public function create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date)
+    public function create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date, $query_list)
     {
         echo json_encode(array("res" => 'running'));
         if($option == 'baseDataset'){
+            // 1 trigger spark for getting final tweet id list
+            //TODO
+
+            // 2 create ks
             $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
             $d = shell_exec($command);
 
+
+            // 3 insert to tables
             $this->insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date);
         }else{
             $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
@@ -121,6 +128,30 @@ class ProjectActivityController extends Controller
     }
 
 
+    //TODO
+    public  function  curlData($query_list, $rname)
+    {
+        $curl = curl_init();
+        $data['conf'] = array('spark.jars.packages' => 'anguenot:pyspark-cassandra:2.4.0', 'spark.cassandra.connection.host' => '172.16.117.201', 'spark.cores.max' => 4);
+        // $data['file'] = 'local:/home/admin/bbk/dataset_builder/spark/batch/advance_query.py';
+        $data['file'] = 'local:/home/admin/bbk/rahul_test1/spark/batch/new_advance_query.py';
+        $data['args'] = $query_list;
+        $data['name'] = strval($rname) . 'a77';
+        $data['executorCores'] = 4;
+        $data['numExecutors'] = 3;
+        $data['executorMemory'] = '6G';
+        $data = json_encode($data);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Connection: Keep-Alive'
+        ));
+        curl_setopt($curl, CURLOPT_URL, '172.16.117.202:8998/batches');
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 0);
+        $curl_result = curl_exec($curl);
+        return $curl_result;
+    }
 
 
 

@@ -542,7 +542,7 @@ const getStatusFromMySql = (userID) => {
 const triggerSparkRequest = (query, fromDate, toDate, unique_name_timestamp, highlight = false) => {
     let queries = [query, fromDate, toDate];
     let query_list = get_tokens_wrt_pattern(queries); // get token
-    // console.log(query_list);
+    console.log(query_list);
 
     // 12 store to MySQl.....
     storeToMySqlAdvanceSearchData(userID, unique_name_timestamp, fromDate, toDate, query, "running...", 'ha').then(data => {

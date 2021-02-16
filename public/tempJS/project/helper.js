@@ -9,13 +9,13 @@ var HeadersForApi = {
 };
 
 //Fetch Api calls
-export const createProjectAPI = async (projectName, option, user_id, query, from_date, to_date) => {
+export const createProjectAPI = async (projectName, option, user_id, query, from_date, to_date, query_list) => {
     let route = 'createKT'; //declare route here
     let response = await fetch(route, {
         method: 'post', //http method
         headers: HeadersForApi,
         body: JSON.stringify({
-            projectName, option, user_id, query, from_date, to_date,    //declare body to be parsed in server
+            projectName, option, user_id, query, from_date, to_date, query_list   //declare body to be parsed in server
         })
     });
     // return response; //return here
@@ -272,6 +272,19 @@ export const updateStoryAnalysis = async (id,name,desc) => {
         })
     });
     // return response; //return here
+    let data = await response.json()
+    return data;
+}
+
+export const getPlotsFromServer = async (projectID,userID) => {
+    let route = 'ReadPlotsFromDir'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', 
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectID,userID
+        })
+    });
     let data = await response.json()
     return data;
 }

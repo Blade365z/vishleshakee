@@ -11,29 +11,43 @@ class storyController extends Controller
     public function uploadStoryContent(Request $request)
     {
         try {
-            $storyID = $request->input('storyID');
-            $storyName = $request->input('storyName');
-            $analysisName = $request->input('analysisName');
-            $analysisDesc = $request->input('analysisDesc');
+            // $storyID = $request->input('storyID');
+            // $storyName = $request->input('storyName');
+            // $analysisName = $request->input('analysisName');
+            // $analysisDesc = $request->input('analysisDesc');
             $analysisID = uniqid();
+            $userID = $request->input('userID');
+            $projectID = $request->input('projectID');
+            $dirArr = [$userID, $projectID ,'plots'];
+            $dirString = 'storage';
+            foreach ($dirArr as $dir) {
+                $dirString = $dirString . '/' . $dir;
+                if (!file_exists($dirString)) {
+                    mkdir($dirString, 0777);
+                }
+            }
+
+            // if (!file_exists("storage/$userID/plots/$projectID")) {
+            //     mkdir("storage/$userID/plots/$projectID");
+            // }
             $image = $request->input('image');
-            $location = "storage/plots/";
+            $location = "storage/$userID/$projectID/plots/";
             $image_parts = explode(";base64,", $image);
             $image_base64 = base64_decode($image_parts[1]);
             $filename = $analysisID . '-plot.png';
             $file = $location . $filename;
             file_put_contents($file, $image_base64);
-            $statusObj = new storyContent([
-                'storyID' => $storyID,
-                'storyName' => $storyName,
-                'analysisID' => $analysisID,
-                'analysisName' => $analysisName,
-                'analysisDescription' => $analysisDesc,
-            ]);
-            $statusObj->save();
-            return response()->json(['data' => 'Analysis saved in ' . $storyName . ' successfully!'], 200);
+            // $statusObj = new storyContent([
+            //     'storyID' => $storyID,
+            //     'storyName' => $storyName,
+            //     'analysisID' => $analysisID,
+            //     'analysisName' => $analysisName,
+            //     'analysisDescription' => $analysisDesc,
+            // ]);
+            // $statusObj->save();
+            return response()->json(['data' => 'Uploaded successfully!'], 200);
         } catch (Exception $e) {
-            return response()->json(['data' => 'Some error occured'], 404);
+            return response()->json(['error' => 'Some error occured'], 404);
         }
     }
     public function createNewStory(Request $request)
@@ -93,10 +107,29 @@ class storyController extends Controller
                 'analysisName' => $request->input('name'),
                 'analysisDescription' => $request->input('desc'),
             ));
-              $statusObj = storyContent::where('analysisID', '=', $request->input('id'))->get();
-            return response()->json(array('status'=>'Updated Successfully!','data' => $statusObj), 200);
+            $statusObj = storyContent::where('analysisID', '=', $request->input('id'))->get();
+            return response()->json(array('status' => 'Updated Successfully!', 'data' => $statusObj), 200);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Some error occured!'],404);
+            return response()->json(['error' => 'Some error occured!'], 404);
         }
+    }
+
+    public function ReadPlotsFromDir(Request $request)
+    {
+        $userID = $request->input('userID');
+        $projectID = $request->input('projectID');
+        $dir="storage/$userID/$projectID/plots/";
+        $files=[];
+        if (is_dir($dir)){
+            if ($dh = opendir($dir)){
+              while (($file = readdir($dh)) !== false){
+                if($file!="." & $file!=".."){
+                    array_push($files,$file);
+                }
+              }
+              closedir($dh);
+            }
+          }
+          return $files;
     }
 }

@@ -1022,7 +1022,7 @@ const createNetworkForTrack = (id, dateList) => {
                     gravitationalConstant: -26,
                     centralGravity: 0.0003,
                     springLength: 1800,
-                    springConstant: 0.18,
+                    springConstant: 0.018,
                 },
                 maxVelocity: 500,
                 solver: "forceAtlas2Based",

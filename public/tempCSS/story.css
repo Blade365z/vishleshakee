@@ -1,0 +1,62 @@
+.leftPanelStoryBuilder{
+    min-height:30vh;
+}
+
+.textElementStory:hover{
+    background-color: rgb(223, 223, 223);
+    cursor: pointer;
+}
+.plotsDivStory{
+    overflow-x:hidden;
+}
+#storyMakerDiv{
+    min-height: 300px;
+}
+
+.story-input , .story-description-input{
+    border: 0px !important;
+    outline: none;
+}
+.titleStory{
+    font-size: 3em;
+}
+.sectionStory{
+    font-size: 1.5em;
+}
+.storyOptionsBtn:hover{
+opacity: 50%;
+cursor: pointer;
+}
+
+
+#storyMakerDiv textarea {
+    resize: none;
+    overflow: hidden;
+    height:30px;
+}
+
+.description{
+    font-size:1em;
+    margin-top:-3px;
+    width:100%;
+}
+
+.border-story-active{
+    border: 1px solid;
+}
+
+
+#storyPictures{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+#storyPictures img{
+    min-height:120px;
+    max-height:120px;
+    overflow-x:hidden;
+}
+
+.smat-story-element img{
+    max-width:70%;
+}

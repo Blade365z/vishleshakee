@@ -1,13 +1,38 @@
 import { getMe } from "./home/helper.js";
-import { checkIfNotificationSeen } from "./project/smatProject.js";
 import { getCurrentDate } from "./utilitiesJS/smatDate.js";
 import { displayErrorMsg } from "./utilitiesJS/smatExtras.js";
 var _PROJECTID = null;
 
 getMe();
+const projectReadyNotification = (id, name) => {
+    $("#" + id + "-Loader").remove();
+    $("#notificationNav").append(
+        '<div class="d-flex bg-success smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' +
+            id +
+            '-Loader" style="display:none;"><div id="' +
+            id +
+            '-Spinner"><i class="far fa-times-circle fa-2x closeProjectLoader  my-2 mx-1 text-white " style="cursor:pointer;" title="close" value="' +
+            id +
+            '" ></i></div><div class="text-white smat-notification-text" id="' +
+            id +
+            '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Created project suceessfully<p class="m-0"> <b class="">' +
+            name +
+            "</b></p></div></div></div>"
+    );
+};
+ const checkIfNotificationSeen = () => {
+    if (localStorage.getItem("smat-proj-stats")) {
+        let tempArr = JSON.parse(localStorage.getItem("smat-proj-stats"));
+        tempArr.map(el => {
+            getProjectName(el).then(res => {
+                if (res[0]) {
+                    projectReadyNotification(el, res[0]["project_name"]);
+                }
+            });
+        });
+    }
+};
 checkIfNotificationSeen();
-
-
 
 if (_MODE !== 'HOME') {
     if (localStorage.getItem('projectMetaData')) {
@@ -21,10 +46,10 @@ if (_MODE !== 'HOME') {
     }
 }
 // $('#addToStoryModal').modal('show');
-var base64URL = null, STORYID = localStorage.getItem('smatStoryID') ? localStorage.getItem('smatStoryID') : null, STORYNAME;
+//  STORYID = localStorage.getItem('smatStoryID') ? localStorage.getItem('smatStoryID') : null, STORYNAME;
 $('body').on('click', '.addToStory', function () {
     let value = $(this).attr('value');
-
+    var base64URL = null;
     window.scrollTo(0, 0)
     let offset = 30, zoomLevel;
     var screenCssPixelRatio = (window.outerWidth - 8) / window.innerWidth;
@@ -68,13 +93,21 @@ $('body').on('click', '.addToStory', function () {
         document
             .getElementById('storyPlot')
             .appendChild(canvas);
-        base64URL = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream');
+        base64URL =  canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream');
+        window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
+        _APICALLFORCAPTURE(_PROJECTID, base64URL).then(res=>{
+            if(res.error){
+                alert('Some error occured!');
+            }else{
+                alert('Uploaded SuccessFully!')
+            }
+        });
     });
-    window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-    $('#storyPlot').html('')
-    populateStories();
-    $('#storyAnalysisDiv').css('display','block');
-    $('#addToStoryModal').modal('show');
+ 
+    // $('#storyPlot').html('')
+    // populateStories();
+    // $('#storyAnalysisDiv').css('display','block');
+    // $('#addToStoryModal').modal('show');
 })
 $('#createStory').on('click', function () {
     $('#createStoryFormDIV').toggle();
@@ -87,7 +120,7 @@ $('#storyUploadForm').on('submit', function (e) {
     let analysisDescription = $('#analysisDescription').val().trim();
     if (STORYID && STORYNAME) {
         _APICALLFORSTORYUPLOAD(STORYID, STORYNAME, analysisName, analysisDescription, base64URL);
-        
+
     } else {
         displayErrorMsg('storyMsgDiv', 'error', 'Please select a story');
     }
@@ -155,25 +188,41 @@ const _CREATESTORYAPI = async (storyName, projectID, storyDescription, createdOn
     return data;
 }
 
-const _APICALLFORSTORYUPLOAD = (storyID, storyName, analysisName, analysisDesc, base64URL) => {
-    $.ajax({
-        url: 'uploadStoryContent',
-        type: 'post',
-        data: { storyID, storyName, analysisName, analysisDesc, image: base64URL },
-        success: function (response) {
-            if (response.error) {
-                displayErrorMsg('storyMsgDiv', 'error', response.error);
-                alert(response.error);
-            } else {
-                alert('Saved successfully!')
-                base64URL = null;
-                $('#storyAnalysisDiv').css('display','none');
-                displayErrorMsg('storyMsgDiv', 'success', response.data);
-            }
-        }
-    });
-}
+// const _APICALLFORSTORYUPLOAD = (storyID, storyName, analysisName, analysisDesc, base64URL) => {
+//     $.ajax({
+//         url: '',
+//         type: 'post',
+//         data: { storyID, storyName, analysisName, analysisDesc, image: base64URL },
+//         success: function (response) {
+//             if (response.error) {
+//                 displayErrorMsg('storyMsgDiv', 'error', response.error);
+//                 alert(response.error);
+//             } else {
+//                 alert('Saved successfully!')
+//                 base64URL = null;
+//                 $('#storyAnalysisDiv').css('display','none');
+//                 displayErrorMsg('storyMsgDiv', 'success', response.data);
+//             }
+//         }
+//     });
+// }
 
+const _APICALLFORCAPTURE = async (projectID, base64URL) => {
+    const userID = await getMe();
+    let response = await fetch('uploadStoryContent', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        body: JSON.stringify({
+            projectID, image: base64URL,userID
+        })
+    });
+    let data = await response.json();
+    return data;
+}
 const _getAllStoriesFromProject = async (projectID) => {
     let response = await fetch(`getStories/${projectID}`, {
         method: 'get',

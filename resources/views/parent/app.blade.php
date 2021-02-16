@@ -27,6 +27,7 @@
         @include("inc.navbar")
         @include("inc.projectNav")
         @include("inc.story")
+        @include("inc.storyImage-modal")
         @include("inc.createProjectModal")
         @include("inc.selectProjectModal")
         @include('inc.publicTweets')

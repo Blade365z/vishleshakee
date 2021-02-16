@@ -1,6 +1,6 @@
-import { getAnalysisProject, getProjectName, getAllProject, getAnalysisDetailsFromProjectActivitesAPI, getAnalysisForAProjectAPI, createProjectAPI } from './helper.js';
-import { displayErrorMsg, getUserDetail, actionLog } from '../utilitiesJS/smatExtras.js'
-import { forwardToHistoricalAnalysis, forwardToNetworkAnalysis, forwardToUserAnalysis } from '../utilitiesJS/redirectionScripts.js';
+import { getAnalysisProject, getProjectName, getAllProject, getAnalysisDetailsFromProjectActivitesAPI, getAnalysisForAProjectAPI, createProjectAPI } from '../../../../public/tempJS/project/helper.js';
+import { displayErrorMsg, getUserDetail, actionLog } from '../../../../public/tempJS/utilitiesJS/smatExtras.js'
+import { forwardToHistoricalAnalysis, forwardToNetworkAnalysis, forwardToUserAnalysis } from '../../../../public/tempJS/utilitiesJS/redirectionScripts.js';
 
 var userIDGlobal;
 
@@ -92,4 +92,15 @@ const generateDataForAProject = async (userID, projID, projName = null) => {
 
         })
     }
+
+
+
+
+
+
+
+
+
+
+
 }

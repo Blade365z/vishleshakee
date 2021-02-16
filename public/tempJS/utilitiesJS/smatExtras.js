@@ -157,5 +157,5 @@ export const makeAddToStoryDiv = (div,toAppendBtnInsomeOtherDiv=null) => {
     }
     let uid=whereToAppendDiv+'-'+'-addToStoryBtn';
 $('#'+uid).remove();
-    $('#'+whereToAppendDiv).after('<div class="clickable font-weight-bold mt-2  addToStory mb-3" value="'+toBeCapturedDiv+'" id="'+uid+'"> <i class="fas fa-bookmark mr-1"></i> Add to story</div>')
+    $('#'+whereToAppendDiv).after('<div class="clickable font-weight-bold mt-2  addToStory mb-3" value="'+toBeCapturedDiv+'" id="'+uid+'"> <i class="fas fa-bookmark mr-1"></i>Capture plot</div>')
 }
