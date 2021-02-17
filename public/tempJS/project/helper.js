@@ -29,17 +29,17 @@ export const createProjectAPI = async (projectName, option, user_id, query, from
 export const insertToNewKeyspace = async (projectName, query, from_date, to_date, module_name, user_id, project_id) => {
     console.log('Insertion started : ', projectName);
     let route = 'insertKT'; //declare route here
-        let response = await fetch(route, {
-            method: 'post', //http method
-            headers: HeadersForApi,
-            body: JSON.stringify({
-                projectName, query, from_date, to_date, module_name, user_id, project_id   //declare body to be parsed in server
-            })
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectName, query, from_date, to_date, module_name, user_id, project_id   //declare body to be parsed in server
         })
-        // return response; //return here
-        let data = await response.json()
-        return data;
-    
+    })
+    // return response; //return here
+    let data = await response.json()
+    return data;
+
 };
 
 
@@ -130,27 +130,27 @@ export const getAnalysisDetailsFromProjectActivitesAPI = async (userID, query) =
 
 
 export const checkAnalysisExistorNot = async (full_query_id) => {
-    let response = await fetch('checkAnalysisExistorNot/' + full_query_id , {
+    let response = await fetch('checkAnalysisExistorNot/' + full_query_id, {
         method: 'get',
         headers: HeadersForApi
     });
     let data = await response.json();
     return data;
-} 
+}
 
-export const getRelatedSuggestions = async(query,from,to,limit) => {
+export const getRelatedSuggestions = async (query, from, to, limit) => {
     let response = await fetch('getRelatedWords', {
         method: 'post',
         headers: HeadersForApi,
         body: JSON.stringify({
-            query,from,to,limit //declare body to be parsed in server
+            query, from, to, limit //declare body to be parsed in server
         })
     });
     let data = await response.json();
     return data;
 }
 
-export const checkIfProjectExitsByName = async(name)=>{
+export const checkIfProjectExitsByName = async (name) => {
     let response = await fetch(`checkIfProjectExitsByName/${name}`, {
         method: 'get'
     });
@@ -177,9 +177,9 @@ export const storeToProjectTable = async (projectName, user_id, project_id, proj
 
 
 
-export const getAnalysisForAProjectAPI = async (userID,projectID,module_name) => {
+export const getAnalysisForAProjectAPI = async (userID, projectID, module_name) => {
     let type = module_name;
-    let response = await fetch('getAnalysisForUserUnderProject/' + userID + '/' + projectID+'/'+type, {
+    let response = await fetch('getAnalysisForUserUnderProject/' + userID + '/' + projectID + '/' + type, {
         method: 'get',
         headers: HeadersForApi
     });
@@ -238,37 +238,37 @@ export const getAllStoriesFromProject = async (projectID) => {
 }
 
 
-export const getAllAnalysisUnderStory = async(storyID) => {
+export const getAllAnalysisUnderStory = async (storyID) => {
     let response = await fetch(`getAllAnalysisUnderStory/${storyID}`, {
         method: 'get',
     });
     let data = await response.json();
     return data;
 }
-export const getStoryInfo= async(storyID)=>{
+export const getStoryInfo = async (storyID) => {
     let response = await fetch(`getStoryInfo/${storyID}`, {
         method: 'get',
     });
     let data = await response.json();
-    return data; 
+    return data;
 }
 
-export const getBaseURL = async() => {
+export const getBaseURL = async () => {
     let response = await fetch(`getBaseUrl`, {
         method: 'get',
     });
     let data = await response.text();
-    return data; 
+    return data;
 }
 
 
-export const updateStoryAnalysis = async (id,name,desc) => {
+export const updateStoryAnalysis = async (id, name, desc) => {
     let route = 'updateStoryAnalysis'; //declare route here
     let response = await fetch(route, {
         method: 'post', //http method
         headers: HeadersForApi,
         body: JSON.stringify({
-            id,name,desc
+            id, name, desc
         })
     });
     // return response; //return here
@@ -276,13 +276,13 @@ export const updateStoryAnalysis = async (id,name,desc) => {
     return data;
 }
 
-export const getPlotsFromServer = async (projectID,userID) => {
+export const getPlotsFromServer = async (projectID, userID) => {
     let route = 'ReadPlotsFromDir'; //declare route here
     let response = await fetch(route, {
-        method: 'post', 
+        method: 'post',
         headers: HeadersForApi,
         body: JSON.stringify({
-            projectID,userID
+            projectID, userID
         })
     });
     let data = await response.json()

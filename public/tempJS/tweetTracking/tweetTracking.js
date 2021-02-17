@@ -1018,19 +1018,33 @@ const createNetworkForTrack = (id, dateList) => {
                 keyboard: true
             },
             physics: {
-                forceAtlas2Based: {
-                    gravitationalConstant: -26,
-                    centralGravity: 0.0003,
-                    springLength: 1800,
-                    springConstant: 0.018,
-                },
-                maxVelocity: 500,
-                solver: "forceAtlas2Based",
-                timestep: 0.35,
-                stabilization: { iterations: 2500 },
+                // forceAtlas2Based: {
+                //     gravitationalConstant: -26,
+                //     centralGravity: 0.0003,
+                //     springLength: 1800,
+                //     springConstant: 0.018,
+                // },
+                // maxVelocity: 500,
+                // solver: "forceAtlas2Based",
+                // timestep: 0.35,
+                // stabilization: { iterations: 2500 },
             },
             layout: {
-
+                randomSeed: undefined,
+                improvedLayout:true,
+                clusterThreshold: 150,
+                hierarchical: {
+                  enabled:false,
+                  levelSeparation: 150,
+                  nodeSpacing: 100,
+                  treeSpacing: 200,
+                  blockShifting: true,
+                  edgeMinimization: true,
+                  parentCentralization: true,
+                  direction: 'UD',        // UD, DU, LR, RL
+                  sortMethod: 'hubsize',  // hubsize, directed
+                  shakeTowards: 'leaves'  // roots, leaves
+                }
             }
         };
 

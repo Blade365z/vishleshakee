@@ -1,18 +1,4 @@
-import {
-    getRelatedSuggestions,
-    storeToProjectTable,
-    createProjectAPI,
-    checkIfAnyKeySpaceCreatingAPI,
-    getProjectName,
-    checkIfProjectExitsByName,
-    getAllProject,
-    getAllStoriesFromProject,
-    getAllAnalysisUnderStory,
-    getStoryInfo,
-    getBaseURL,
-    updateStoryAnalysis,
-    getPlotsFromServer
-} from "./helper.js";
+import { getRelatedSuggestions, storeToProjectTable, createProjectAPI, checkIfAnyKeySpaceCreatingAPI, getProjectName, checkIfProjectExitsByName, getAllProject, getAllStoriesFromProject, getAllAnalysisUnderStory, getStoryInfo, getBaseURL, updateStoryAnalysis, getPlotsFromServer } from "./helper.js";
 import { displayErrorMsg, getUserDetail } from "../utilitiesJS/smatExtras.js";
 import { generateUniqueID } from "../utilitiesJS/uniqueIDGenerator.js";
 
@@ -20,9 +6,7 @@ import { getMe } from "../home/helper.js";
 
 import { getDateRange } from "../utilitiesJS/smatDate.js";
 
-var projeToBeCreated = "sars_2020",
-    tagsArr = [],
-    projectAlreadyExists = 0;
+var projeToBeCreated = "sars_2020", tagsArr = [], projectAlreadyExists = 0;
 var confirmedDataSetToBeCreated;
 var tempProjToBeCreated = [];
 var projectCurrentlyCreatingFlag = 0;
@@ -40,17 +24,7 @@ getMe().then(id => {
         res.map(project => {
             if (project.status == "1") {
                 $("#listOfProjects").append(
-                    '<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' +
-                    project.project_id +
-                    "|" +
-                    project.project_name +
-                    '" id="' +
-                    project.project_id +
-                    '-btn"><div><h5 class="m-0">' +
-                    project.project_name +
-                    '<h5></div><div class="text-left">Created on: ' +
-                    project.project_creation_date +
-                    "</div></button>"
+                    '<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' + project.project_id + "|" + project.project_name + '" id="' + project.project_id + '-btn"><div><h5 class="m-0">' + project.project_name + '<h5></div><div class="text-left">Created on: ' + project.project_creation_date + "</div></button>"
                 );
             }
         });
@@ -82,21 +56,14 @@ $("body").on("click", ".projecstBtn", function () {
 
     $(".projectBtn").removeClass("active");
     $(this).addClass("active");
-    let value = $(this)
-        .attr("value")
-        .split(/[|]/)
-        .filter(Boolean);
+    let value = $(this).attr("value").split(/[|]/).filter(Boolean);
     currentlySelected = value;
     $("#listOfStoriesOFProjectDiv").html("");
     getAllStoriesFromProject(currentlySelected[0]).then(res => {
         $("#numberOfStories").text(res.length);
         res.map(story => {
             $("#listOfStoriesOFProjectDiv").append(
-                '<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' +
-                story.storyID +
-                '">' +
-                story.storyName +
-                "</button>"
+                '<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' + story.storyID + '">' + story.storyName + "</button>"
             );
         });
     });
@@ -121,21 +88,13 @@ $("body").on("click", ".projectBtn", async function () {
 
     $(".projectBtn").removeClass("active");
     $(this).addClass("active");
-    let value = $(this)
-        .attr("value")
-        .split(/[|]/)
-        .filter(Boolean);
+    let value = $(this).attr("value").split(/[|]/).filter(Boolean);
     currentlySelected = value;
     $("#listOfStoriesOFProjectDiv").html("");
     getAllStoriesFromProject(currentlySelected[0]).then(res => {
         $("#numberOfStories").text(res.length);
         res.map(story => {
-            $("#listOfStoriesOFProjectDiv").append(
-                '<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' +
-                story.storyID +
-                '">' +
-                story.storyName +
-                "</button>"
+            $("#listOfStoriesOFProjectDiv").append('<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' + story.storyID + '">' + story.storyName + "</button>"
             );
         });
     });
@@ -161,18 +120,13 @@ $("body").on("click", "#closeModifyProjectDiv", function () {
 $("body").on("click", "#activeProject", function () {
     getProjectName(currentlySelected[0]).then(res => {
         let projectMetaData = res[0];
-        localStorage.setItem(
-            "projectMetaData",
-            JSON.stringify({ projectMetaData })
-        );
+        localStorage.setItem("projectMetaData", JSON.stringify({ projectMetaData }));
         location.reload();
     });
 });
 
 $("body").on("input", "#projectName", function () {
-    projeToBeCreated = $(this)
-        .val()
-        .toLowerCase();
+    projeToBeCreated = $(this).val().toLowerCase();
     $(this).val(projeToBeCreated);
     $(".projectName").text(projeToBeCreated);
     if (projeToBeCreated) {
@@ -194,13 +148,7 @@ $("body").on("click", "#addProjectKeyboard", function () {
     let tagTemp = $("#projectTagInput").val();
     document.getElementById("projectTagInput").value = "";
     if (tagTemp) {
-        $("#projectDivPool").append(
-            '<div class="d-flex border m-1 p-2 smat-rounded projectTag" ><div>' +
-            tagTemp +
-            '</div><div class="ml-2 removeTag" value="' +
-            tagTemp +
-            '"><i class="fas fa-times"></i></div></div>'
-        );
+        $("#projectDivPool").append('<div class="d-flex border m-1 p-2 smat-rounded projectTag" ><div>' + tagTemp + '</div><div class="ml-2 removeTag" value="' + tagTemp + '"><i class="fas fa-times"></i></div></div>');
         if (tagsArr.includes(tagTemp)) {
         } else {
             tagsArr.push(tagTemp);
@@ -209,13 +157,9 @@ $("body").on("click", "#addProjectKeyboard", function () {
 });
 
 $("body").on("click", ".removeTag", function () {
-    let temp = $(this)
-        .attr("value")
-        .trim();
+    let temp = $(this).attr("value").trim();
     delete tagsArr[temp];
-    $(this)
-        .parent()
-        .remove();
+    $(this).parent().remove();
     tagsArr = tagsArr.filter(item => item !== temp);
 });
 
@@ -247,13 +191,7 @@ $("body").on("submit", "#projCreateForm", function (e) {
                 tempProjToBeCreated["to"] = to;
                 tempProjToBeCreated["queryStringTemp"] = queryStringTemp;
                 tempProjToBeCreated["description"] = description;
-                openConfirmANDSuggestionBoxProject(
-                    projeToBeCreated,
-                    from,
-                    to,
-                    description,
-                    response
-                );
+                openConfirmANDSuggestionBoxProject(projeToBeCreated, from, to, description, response);
             });
         } else {
             alert("Project already exits.Please use a different name.");
@@ -267,13 +205,7 @@ $("body").on("click", ".closeProjectLoader", function () {
     updateNotificationToLocalStorage(value, true);
 });
 
-const openConfirmANDSuggestionBoxProject = (
-    projName,
-    from,
-    to,
-    description,
-    suggestionsArr
-) => {
+const openConfirmANDSuggestionBoxProject = (projName, from, to, description, suggestionsArr) => {
     $("#projNameConfirm").text(projName);
     $("#fromDateConfirm").text(from);
     $("#toDateConfirm").text(to);
@@ -287,30 +219,13 @@ const openConfirmANDSuggestionBoxProject = (
     // $('#projectCreationForm').addClass('confirmPanelCollapse')
     // $('#openProjectFormBtn').css('display','block');
 
-    $("html, body").animate(
-        {
-            scrollTop: $("#projNameConfirm").offset().top
-        },
-        1000
-    );
+    $("html, body").animate({ scrollTop: $("#projNameConfirm").offset().top }, 1000);
     tagsArr.forEach(tag => {
         confirmedDataSetToBeCreated.push(tag);
-        $("#suggestionsConfirm").append(
-            '<div class="m-1"  ><button class="btn btn-primary border smat-rounded confirmTags" value="' +
-            tag +
-            '">' +
-            tag +
-            "</button></div>"
-        );
+        $("#suggestionsConfirm").append('<div class="m-1"  ><button class="btn btn-primary border smat-rounded confirmTags" value="' + tag + '">' + tag + "</button></div>");
     });
     for (const [key, value] of Object.entries(suggestionsArr)) {
-        $("#suggestionsConfirm").append(
-            '<div class="m-1"  ><button class="btn border smat-rounded confirmTags" value="' +
-            key +
-            '">' +
-            key +
-            "</button></div>"
-        );
+        $("#suggestionsConfirm").append('<div class="m-1"  ><button class="btn border smat-rounded confirmTags" value="' + key + '">' + key + "</button></div>");
         if (counter > 10) {
             break;
         }
@@ -326,11 +241,7 @@ $("body").on("click", "div .confirmTags", function () {
         );
     } else {
         if (confirmedDataSetToBeCreated.length > 2) {
-            displayErrorMsg(
-                "errorMsgForConfirm",
-                "error",
-                "Please select not more than 3 topics"
-            );
+            displayErrorMsg("errorMsgForConfirm", "error", "Please select not more than 3 topics");
         } else {
             $(this).addClass("btn-primary");
             confirmedDataSetToBeCreated.push($(this).attr("value"));
@@ -341,11 +252,7 @@ $("body").on("click", "div .confirmTags", function () {
 $("body").on("click", "div #confirmBtnProj", function () {
     let queryStringConfirm = "";
     if (confirmedDataSetToBeCreated.length < 1) {
-        displayErrorMsg(
-            "errorMsgForConfirm",
-            "error",
-            "Please select atleast 1 sugesstion."
-        );
+        displayErrorMsg("errorMsgForConfirm", "error", "Please select atleast 1 sugesstion.");
     } else {
         let flag = 0;
         confirmedDataSetToBeCreated.map(tag => {
@@ -360,15 +267,8 @@ $("body").on("click", "div #confirmBtnProj", function () {
     console.log("MetaDataProj-->", tempProjToBeCreated);
     console.log("QueryString-->", "(" + queryStringConfirm + ")");
 
-    //MALA Baa
-    createProject(
-        tempProjToBeCreated["projName"],
-        tempProjToBeCreated["description"],
-        "(" + queryStringConfirm + ")",
-        tempProjToBeCreated["from"],
-        tempProjToBeCreated["to"],
-        "baseDataset"
-    );
+    //MALA
+    createProject(tempProjToBeCreated["projName"], tempProjToBeCreated["description"], "(" + queryStringConfirm + ")", tempProjToBeCreated["from"], tempProjToBeCreated["to"], "baseDataset");
 
     // if (projectCurrentlyCreatingFlag == 0) {
     //     projectCurrentlyCreatingFlag = 1;
@@ -382,14 +282,10 @@ $("body").on("click", "div #cancelBtnProj", function () {
     $("#projectConfirmDiv").addClass("confirmPanelCollapse");
 });
 
-const createProject = (
-    proj_name,
-    proj_description,
-    query,
-    from_date,
-    to_date,
-    option = null
-) => {
+
+
+
+const createProject = (proj_name, proj_description, query, from_date, to_date, option = null) => {
     $("#projectCreationForm").removeClass("confirmPanelExpand");
     $("#projectCreationForm").addClass("confirmPanelCollapse");
     $("#openProjectFormBtn").css("display", "block");
@@ -412,26 +308,13 @@ const createProject = (
     getUserDetail().then(response => {
         let userIDForProject = response.id;
         // 1 store to project table
-        storeToProjectTable(
-            proj_name,
-            userIDForProject,
-            project_id,
-            proj_description
-        ).then(response => {
+        storeToProjectTable(proj_name, userIDForProject, project_id, proj_description).then(response => {
             console.log(response);
             displayErrorMsg('creatingProject', 'success', `Please wait your project <b>${proj_name}</b> is being created. In the meantime you can do other activities.`, false);
             $('#creatingProject').fadeIn('slow')
             checkRecordsForProjects(userIDForProject);
             // 2 create to keyspace and tables
-            createProjectAPI(
-                proj_name,
-                option,
-                userIDForProject,
-                query,
-                from_date,
-                to_date,
-                query_list
-            ).then(response => {
+            createProjectAPI(proj_name, option, userIDForProject, query, from_date, to_date, query_list).then(response => {
                 console.log(response);
             });
         });
@@ -472,10 +355,7 @@ const runLoggerToCheckStats = userID =>
         projectPending.forEach(element => {
             getProjectName(element).then(res => {
                 if (res[0].status === 1) {
-                    displayErrorMsg(
-                        "creatingProject",
-                        "success",
-                        `Your project <b>${res[0].project_name}</b> has been created successfully.`
+                    displayErrorMsg("creatingProject", "success", `Your project <b>${res[0].project_name}</b> has been created successfully.`
                     );
                     $("#creatingProject").fadeIn("slow");
                     $("#listOfProjects").html("");
@@ -483,18 +363,7 @@ const runLoggerToCheckStats = userID =>
                         res.map(project => {
                             if (project.status == "1") {
                                 $("#listOfProjects").append(
-                                    '<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' +
-                                    project.project_id +
-                                    "|" +
-                                    project.project_name +
-                                    '" id="' +
-                                    project.project_id +
-                                    '-btn"><div><h5 class="m-0">' +
-                                    project.project_name +
-                                    '<h5></div><div class="text-left">Created on: ' +
-                                    project.project_creation_date +
-                                    "</div></button>"
-                                );
+                                    '<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' + project.project_id + "|" + project.project_name + '" id="' + project.project_id + '-btn"><div><h5 class="m-0">' + project.project_name + '<h5></div><div class="text-left">Created on: ' + project.project_creation_date + "</div></button>");
                             }
                         });
                     });
@@ -515,10 +384,7 @@ const updateNotificationToLocalStorage = (id, toDelete = false) => {
     if (toDelete == false) {
         if (temp) {
             if (!temp.includes(id))
-                localStorage.setItem(
-                    "smat-proj-stats",
-                    JSON.stringify([...temp, id])
-                );
+                localStorage.setItem("smat-proj-stats", JSON.stringify([...temp, id]));
         } else {
             localStorage.setItem("smat-proj-stats", JSON.stringify([id]));
         }
@@ -529,19 +395,7 @@ const updateNotificationToLocalStorage = (id, toDelete = false) => {
 };
 const projectReadyNotification = (id, name) => {
     $("#" + id + "-Loader").remove();
-    $("#notificationNav").append(
-        '<div class="d-flex bg-success smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' +
-        id +
-        '-Loader" style="display:none;"><div id="' +
-        id +
-        '-Spinner"><i class="far fa-times-circle fa-2x closeProjectLoader  my-2 mx-1 text-white " style="cursor:pointer;" title="close" value="' +
-        id +
-        '" ></i></div><div class="text-white smat-notification-text" id="' +
-        id +
-        '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Created project suceessfully<p class="m-0"> <b class="">' +
-        name +
-        "</b></p></div></div></div>"
-    );
+    $("#notificationNav").append('<div class="d-flex bg-success smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' + id + '-Loader" style="display:none;"><div id="' + id + '-Spinner"><i class="far fa-times-circle fa-2x closeProjectLoader  my-2 mx-1 text-white " style="cursor:pointer;" title="close" value="' + id + '" ></i></div><div class="text-white smat-notification-text" id="' + id + '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Created project suceessfully<p class="m-0"> <b class="">' + name + "</b></p></div></div></div>");
 };
 export const checkIfNotificationSeen = () => {
     if (localStorage.getItem("smat-proj-stats")) {
@@ -558,17 +412,7 @@ export const checkIfNotificationSeen = () => {
 
 checkIfNotificationSeen();
 const makeRunningNotifcationForProject = (id, name) => {
-    $("#notificationNav").append(
-        '<div class="d-flex bg-primary smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' +
-        id +
-        '-Loader" style="display:none;"><div id="' +
-        id +
-        '-Spinner"><i class="fa fa-circle-o-notch donutSpinner mx-1 " aria-hidden="true" style="margin-top:7px;"></i></div><div class="text-white smat-notification-text" id="' +
-        id +
-        '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Creating Project <p class="m-0"> <b class="">' +
-        name +
-        "</b></p></div></div></div>"
-    );
+    $("#notificationNav").append('<div class="d-flex bg-primary smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' + id + '-Loader" style="display:none;"><div id="' + id + '-Spinner"><i class="fa fa-circle-o-notch donutSpinner mx-1 " aria-hidden="true" style="margin-top:7px;"></i></div><div class="text-white smat-notification-text" id="' + id + '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Creating Project <p class="m-0"> <b class="">' + name + "</b></p></div></div></div>");
 };
 
 
@@ -585,26 +429,14 @@ $("body").on(
 
 $("body").on("click", ".updateStoryAnalysisBtn", function () {
     let ID = $(this).attr("value");
-    let updatedName = $("#" + ID + "-editableAnalysisName")
-        .val()
-        .trim();
-    let updatedDesc = $("#" + ID + "-editableAnalysisDescription")
-        .val()
-        .trim();
+    let updatedName = $("#" + ID + "-editableAnalysisName").val().trim();
+    let updatedDesc = $("#" + ID + "-editableAnalysisDescription").val().trim();
     updateStoryAnalysis(ID, updatedName, updatedDesc).then(res => {
         if (res.error) {
             displayErrorMsg(ID + "-errorMsg", "error", res.error);
         } else {
             console.log(res);
-            printStory(
-                res.data[0].analysisID,
-                res.data[0].analysisName,
-                res.data[0].analysisDescription,
-                baseUrl,
-                res.data[0].created_at,
-                ID + "-storyAnalysis",
-                true
-            ).then(() => {
+            printStory(res.data[0].analysisID, res.data[0].analysisName, res.data[0].analysisDescription, baseUrl, res.data[0].created_at, ID + "-storyAnalysis", true).then(() => {
                 displayErrorMsg(ID + "-errorMsg", "success", res.status);
             });
         }
@@ -624,14 +456,7 @@ $("body").on("click", ".storyBtnProj", function () {
         $("#storyMetaDataDescription").text(res[0].storyDescription);
         getAllAnalysisUnderStory(value).then(response => {
             response.map(story => {
-                printStory(
-                    story.analysisID,
-                    story.analysisName,
-                    story.analysisDescription,
-                    baseUrl,
-                    story.created_at,
-                    contentDiv
-                );
+                printStory(story.analysisID, story.analysisName, story.analysisDescription, baseUrl, story.created_at, contentDiv);
             });
         });
     });
@@ -666,20 +491,7 @@ const AddItemToStoryEditor = type => {
         id: ID,
         childrens: []
     });
-    const storyBoradOptions =
-        '<div class=" p-1 my-2 storyBoardOptions" id="' +
-        offsetCounter +
-        "-" +
-        type +
-        '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 mx-1 storyOptions  addDescriptionToElement btn bg-dark text-white "   title="Add description" value="' +
-        offsetCounter +
-        '" type="description" parentType="' +
-        type +
-        '"><i class="fas fa-file-alt" ></i></div><div class="py-1 px-2 mx-1 storyOptions  addImageToElement btn bg-dark text-white "   title="Add Image" value="' +
-        offsetCounter +
-        '" type="image" parentType="' +
-        type +
-        '"><i class="fas fa-image"></i></div><div></div></div>';
+    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offsetCounter + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 mx-1 storyOptions  addDescriptionToElement btn bg-dark text-white "   title="Add description" value="' + offsetCounter + '" type="description" parentType="' + type + '"><i class="fas fa-file-alt" ></i></div><div class="py-1 px-2 mx-1 storyOptions  addImageToElement btn bg-dark text-white "   title="Add Image" value="' + offsetCounter + '" type="image" parentType="' + type + '"><i class="fas fa-image"></i></div><div></div></div>';
     if (type === "title") {
         $("#" + storyMakerDiv).append(
             '<div class="smat-story-element-main bg-white"   value="' + offsetCounter + '" id="' + ID + '">' + storyBoradOptions + '<div class="text-center  smat-story-element" id="' + storyID + "-" + type + "-" + offsetCounter + '-input"  value="' + offsetCounter + '"type="' + type + '" ><input class="from-control  story-input titleStory text-center" value="Title" /></div></div>'
@@ -698,9 +510,7 @@ $("body").on("click", ".smat-story-element", function (e) {
     $(".smat-story-element-main").removeClass("border-story-active");
     // $(this).parent().addClass('border-story-active')
     let id = $(this).attr("value") + "-" + $(this).attr("type") + "-options";
-    $(
-        "#" + $(this).attr("value") + "-" + $(this).attr("type") + "-element"
-    ).addClass("border-story-active");
+    $("#" + $(this).attr("value") + "-" + $(this).attr("type") + "-element").addClass("border-story-active");
     $("#" + id).css("display", "flex");
 });
 $(document).on("click", function (event) {
@@ -719,18 +529,14 @@ $("body").on("click", "#saveStorybtnStory", function () {
 });
 
 $("body").on("input", ".story-input", function () {
-    let offset = $(this)
-        .parent()
-        .attr("value");
+    let offset = $(this).parent().attr("value");
     console.log(offset)
     storyElements[offset]["text"] = $(this).val();
 });
 $("body").on("input", ".story-description-input", function () {
     this.style.height = "";
     this.style.height = this.scrollHeight + "px";
-    let offset = $(this)
-        .parent()
-        .attr("value");
+    let offset = $(this).parent().attr("value");
     storyElements[offset]["text"] = $(this).val();
 });
 $("body").on("click", ".addDescriptionToElement", function () {
@@ -747,13 +553,7 @@ $("body").on("click", ".addImageToElement", function () {
     showImages(storyID, offset, type);
 });
 
-const addChildrenToElement = async (
-    parentOffset,
-
-    childrenType,
-    parentType = null,
-    imageID
-) => {
+const addChildrenToElement = async (parentOffset, childrenType, parentType = null, imageID) => {
     let length = 0;
     var AppendTo_ID = null;
     let offset, ID, object = {};
@@ -761,8 +561,7 @@ const addChildrenToElement = async (
     if (parentType === "description" || parentType === "image") {
         let offset = parentOffset.split(/[-]/).filter(Boolean);
         length = storyElements[offset[0]]["childrens"].length;
-        AppendTo_ID =
-            offset[0] + "-" + offset[1] + "-" + parentType + "-element";
+        AppendTo_ID = offset[0] + "-" + offset[1] + "-" + parentType + "-element";
         offset = parentOffset + "-" + length;
         ID = offset + "-" + childrenType + '-element';
         object = {
@@ -793,8 +592,7 @@ const addChildrenToElement = async (
     }
     const userID = await getMe();
 
-    const options =
-        '<div class=" p-1 storyBoardOptions" id="' +
+    const options = '<div class=" p-1 storyBoardOptions" id="' +
         offset + "-" + childrenType + '-options" style="display:none; "><div class=" px-2 storyOptions btn bg-danger text-white " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 mx-1 storyOptions  addImageToElement btn bg-dark text-white "   title="Add Image" value="' + offset + '" type="image" parentType="' + childrenType +
         '"><i class="fas fa-image"></i></div><div></div></div>';
     if (childrenType === "description") {
@@ -892,12 +690,7 @@ $("body").on("click", ".addToStoryImageConfirm", function () {
     let offset = $(this).attr("value");
     let parentType = $(this).attr("parentType");
     let imgID = $(this).attr("imgID");
-    let tempObj = {
-        type: "image",
-        text: null,
-        style: null,
-        image: imgID
-    };
+    let tempObj = { type: "image", text: null, style: null, image: imgID };
     addChildrenToElement(offset, tempObj, "image", parentType, imgID);
 });
 
