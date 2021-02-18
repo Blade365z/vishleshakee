@@ -337,7 +337,12 @@ Route::get('getStoryInfo/{storyName}', 'storyController@getStoryInfo');
 Route::get('getBaseUrl', 'storyController@getBaseUrl');
 Route::post('ReadPlotsFromDir', 'storyController@ReadPlotsFromDir');
 
+Route::post('SaveStoryElementsJSON', 'storyController@SaveStoryElementsJSON');
+
+
 Route::post('updateStoryAnalysis', 'storyController@updateStoryAnalysis');
+
+
 
 
 

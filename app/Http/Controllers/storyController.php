@@ -18,7 +18,7 @@ class storyController extends Controller
             $analysisID = uniqid();
             $userID = $request->input('userID');
             $projectID = $request->input('projectID');
-            $dirArr = [$userID, $projectID ,'plots'];
+            $dirArr = [$userID, $projectID, 'plots'];
             $dirString = 'storage';
             foreach ($dirArr as $dir) {
                 $dirString = $dirString . '/' . $dir;
@@ -118,18 +118,41 @@ class storyController extends Controller
     {
         $userID = $request->input('userID');
         $projectID = $request->input('projectID');
-        $dir="storage/$userID/$projectID/plots/";
-        $files=[];
-        if (is_dir($dir)){
-            if ($dh = opendir($dir)){
-              while (($file = readdir($dh)) !== false){
-                if($file!="." & $file!=".."){
-                    array_push($files,$file);
+        $dir = "storage/$userID/$projectID/plots/";
+        $files = [];
+        if (is_dir($dir)) {
+            if ($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    if ($file != "." & $file != "..") {
+                        array_push($files, $file);
+                    }
                 }
-              }
-              closedir($dh);
+                closedir($dh);
             }
-          }
-          return $files;
+        }
+        return $files;
     }
+    public function SaveStoryElementsJSON(Request $request)
+    {
+        // projectID, StoryName, StoryObj
+        $request->validate([
+            'projectID' => 'required',
+            'StoryName' => 'required',
+            'StoryObj' => 'required',
+            'userID' => 'required'
+        ]);
+        $userID = $request->input('userID');
+        $projectID = $request->input('projectID');
+        $storyName = $request->input('StoryName');
+        $elemntObj = $request->input('StoryObj');
+        $json_data = json_encode($elemntObj);
+        try {
+            $filePath = "storage/$userID/$projectID/$storyName.json";
+            file_put_contents($filePath, $json_data);
+            return response()->json(array('status' => 'Updated Successfully!'), 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some error occured!'], 404);
+        }
+    }
+
 }

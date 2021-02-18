@@ -271,7 +271,6 @@ export const updateStoryAnalysis = async (id, name, desc) => {
             id, name, desc
         })
     });
-    // return response; //return here
     let data = await response.json()
     return data;
 }
@@ -283,6 +282,20 @@ export const getPlotsFromServer = async (projectID, userID) => {
         headers: HeadersForApi,
         body: JSON.stringify({
             projectID, userID
+        })
+    });
+    let data = await response.json()
+    return data;
+}
+
+
+export const uploadStoryToServer =  async (projectID, StoryName, StoryObj,userID) => {
+    let route = 'SaveStoryElementsJSON'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectID, StoryName, StoryObj,userID
         })
     });
     let data = await response.json()

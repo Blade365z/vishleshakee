@@ -107,25 +107,26 @@ class ProjectActivityController extends Controller
 
     public function create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date, $query_list)
     {
-        echo json_encode(array("res" => 'running'));
+        // echo json_encode(array("res" => 'running'));
         if($option == 'baseDataset'){
-            // 1 trigger spark for getting final tweet id list
-            //TODO
-            $rname = 'mala';
+            // 1 trigger spark for to compute final tweet id list
+            $rname = 'mala2';//should be uniquetimestamp
             $result = $this->curlData($query_list,  $rname);
             $result = json_decode($result, true);
             $status = $result['state'];
-            $id =  $result['id'];
+            $spark_id =  $result['id'];
             echo json_encode(array('query_time' => $rname, 'status' => $status, 'id' => $id));
 
             // 2 create ks
             $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
             $d = shell_exec($command);
-            echo json_encode("table created");
+            // echo json_encode("table created");
 
 
-            // 3 insert to tables
-            // $this->insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date);
+            // 3 insert to tables.....doing
+            if($status == 'starting' or $status == 'running'){
+                $this->insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date, $spark_id);
+            }            
         }else{
             // $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
             // exec("nohup " . $command . " > /dev/null 2>&1 &");
@@ -134,6 +135,8 @@ class ProjectActivityController extends Controller
         // check in cassandra is ks is there and have all the tables.. ...if successfully created then update status=1 otheriwse status=-1............TODO
     }
 
+
+    
 
     //TODO
     public  function  curlData($query_list, $rname)
@@ -161,10 +164,10 @@ class ProjectActivityController extends Controller
 
 
 
-    public function insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date)
+    public function insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date, $spark_id=null)
     {      
         // triggered insert command
-        $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py ' . $keyspace_name . ' ' . $query . ' ' . $from_date . ' ' . $to_date . ' ' . $user_id);
+        $command = escapeshellcmd('/usr/bin/python python_files/insert_data_from_one_keyspace_to_another_keyspace.py ' . $keyspace_name . ' ' . $query . ' ' . $from_date . ' ' . $to_date . ' ' . $user_id . ' '. $spark_id);
         exec("nohup " .$command. " > /dev/null 2>&1 &");
 
         // for testing.....

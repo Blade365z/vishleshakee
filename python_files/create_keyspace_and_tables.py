@@ -35,9 +35,9 @@ def log(file_name):
 
 def create_connection():
 	# set up connection to cluster to ..............................................................3
-	username='subroottest'
-	password='subroottest'
-	ip_list=['172.16.117.201', '172.16.117.204', '172.16.117.152']
+	username='cassandra'
+	password='cassandra'
+	ip_list=['172.16.117.201']
 	port=9042
 	# #
 	auth_provider = PlainTextAuthProvider(username, password)
@@ -66,6 +66,69 @@ def create_tables(session):
 		country text,
 		bounding_box list<frozen<list<double>>>
 	)'''
+	tweet_info_by_id_test = '''CREATE TABLE tweet_info_by_id_test (
+		tid text,
+		datetime timestamp,
+		author text,
+		author_id text,
+		author_profile_image text,
+		author_screen_name text,
+		category bigint,
+		confidence double,
+		hashtags list<text>,
+		keyword_list list<text>,
+		lang text,
+		like_count bigint,
+		location text,
+		media_list list<frozen<map<text, text>>>,
+		mention_list_id list<text>,
+		mentions list<text>,
+		possibly_sensitive_tweet_by_twitter boolean,
+		quote_count bigint,
+		quoted_source_id text,
+		reply_count bigint,
+		replyto_screen_name text,
+		replyto_source_id text,
+		replyto_user_id text,
+		retweet_count bigint,
+		retweet_source_id text,
+		sentiment smallint,
+		source_of_utility text,
+		t_location text,
+		timezone text,
+		tl_latitude double,
+		tl_longitude double,
+		tweet_coordinates list<double>,
+		tweet_place frozen<tweet_place_dict>,
+		tweet_text text,
+		type text,
+		url_list list<text>,
+		verified text,
+		PRIMARY KEY (tid, datetime)
+	) WITH CLUSTERING ORDER BY (datetime DESC)'''
+	temp = '''CREATE TABLE temp (
+		date date,
+		hour text,
+		tensec text,
+		tid text,
+		datetime timestamp,
+		author text,
+		author_id text,		
+		author_screen_name text,
+		category bigint,
+		confidence double,
+		hashtags list<text>,
+		keyword_list list<text>,
+		mention_list_id list<text>,
+		mentions list<text>,
+		sentiment smallint,
+		t_location text,
+		tl_latitude double,
+		tl_longitude double,
+		tweet_place frozen<tweet_place_dict>,
+		type text,
+		PRIMARY KEY (date, hour, tensec, tid)
+	) WITH CLUSTERING ORDER BY (hour DESC, tensec DESC, tid DESC)'''
 	location_token_co_occur = '''CREATE TABLE location_token_co_occur (
 		created_date date,
 		class int,
@@ -171,6 +234,37 @@ def create_tables(session):
 		tweetidlist list<frozen<list<text>>>,
 		PRIMARY KEY (created_date, class, token_name)
 	) WITH CLUSTERING ORDER BY (class DESC, token_name DESC)'''
+	user_record='''CREATE TABLE user_record (
+		author_id text PRIMARY KEY,
+		author text,
+		author_screen_name text,
+		created_at timestamp,
+		default_profile boolean,
+		default_profile_image boolean,
+		description text,
+		favourites_count bigint,
+		followers_count bigint,
+		following_count bigint,
+		geo_enabled boolean,
+		lang text,
+		listed_count bigint,
+		location text,
+		lucene text,
+		profile_background_color text,
+		profile_background_image_url_https text,
+		profile_banner_url text,
+		profile_image_url_https text,
+		profile_link_color text,
+		profile_sidebar_fill_color text,
+		profile_text_color text,
+		profile_use_background_image boolean,
+		protected boolean,
+		time_zone text,
+		tweet_count bigint,
+		url text,
+		utc_offset text,
+		verified text
+	)'''
 
 
 
@@ -185,6 +279,9 @@ def create_tables(session):
 	session.execute(token_count)
 	session.execute(token_count_hour_wise)
 	session.execute(token_count_day_wise)
+	session.execute(tweet_info_by_id_test)
+	session.execute(temp)
+	session.execute(user_record)
 	
 
 

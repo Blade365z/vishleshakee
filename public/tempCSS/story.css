@@ -10,10 +10,15 @@
     overflow-x:hidden;
 }
 #storyMakerDiv{
-    min-height: 300px;
+    min-height: 1000px;
 }
 
-.story-input , .story-description-input{
+.story-input {
+    border: 0px !important;
+    outline: none;
+}
+.story-description-input{
+    font-size: 16px;
     border: 0px !important;
     outline: none;
 }

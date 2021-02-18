@@ -1,4 +1,4 @@
-import { getRelatedSuggestions, storeToProjectTable, createProjectAPI, checkIfAnyKeySpaceCreatingAPI, getProjectName, checkIfProjectExitsByName, getAllProject, getAllStoriesFromProject, getAllAnalysisUnderStory, getStoryInfo, getBaseURL, updateStoryAnalysis, getPlotsFromServer } from "./helper.js";
+import { getRelatedSuggestions, storeToProjectTable, createProjectAPI, checkIfAnyKeySpaceCreatingAPI, getProjectName, checkIfProjectExitsByName, getAllProject, getAllStoriesFromProject, getAllAnalysisUnderStory, getStoryInfo, getBaseURL, updateStoryAnalysis, getPlotsFromServer, uploadStoryToServer } from "./helper.js";
 import { displayErrorMsg, getUserDetail } from "../utilitiesJS/smatExtras.js";
 import { generateUniqueID } from "../utilitiesJS/uniqueIDGenerator.js";
 
@@ -14,8 +14,10 @@ var projectPending = [];
 var currentlySelected = null;
 
 var reportElements = [];
+var UserId = null;
 
 getMe().then(id => {
+    UserId = id;
     checkRecordsForProjects(id);
     $("#listOfProjects").html("");
     getAllProject(id).then(res => {
@@ -63,7 +65,7 @@ $("body").on("click", ".projecstBtn", function () {
         $("#numberOfStories").text(res.length);
         res.map(story => {
             $("#listOfStoriesOFProjectDiv").append(
-                '<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' + story.storyID + '">' + story.storyName + "</button>"
+                '<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' + story.projectID + '">' + story.storyName + "</button>"
             );
         });
     });
@@ -478,10 +480,28 @@ const printStory = async (analysisID, analysisName, analysisDescription, baseUrl
 
 const storyMakerDiv = "storyMakerDiv";
 var isOptionOpenFor = null;
-var storyElements = [],
-    storyID = "58162b9d",
+var storyElements = [],storyNameInput,
+    projectID = "58162b9d",
     offsetCounter = 0; //TODO::makeDYTNAMIC
-const AddItemToStoryEditor = type => {
+
+
+$("body").on('input','#storyName',function(){
+    //TODO::check if already exists
+    storyNameInput=$(this).val().trim();
+});
+
+getPlotsFromServer(projectID, 7).then(res => {
+    res.map(image => {
+        $(".story-images").append(
+            '<div class="p-2 text-center   textElementStory"  value="image" style="overflow:hidden;"  imgName="' + image + '" ><img src="storage/' +
+            7 + "/" + projectID + "/plots/" + image + '" / style="width:300px;"></div>'
+        );
+    });
+});
+
+
+
+const AddItemToStoryEditor = (type, imgName = null) => {
     offsetCounter = storyElements.length;
     const ID = offsetCounter + "-" + type + '-element';
     storyElements.push({
@@ -489,30 +509,47 @@ const AddItemToStoryEditor = type => {
         text: null,
         style: null,
         id: ID,
-        childrens: []
+        image: null
     });
-    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offsetCounter + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 mx-1 storyOptions  addDescriptionToElement btn bg-dark text-white "   title="Add description" value="' + offsetCounter + '" type="description" parentType="' + type + '"><i class="fas fa-file-alt" ></i></div><div class="py-1 px-2 mx-1 storyOptions  addImageToElement btn bg-dark text-white "   title="Add Image" value="' + offsetCounter + '" type="image" parentType="' + type + '"><i class="fas fa-image"></i></div><div></div></div>';
+    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offsetCounter + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white deleteElement " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div></div></div>';
     if (type === "title") {
         $("#" + storyMakerDiv).append(
-            '<div class="smat-story-element-main bg-white"   value="' + offsetCounter + '" id="' + ID + '">' + storyBoradOptions + '<div class="text-center  smat-story-element" id="' + storyID + "-" + type + "-" + offsetCounter + '-input"  value="' + offsetCounter + '"type="' + type + '" ><input class="from-control  story-input titleStory text-center" value="Title" /></div></div>'
+            '<div class="smat-story-element-main bg-white"   value="' + offsetCounter + '" id="' + ID + '"   type="' + type + '"  >' + storyBoradOptions + '<div class="text-center  smat-story-element" ><input class="from-control  story-input titleStory text-center" value="Title" /></div></div>'
         );
     }
     if (type === "section") {
         $("#storyMakerDiv").append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offsetCounter + '"  id="' + ID + '" >' + storyBoradOptions + '<div  class="smat-story-element"   value="' + offsetCounter + '" type="' + type + '"  id="' + storyID + "-" + type +
-            "-" + offsetCounter + '-input" ><input class=" sectionStory  w-100  story-input  text-left" value="Section"  id="' +
-            storyID + "-" + type + "-" + offsetCounter + '-text"/></div></div>'
+            '<div  class="smat-story-element-main bg-white"  value="' + offsetCounter + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-left" value="Section"  /></div></div>'
+        );
+    }
+    if (type === "description") {
+        $("#storyMakerDiv").append(
+            '<div  class="smat-story-element-main bg-white"  value="' + offsetCounter + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"   ><textarea class="   w-100  story-description-input  text-left" value="Description"  id="' +
+            projectID + "-" + type + "-" + offsetCounter + '-text">Description</textarea></div></div>'
+        );
+    }
+    if (type === 'image') {
+        storyElements[offsetCounter]['image'] = imgName;
+        $("#storyMakerDiv").append(
+            '<div class="smat-story-element-main bg-white" id="' + ID + '" value="' + offsetCounter + '" > ' + storyBoradOptions + '<div  class= "smat-story-element d-flex " > <img  src="storage/' + UserId + "/" + projectID + "/plots/" + imgName + '" ></div ></div > '
         );
     }
 };
+$('body').on('click', '.deleteElement', function () {
+    let offset = $(this).parent().parent().attr("value");
+    $(this).parent().parent().remove();
+    storyElements = storyElements.filter(element => element !== storyElements[offset]);
+});
+
+
 $("body").on("click", ".smat-story-element", function (e) {
     $(".storyBoardOptions").css("display", "none");
-    $(".smat-story-element-main").removeClass("border-story-active");
-    // $(this).parent().addClass('border-story-active')
-    let id = $(this).attr("value") + "-" + $(this).attr("type") + "-options";
-    $("#" + $(this).attr("value") + "-" + $(this).attr("type") + "-element").addClass("border-story-active");
-    $("#" + id).css("display", "flex");
+    $('div').removeClass("border-story-active");
+    $(this).parent().addClass("border-story-active");
+    $(this).parent().find(".storyBoardOptions").css("display", "flex");
 });
+
+
 $(document).on("click", function (event) {
     if (!$(event.target).closest("#storyMakerDiv").length) {
         $(".storyBoardOptions").css("display", "none");
@@ -521,150 +558,54 @@ $(document).on("click", function (event) {
 });
 
 $("body").on("click", ".textElementStory", function () {
-    AddItemToStoryEditor($(this).attr("value"));
+    let imgName = $(this).attr('imgName') ? $(this).attr('imgName') : null
+    AddItemToStoryEditor($(this).attr("value"), imgName);
 });
 
 $("body").on("click", "#saveStorybtnStory", function () {
-    console.log("Story Buffer-->", storyElements);
+    getMe().then(id=>{
+        uploadStoryToServer(projectID,storyNameInput,storyElements,id).then(res=>{
+            if(res.error){
+                alert('Some error occured!');
+            }else{
+                alert('Saved successfully!');
+            }
+        });
+    })
 });
 
 $("body").on("input", ".story-input", function () {
-    let offset = $(this).parent().attr("value");
-    console.log(offset)
+    let offset = $(this).parent().parent().attr("value");
     storyElements[offset]["text"] = $(this).val();
 });
 $("body").on("input", ".story-description-input", function () {
     this.style.height = "";
     this.style.height = this.scrollHeight + "px";
-    let offset = $(this).parent().attr("value");
+    let offset = $(this).parent().parent().attr("value");
     storyElements[offset]["text"] = $(this).val();
 });
-$("body").on("click", ".addDescriptionToElement", function () {
-    const parentOffset = $(this).attr("value");
-    const parentType = $(this).attr("parentType");
-    const childType = $(this).attr("type");
 
-    addChildrenToElement(parentOffset, childType, parentType);
-});
-
-$("body").on("click", ".addImageToElement", function () {
-    let offset = $(this).attr("value");
-    let type = $(this).attr("parenttype");
-    showImages(storyID, offset, type);
-});
-
-const addChildrenToElement = async (parentOffset, childrenType, parentType = null, imageID) => {
-    let length = 0;
-    var AppendTo_ID = null;
-    let offset, ID, object = {};
-
-    if (parentType === "description" || parentType === "image") {
-        let offset = parentOffset.split(/[-]/).filter(Boolean);
-        length = storyElements[offset[0]]["childrens"].length;
-        AppendTo_ID = offset[0] + "-" + offset[1] + "-" + parentType + "-element";
-        offset = parentOffset + "-" + length;
-        ID = offset + "-" + childrenType + '-element';
-        object = {
-            type: childrenType,
-            text: null,
-            style: null,
-            id: ID,
-            childrens: []
-        };
-        storyElements[offset[0]]["childrens"][offset[1]]["childrens"].push({
-            ...object
-        });
-    } else {
-        length = storyElements[parentOffset]["childrens"].length;
-        AppendTo_ID = +parentOffset + "-" + parentType + "-element";
-        offset = parentOffset + "-" + length;
-        ID = offset + "-" + childrenType + '-element';
-        object = {
-            type: childrenType,
-            text: null,
-            style: null,
-            id: ID,
-            childrens: []
-        };
-        storyElements[parentOffset]["childrens"].push({
-            ...object
-        });
-    }
-    const userID = await getMe();
-
-    const options = '<div class=" p-1 storyBoardOptions" id="' +
-        offset + "-" + childrenType + '-options" style="display:none; "><div class=" px-2 storyOptions btn bg-danger text-white " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 mx-1 storyOptions  addImageToElement btn bg-dark text-white "   title="Add Image" value="' + offset + '" type="image" parentType="' + childrenType +
-        '"><i class="fas fa-image"></i></div><div></div></div>';
-    if (childrenType === "description") {
-        $("#" + AppendTo_ID).append(
-            '<div class="smat-story-element-main bg-white"    id="' + ID + '"  value="' +
-            offset + '">' + options + ' <div  class="smat-story-element d-flex"    value="' + offset + '" type="' + childrenType + '"    id="' + storyID + "-" + childrenType + "-" + offset + '" ><textarea class="story-description-input  w-100  text-left" value="' + offset + '"  id="' + storyID + "-" + childrenType + "-" + offset + '-text">Description</textarea></div><div>'
-        );
-    }
-    if (childrenType === "image") {
-        $("#" + AppendTo_ID).append(
-            '<div class="smat-story-element-main bg-white" id="' + ID + '" value="' + offset + '" > ' + options + ' < div  class= "smat-story-element d-flex "    value = "' + offset + '" type = "' + childrenType + '"    id = "' + storyID + " - " + childrenType + " - " + offset + '" > <img ="storage/' + userID + " / " + storyID + " / plots / " + imageID + '" ></div ></div > '
-        );
-    }
-};
-
-const showImages = async (storyID, offset, type) => {
-    const userID = await getMe();
-    getPlotsFromServer(storyID, userID).then(res => {
-        $("#storyImagesModal").modal("show");
-        $("#storyPictures").html("");
-        res.map(image => {
-            $("#storyPictures").append(
-                '<div class="p-2 text-center plotsDivStory"><img src="storage/' +
-                userID + "/" + storyID + "/plots/" + image + '" /><div class="d-flex"><button class="btn btn-link addToStoryImageConfirm" value="' + offset + '" parentType="' + type + '" type="image"  imgID="' +
-                image + '">Add to Story</button><button class="btn btn-link">View Picture</button></div></div>'
-            );
-        });
-    });
-};
 const swapStoryElements = (current = null, prevElement = null, nextElement = null) => {
-
-    nextElement = parseInt(nextElement);
-    prevElement = parseInt(prevElement);
-    let target = null
-    current = parseInt(current);
-    console.log(target, current);
-    var tempArr = [];
-
-    if (prevElement < current) {
-        target = nextElement;
-        console.log('Target:', target)
-        for (let i = 0; i < storyElements.length; i++) {
-            if (i <= current && i > target) {
-                tempArr[i] = storyElements[i - 1];
-            } else if (i == target) {
-                tempArr[i] = storyElements[current];
-            } else if (i <= current && i < target) {
-                tempArr[i] = storyElements[i];
-            }
-            else {
-                tempArr[i] = storyElements[i];
-            }
-        }
+    let tempArr = [];
+    let cloneOriginal = storyElements;
+    var target = null;
+    if (prevElement === null) {
+        tempArr[0] = storyElements[current];
+        storyElements.map(element => element !== storyElements[current] && tempArr.push(element))
+    } else if (nextElement === null) {
+        storyElements.map(element => element !== storyElements[current] && tempArr.push(element))
+        tempArr[storyElements.length - 1] = storyElements[current];
     } else {
-        target = prevElement;
-        for (let i = 0; i < storyElements.length; i++) {
-            if (i >= current && i < target) {
-                tempArr[i] = storyElements[i + 1];
-            } else if (i == target) {
-                tempArr[i] = storyElements[current];
-            } else if (i >= current && i > target) {
-                tempArr[i] = storyElements[i];
-            }
-            else {
-                tempArr[i] = storyElements[i];
-            }
-        }
+        target = prevElement + 1;
+        var tempL = cloneOriginal.slice(0, target)
+        var tempR = cloneOriginal.slice(target);
+        tempL.map(element => element !== storyElements[current] && tempArr.push(element));
+        tempArr.push(storyElements[current]);
+        tempR.map(element => element !== storyElements[current] && tempArr.push(element));
     }
     storyElements = tempArr;
     updateStoryDomElements();
 };
-
 $("#storyMakerDiv").sortable({
     containment: "parent",
     cursor: "grabbing",
@@ -675,24 +616,14 @@ $("#storyMakerDiv").sortable({
         });
     },
     update: function (ev, ui) {
-        var currentSelected = ui.item.attr("value");
-        var nextElementToWhereDragged = ui.item[0].nextElementSibling.getAttribute(
-            "value"
-        );
-        var prevElementToWhereDragged = ui.item[0].previousElementSibling.getAttribute(
-            "value"
-        );
+        var currentSelected = parseInt(ui.item.attr("value"));
+        var nextElementToWhereDragged = ui.item[0].nextElementSibling ? parseInt(ui.item[0].nextElementSibling.getAttribute("value")) : null
+        var prevElementToWhereDragged = ui.item[0].previousElementSibling ? parseInt(ui.item[0].previousElementSibling.getAttribute("value")) : null
         swapStoryElements(currentSelected, prevElementToWhereDragged, nextElementToWhereDragged);
     }
 });
 
-$("body").on("click", ".addToStoryImageConfirm", function () {
-    let offset = $(this).attr("value");
-    let parentType = $(this).attr("parentType");
-    let imgID = $(this).attr("imgID");
-    let tempObj = { type: "image", text: null, style: null, image: imgID };
-    addChildrenToElement(offset, tempObj, "image", parentType, imgID);
-});
+
 
 const get_tokens_wrt_pattern = (queries, pattern = null) => {
     var final_query_list = [];
@@ -701,7 +632,6 @@ const get_tokens_wrt_pattern = (queries, pattern = null) => {
     if (pattern) {
         var query_list = queries[0].trim().match(pattern);
     } else {
-        // var pattern = /#(\w+)|@(\w+)|\*(\w+)|\&|\||\!|\(|\)/g;
         var pattern = /#(\w+)|@(\w+)|\^(\w+)|\*(\w+)|\&|\||\!|\(|\)/g;
         var query_list = queries[0].trim().match(pattern);
     }
@@ -711,8 +641,17 @@ const get_tokens_wrt_pattern = (queries, pattern = null) => {
 
 const updateStoryDomElements = () => {
     let counter = 0
-    storyElements.forEach(element => {
-        $('#' + element.id).attr('value', counter);
-        counter += 1;
+    var allDiv = document.querySelectorAll('storyMakerDiv');
+    allDiv.forEach(function (item, i) {
+        item.setAttribute('value', 'FCV');
+    });
+    storyElements.map(async element => {
+        if (element) {
+            let newID = counter + '-' + element.type + '-element';
+            let targetID = '#' + element.id;
+            $(targetID).attr("value", counter);
+            counter += 1;
+        }
     })
 }
+

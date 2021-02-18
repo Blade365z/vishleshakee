@@ -1000,7 +1000,7 @@ const createNetworkForTrack = (id, dateList) => {
             },
             edges: {
                 color: '#a3c2c2',
-                length: 1800,
+                length: 2500,
                 width: 0.3,
                 arrows: "from",
                 smooth: {
@@ -1018,33 +1018,26 @@ const createNetworkForTrack = (id, dateList) => {
                 keyboard: true
             },
             physics: {
-                // forceAtlas2Based: {
-                //     gravitationalConstant: -26,
-                //     centralGravity: 0.0003,
-                //     springLength: 1800,
-                //     springConstant: 0.018,
-                // },
-                // maxVelocity: 500,
-                // solver: "forceAtlas2Based",
-                // timestep: 0.35,
-                // stabilization: { iterations: 2500 },
+                forceAtlas2Based: {
+                    gravitationalConstant: -20,
+                    centralGravity: 0.00003,
+                    springLength: 2500,
+                    springConstant: 0.005,
+                    nodeDistance:500
+                },
+                maxVelocity: 500,
+                solver: "forceAtlas2Based",
+                timestep: 0.35,
+                stabilization: { 
+                    enabled: true,
+                    iterations: 5000, // maximum number of iteration to stabilize
+                    updateInterval: 100,
+                    onlyDynamicEdges: false,
+                    fit: true
+                },
             },
             layout: {
-                randomSeed: undefined,
-                improvedLayout:true,
-                clusterThreshold: 150,
-                hierarchical: {
-                  enabled:false,
-                  levelSeparation: 150,
-                  nodeSpacing: 100,
-                  treeSpacing: 200,
-                  blockShifting: true,
-                  edgeMinimization: true,
-                  parentCentralization: true,
-                  direction: 'UD',        // UD, DU, LR, RL
-                  sortMethod: 'hubsize',  // hubsize, directed
-                  shakeTowards: 'leaves'  // roots, leaves
-                }
+
             }
         };
 
