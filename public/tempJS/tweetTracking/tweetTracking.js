@@ -34,8 +34,9 @@ import {
 } from '../home/helper.js';
 
 //Globals
+var GlobalDate = [];
 var tweetDiv = 'tweetDiv';
-var currentQuery, currentlyAnalysed, fromDate, toDate;
+var currentQuery, currentlyAnalysed, fromDate, toDate,networkDivID=0;
 var divOffsetFlag = 0, sourceTweet; //As in offset 0 the currently searched Tweet would be printed;
 const tweetTypeDict = { 'Tweet': 'Source Tweet', 'retweet': 'Re Tweet', 'QuotedTweet': 'Quoted Tweet', 'Reply': 'Reply Tweet' };
 const tweetTypeDictShort = { 'Tweet': 'Source', 'retweet': 'Re Tweet', 'QuotedTweet': 'Quoted ', 'Reply': 'Reply ' };
@@ -54,14 +55,29 @@ jQuery(function () {
     $('#mainQuery').fadeIn('slow')
 
     makeSmatReady();
+    
+    $('#networkDivMain').on('click', 'div .username', function (e) {
+        console.log("global dates",GlobalDate);
+        e.preventDefault();
+        let queryCaptured = $(this).attr('value');
+        let tweet_id = $(this).attr('tweet_id');
+        queryCaptured = encodeURIComponent(queryCaptured);
+        let redirectURL = 'networkUserAnalysis' + '?query=' + queryCaptured + '&tweet_id=' + tweet_id + '&from=' + fromDate + '&to=' + toDate;
+        
+        window.open(redirectURL, '_blank');
+        document.getElementById("networkDiv"+(networkDivID-1)).insertAdjacentHTML("afterend",createDiv("track_net"+networkDivID,"networkDiv"+networkDivID,"networkTrackTweetDiv"+networkDivID,"ttNodesCountNetwork"+networkDivID,"ttEdgesCountNetwork"+networkDivID,"tweetHeirarchy"+networkDivID)); 
+        createNetworkForTrack(tweet_id,GlobalDate,"track_net"+(networkDivID-1),"networkDiv"+(networkDivID-1),"networkTrackTweetDiv"+(networkDivID-1),"ttNodesCountNetwork"+(networkDivID-1),"ttEdgesCountNetwork"+(networkDivID-1));
+        trackerLink(tweet_id).then(response2 => {
+            printTweetHierarchy(response2,"tweetHeirarchy"+(networkDivID-1),0);
+        });
+    });
+
     $('body').on('click', 'div .username', function () {
         let queryCaptured = '$' + $(this).attr('value');
         queryCaptured = encodeURIComponent(queryCaptured);
         let redirectURL = 'userAnalysis' + '?query=' + queryCaptured + '&from=' + fromDate + '&to=' + toDate;
         window.open(redirectURL, '_blank');
     });
-
-
 
     $('body').on('click', 'div .tweetAnalysisBtn', function () {
         let idCaptured = $(this).attr('value');
@@ -135,7 +151,7 @@ jQuery(function () {
     if (tweetIDCaptured) {
         currentQuery = tweetIDCaptured;
     } else {
-        console.log('Nothing capt.')
+        // console.log('Nothing capt.')
     }
 
     //Check if currently queried Tweet is the sourceTweetAlready!
@@ -161,11 +177,12 @@ jQuery(function () {
             }
         } else {
             tracker(currentQuery);
+            // console.log(currentQuery);
         }
     });
 
     $('body').on('click', '#bring', async function () {
-        console.log("This is the source tweet 2", sourceTweet);
+        // console.log("This is the source tweet 2", sourceTweet);
         getTweetsForSource(sourceTweet, '2020-10-31', null, 'all').then(response => {
             let arrTemp = response.data
         });
@@ -183,7 +200,7 @@ jQuery(function () {
     $('body').on('click', 'div .trackDateCard  ', function () {
         let valueArr = $(this).attr('value');
         valueArr = valueArr.split(/[|]/).filter(Boolean);
-        console.log(valueArr);
+        // console.log(valueArr);
         if (valueArr[3] == 'month') {
             dateCardTriggered(valueArr[1], valueArr[0], valueArr[2], valueArr[3], valueArr[4]);
         } if (valueArr[3] == 'week') {
@@ -222,7 +239,7 @@ jQuery(function () {
         getTweetInfo(valueArr[0]).then(tweetRawData => {
             getDatesDist(valueArr[0], fromTemp, toTemp, 'all').then(response => {
                 if (response.data.length > 0) {
-                    console.log(response)
+                    // console.log(response)
                     fromTemp = response.data[0][0]
 
                 }
@@ -234,7 +251,15 @@ jQuery(function () {
     });
     $('body').on('click', '#generateNetwork', function () {
         getDatesDist(sourceTweet, fromDate, toDate, 'all').then(response => {
-            createNetworkForTrack(sourceTweet, response);
+            console.log("getDateDist",response);
+            console.log("create_details",sourceTweet, response);
+            $('#networkDivMain').prepend($(createDiv("track_net"+networkDivID,"networkDiv"+networkDivID,"networkTrackTweetDiv"+networkDivID,"ttNodesCountNetwork"+networkDivID,"ttEdgesCountNetwork"+networkDivID,"tweetHeirarchy"+networkDivID)));
+            let dateArr = [];
+            response.data.forEach(element => {
+                dateArr.push(element[0]);
+            });
+            GlobalDate = dateArr;
+            createNetworkForTrack(sourceTweet, dateArr,"track_net"+(networkDivID-1),"networkDiv"+(networkDivID-1),"networkTrackTweetDiv"+(networkDivID-1),"ttNodesCountNetwork"+(networkDivID-1),"ttEdgesCountNetwork"+(networkDivID-1));
         })
 
     })
@@ -278,7 +303,6 @@ const tracker = async (searhIDTemp) => {
     let foundSourceFlag = 0;
     let maximumDependenceLevel = 15 //i.e : 0 to 2 --> 3 steps
     let type = '', tid;
-
     let i = 0;
     while (foundSourceFlag == 0) {
         await getTweetInfo(searhIDTemp).then(response => {
@@ -330,6 +354,62 @@ const tracker = async (searhIDTemp) => {
         }
     });
 }
+
+const trackerLink = async (searhIDTemp) => {
+    // This code this written to bring down the time complexity from a quadratic time complexity to linear.
+    let foundSourceFlag = 0;
+    let maximumDependenceLevel = 15 //i.e : 0 to 2 --> 3 steps
+    let type = '', tid;
+
+    let i = 0;
+    while (foundSourceFlag == 0) {
+        await getTweetInfo(searhIDTemp).then(response => {
+            tid = response.tid;
+            if (response.message) {
+                foundSourceFlag = 1;
+                $('.ttContent').remove();
+                displayErrorMsg('trackAnalysisMain', 'error', 'No Tracking Data Found', false);
+                $('#trackAnalysisMain').fadeIn("slow")
+            }
+            // console.log("issue",response);
+            if (response.mentions===null){
+                response.mentions = {};
+                response.mentions["values"]=[];
+            }
+            if (response.hashtags===null){
+                response.hashtags = {};
+                response.hashtags["values"]=[];
+            }
+            if (response.type === 'Tweet') {
+                foundSourceFlag = 1;
+                type = 'Tweet';
+                sourceTweet = tid;
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': null, 'priority': i, 'author': response.author, 'author_profile_image': response.author_profile_image,'hashtags':response.hashtags.values,'mentions':response.mentions.values };
+            }
+            else if (response.type === 'retweet') {
+                type = 'retweet';
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.retweet_source_id, 'priority': i, 'author': response.author, 'author_profile_image': response.author_profile_image,'hashtags':response.hashtags.values,'mentions':response.mentions.values };
+                searhIDTemp = response.retweet_source_id;
+            } else if (response.type === "QuotedTweet") {
+                type = 'QuotedTweet';
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.quoted_source_id, 'priority': i, 'author': response.author, 'author_profile_image': response.author_profile_image,'hashtags':response.hashtags.values,'mentions':response.mentions.values };
+                searhIDTemp = response.quoted_source_id;
+            } else if (response.type === "Reply") {
+                type = 'Reply';
+                historyJSON[tid] = { 'id': tid, 'type': type, 'source': response.replyto_source_id, 'priority': i, 'author': response.author, 'author_profile_image': response.author_profile_image,'hashtags':response.hashtags.values,'mentions':response.mentions.values };
+                searhIDTemp = response.replyto_source_id;
+            }
+
+        });
+
+        i += 1;
+    }
+    analysisHistory.push(historyJSON);
+    return historyJSON;
+
+  
+}
+
 const printTweetOnDiv = (data, offset, type) => {
     adjustLines();
     divOffsetFlag = 1; //TODO check left for source.
@@ -707,16 +787,17 @@ const makeFreqDistChart = (tweetID, from, to, groupByType = null, offset) => {
     }
 }
 const printTweetHierarchy = async (json, div, offset) => {
+    console.log("div nameeeeee",div);
     // $('#' + div).html('<div class="d-flex justify-content-center hierarchyDiv" id="heirarychyMain-' + offset + '"><div class="" id="heirarychyChild-' + offset + '-2"  ></div><div class="" id="heirarychyChild-' + offset + '-3"  ></div><div class="" id="heirarychyChild-' + offset + '-4"  ></div></div>')
-
-    let separator1 = '<div class="pt-4 separator" id="separator1-' + offset + '">-----</div>';
-    let separator2 = '<div class="pt-4 separator" id="separator2-' + offset + '" >----></div>';
+    let separator1 = '<div class="pt-4 separator" id="separator1-' + networkDivID + '">-----</div>';
+    let separator2 = '<div class="pt-4 separator" id="separator2-' + networkDivID + '" >----></div>';
     let mainNode = '';
     let relationship = '';
     let sourceTag = '';
     let sourceAuthor = '';
     let sourceID = null
     let currentQueryBadge = '';
+    
     for (const [key, value] of Object.entries(analysisHistory[offset])) {
         if (value['type'] == 'Tweet') {
             await getTweetInfo(key).then(response => {
@@ -726,12 +807,13 @@ const printTweetHierarchy = async (json, div, offset) => {
                 generate_tweets_div(arrTemp, 'sourceInfo', true, false)
             });
         }
-    };
-    $('#sourceInfo').fadeIn('slow')
+    }
+    console.log("sourceID",sourceID);
+    $('#sourceInfo').fadeIn('slow');
     let highestPriority = json[sourceID]['priority'];
-    let DOM = '<div class="d-flex justify-content-center hierarchyDiv" id="heirarychyMain-' + offset + '">'
+    let DOM = '<div class="d-flex justify-content-center hierarchyDiv" id="heirarychyMain-' + networkDivID + '">'
     for (let i = highestPriority; i >= 0; i--) {
-        DOM += '<div class="" id="heirarychyChild-' + offset + '-' + i + '"></div>';
+        DOM += '<div class="" id="heirarychyChild-' + networkDivID + '-' + i + '"></div>';
     }
     DOM += '</div>'
     // console.log(analysisHistory);
@@ -744,11 +826,11 @@ const printTweetHierarchy = async (json, div, offset) => {
         sourceTag = json[key]['priority'] == highestPriority ? '<div class="text-center" ><span class="badge badge-danger " > Source Tweet</span></div>' : '';
         currentQueryBadge = key == currentQuery ? '<div class="text-center" style="margin-top:-17px;" ><span class="badge badge-primary " > Query </span></div>' : '';
         relationship = '<div class="pt-4"   ><button class="btn btn-sm btn-primary p-1 relationshipNode" data-container="body" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="top" data-content="The tweet posted by <b>' + json[key]['author'] + '</b> is a ' + tweetTypeDictShort[json[key]['type']] + '  of  <b>' + namePrev + '</b>"  style="display:none;">' + tweetTypeDictShort[json[key]['type']] + '</button></div>';
-        mainNode = '<div class="trackHierarchyNode" id="node-' + key + '-' + offset + '">' + currentQueryBadge + '<div class="profilePictureDiv trackProfilePic p-1 text-center " value="' + key + '"><img class="openTweetRaw" src="' + json[key]['author_profile_image'] + '" style="height:55px;border-radius:50%"  value="' + key + '"/> </div><div class=" text-truncate">' + json[key]['author'] + '</div><div>' + sourceTag + '</div> <div class="badge badge-primary p-1 seeTweet" value=' + key + '>See Tweet</div></div>';
+        mainNode = '<div class="trackHierarchyNode" id="node-' + key + '-' + networkDivID + '">' + currentQueryBadge + '<div class="profilePictureDiv trackProfilePic p-1 text-center " value="' + key + '"><img class="openTweetRaw" src="' + json[key]['author_profile_image'] + '" style="height:55px;border-radius:50%"  value="' + key + '"/> </div><div class=" text-truncate">' + json[key]['author'] + '</div><div>' + sourceTag + '</div> <div class="badge badge-primary p-1 seeTweet" value=' + key + '>See Tweet</div></div>';
         if (json[key]['priority'] < highestPriority) {
-            $('#heirarychyChild-' + offset + '-' + json[key]['priority']).html('<div class="d-flex">' + separator1 + relationship + separator2 + mainNode + '</div>');
+            $('#heirarychyChild-' + networkDivID + '-' + json[key]['priority']).html('<div class="d-flex">' + separator1 + relationship + separator2 + mainNode + '</div>');
         } else if (json[key]['priority'] == highestPriority) {
-            $('#heirarychyChild-' + offset + '-' + json[key]['priority']).html('<div class="d-flex">' + mainNode + '</div>');
+            $('#heirarychyChild-' + networkDivID + '-' + json[key]['priority']).html('<div class="d-flex">' + mainNode + '</div>');
         }
     }
     $('[data-toggle="popover"]').popover();
@@ -813,10 +895,10 @@ const getRawTweets = async (tweetID, date, type) => {
         let dateArr = date.split(/[*]/).filter(Boolean);
         let arr = [];
         var responseArray = await Promise.all(dateArr.map(function (x) {
-            console.log("This is the source tweet 3", x, tweetID);
+            // console.log("This is the source tweet 3", x, tweetID);
             return getTweetsForSource(tweetID, x, null, type);
         }));
-        console.log('Rajdeep tweets:', responseArray.flat().length);
+        // console.log('Rajdeep tweets:', responseArray.flat().length);
 
         if (responseArray.flat().length < 1) {
             displayErrorMsg('trackRawData-' + offset, 'error', 'No Tweets Found.', false);
@@ -936,7 +1018,7 @@ const getTweetsForMap = async (tweetID, from, to, offset, groupByType = null, or
     let idArray = [];
     await Promise.all(originalDateData.map(async (y) => {
         let ArrTmp = await Promise.all(types.map(function (x) {
-            console.log("This is the source tweet 5", tweetID, y[0]);
+            // console.log("This is the source tweet 5", tweetID, y[0]);
             return getTweetsForSource(tweetID, y[0], null, x)
         }));
         await idArray.push(ArrTmp);
@@ -958,25 +1040,24 @@ const getTweetsForMap = async (tweetID, from, to, offset, groupByType = null, or
 
 
 
-const createNetworkForTrack = (id, dateList) => {
+const createNetworkForTrack = (id, dateList,track_net,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork,ttEdgesCountNetwork) => {
+    console.log("create_network_for_track",id, dateList,track_net,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork,ttEdgesCountNetwork);
     isNetworkDisplaying = 1;
-    console.log('Current Query:' ,currentQuery  , 'Source TweetID: ' , sourceTweet);
+    // console.log('Current Query:' ,currentQuery  , 'Source TweetID: ' , sourceTweet);
     $('#generateNetwork').remove();
     $('#trackNetworkMsg').html('<div class="d-flex justify-content-center"><div class=""><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div><div class="mt-2 mx-2">Loading network.Please wait.</div></div>');
-    let dateArr = [];
-    console.log(dateList);
-    dateList.data.forEach(element => {
-        dateArr.push(element[0]);
-    });
-    makeAddToStoryDiv('track_net')
+    let dateArr = dateList;
+    localStorage.getItem('projectMetaData') && makeAddToStoryDiv(track_net);
+    console.log("generate network info",userID, id, dateArr);
     getNetworkForSource(userID, id, dateArr).then(res => {
+        console.log("php return ",res);
         getTweetInfo(id).then(response => {
-            generate_tweets_div([response], 'networkTrackTweetDiv', true, false)
+            generate_tweets_div([response], networkTrackTweetDiv, true, false)
         });
         $('#trackNetworkMsg').html('');
-        $('#networkDiv').fadeIn('slow')
-        $('#ttNodesCountNetwork').html(res["nodes"].length);
-        $('#ttEdgesCountNetwork').html(res["edges"].length);
+        $(networkDiv).fadeIn('slow');
+        $("#"+ttNodesCountNetwork).html(res["nodes"].length);
+        $("#"+ttEdgesCountNetwork).html(res["edges"].length);
         
 
         var nodes_arr = res["nodes"];
@@ -1041,7 +1122,7 @@ const createNetworkForTrack = (id, dateList) => {
             }
         };
 
-        console.log(res);
+        // console.log(res);
 
         // update in network information division
         $(".nos_of_nodes").empty();
@@ -1055,7 +1136,7 @@ const createNetworkForTrack = (id, dateList) => {
 
         // create a network
         //var container = document.getElementsByClassName(id_value);
-        var container = document.getElementById("track_net");
+        var container = document.getElementById(track_net);
 
         var data = {
             nodes: nodes,
@@ -1144,7 +1225,7 @@ const createNetworkForTrack = (id, dateList) => {
                 $('#hoveredOnDiv').css('display', 'block');
                 $('#hoveredOnType').text(tweetTypeDict[response.type]);
                 $('#hoveredOnAuthor').text(response.author);
-                generate_tweets_div([response], 'networkTrackTweetDiv', true, false)
+                generate_tweets_div([response], networkTrackTweetDiv, true, false)
             });
         });
         var scaleOption = {scale:0.2};
@@ -1152,6 +1233,77 @@ const createNetworkForTrack = (id, dateList) => {
         $('.vis-network').removeAttr('tabindex');
     })
 
+}
+
+const createDiv = (track_net,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork,ttEdgesCountNetwork,tweetHeirarchy) => {
+    let divString = `
+            <div  class="text-center text-truncate mb-3" id=`+tweetHeirarchy+` style="
+            height: 150px;
+        " >
+
+            </div>
+            <div class="row px-3 "  id=`+networkDiv+`>
+                <div class="col-md-8 p-0">
+                    <div class="border" id=`+track_net+` style="height:650px;">
+
+                    </div>
+                </div>
+                <div class="col-md-4 p-0 border">
+                    <div>
+                        <div class="text-dark" id="hoveredOnDiv" style="display:none;">Hovered on <span class="font-weight-bold " id="hoveredOnType"></span>
+                            by
+                            <span class="font-weight-bold " id="hoveredOnAuthor"> </span>
+                        </div>
+                        <div class="" style="height:400px;overflow-y:auto;overflow-x:hidden;"
+                            id=`+networkTrackTweetDiv+`>
+                        </div>
+                    </div>
+                    <div class="px-3">
+                        <div class="text-dark">The network contains</div>
+                        <div class="d-flex ">
+                            <div>
+                                <h4 class="m-0 font-weight-bold text-dark" id=`+ttNodesCountNetwork+`>0</h4>
+                                <p class="m-0">Nodes </p>
+                            </div>
+                            <div class="mx-2">
+                                <h4 class="m-0 font-weight-bold text-dark" id=`+ttEdgesCountNetwork+`>0</h4>
+                                <p class="m-0">Edges </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-3 py-1">
+                        <div>
+                            <h4 class="text-dark font-weight-bold">Notations</h4>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle mr-1 " aria-hidden="true" style="color:#CF6ED2"title="Normal"></i> <span>Source
+                                Tweet</span>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
+                                style="color:#ff704d"></i>
+                            <span>Quoted Tweet</span>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle mr-1" aria-hidden="true" title="Normal"
+                                style="color:#00e600"></i>
+                            <span>Reply Tweet</span>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
+                                style="color:#0099cc"></i>
+                            <span>Re-Tweet</span>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
+                                style="color:yellow"></i>
+                            <span>Query Tweet</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        networkDivID = networkDivID+1;
+    return divString;
 }
 
 

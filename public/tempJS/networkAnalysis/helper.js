@@ -213,14 +213,14 @@ export const message_displayer = async (msg,category) => {
 }
 
 
-export const networkGeneration = async (url,queryTemp,fromDateTemp,toDateTemp,noOfNodesTemp,naTypeTemp,filename,msgbox) => {
+export const networkGeneration = async (url,queryTemp,fromDateTemp,toDateTemp,noOfNodesTemp,naTypeTemp,filename,msgbox, pname=null) => {
     if(msgbox == "enabled"){
         message_displayer("Generating your requested network","generation");
     }else{
 
     }
     let dir_name = getmystoragedir();
-    let pname = null;
+    
     let data = {
         token : queryTemp,
         fd : fromDateTemp,

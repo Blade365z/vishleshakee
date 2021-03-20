@@ -42,7 +42,7 @@ var searchRecords = [];
 var suggestionsGlobal, suggInputBoxBuffer = [];
 
 
-var projectDetails = []; //for project
+var projectDetails; //for project
 _MODE = 'UA'
 
 //Logic Implementation 
@@ -54,7 +54,7 @@ jQuery(function () {
     $('[data-toggle="popover"]').popover();
     $('#tableInitialTitle,#tableInitialTitleAdv').html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
 
-
+    
 
     makeSmatReady();
     if (localStorage.getItem('smat.me')) {
@@ -65,6 +65,19 @@ jQuery(function () {
     }
     // readSearchFromLocalDB('smatSearchHistory','UAsearches',userID);
 
+    // check if any project is active....todo
+    if (checkIfAnyProjectActive()){
+        // if yes
+        projectDetails = getProjectDetailsFromLocalStorage();
+        console.log(projectDetails);
+        let proj_name = projectDetails.projectMetaData.project_name;
+        let proj_id = projectDetails.projectMetaData.project_id;
+        $("#recent_searches_word_id").html('Recent Searches for <b class="projName">'+ proj_name +'</b>');
+        getDataForProjectTable(userID, proj_name, proj_id, _MODE);  
+    }else{
+        getDataFromMySqlTablesFor_normal_advance();
+    }
+
     toDate = getCurrentDate()
     fromDate = dateProcessor(toDate, '-', 3);
     if (incoming) {
@@ -74,18 +87,14 @@ jQuery(function () {
         }
         SearchID = incoming;
         initateUserSearch(SearchID);
-    }
-
-    
+    }    
    
-    getDataFromMySqlTablesFor_normal_advance();
-    
 
 
     // project queries
-    if (localStorage.getItem('projectName')) {
-        updateProjStatsTable('ua');
-    }
+    // if (localStorage.getItem('projectName')) {
+    //     updateProjStatsTable('ua');
+    // }
 
     $('.nav-item ').removeClass('smat-nav-active');
     $('#nav-UA').addClass('smat-nav-active');
@@ -103,6 +112,7 @@ jQuery(function () {
         }
 
     });
+
 
     $('#uaQueryHandleForm').on('submit', function (e) {
         //logic different in historical analysis :: If required please update in other module
@@ -232,10 +242,12 @@ jQuery(function () {
         args = args.split(/[|]/).filter(Boolean);
 
         if (args[4] === 'hour' || args[4] === 'day') {
+            console.log("parammmmmmmmmm",SearchID, args[1], args[2], args[4], args[0]);
             getTweetIDsForUA(SearchID, args[1], args[2], args[4], args[0]).then(response => {
                 TweetsGenerator(response.data, 6, args[3], args[1], args[2], true, args[4]);
             });
         } else if (args[4] === '10sec') {
+            console.log("parammmmmmmmmm",SearchID, args[1], args[2], args[4], args[0]);
             getTweetIDsForUA(SearchID, args[1], args[2], args[4], args[0], 1).then(response => {
                 TweetsGenerator(response.data, 6, args[3], args[1], args[2], true, args[4]);
             });
@@ -346,24 +358,36 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
         }
     }
 
+    // for project
+    let pname=null; 
+    let project_id = null;
+    let full_query = null;
+    if (checkIfAnyProjectActive()){
+        console.log(projectDetails);
+        pname = projectDetails.projectMetaData.project_name;
+        project_id = projectDetails.projectMetaData.project_id;
+        full_query = madeFullQuery(projectDetails, query, _MODE, fromDate, toDate);
+    }
 
     let unique_name_timestamp = new Date().getTime()  //mala
     let rangeType = getRangeType(fromDate, toDate); //mala
     if (addToStatusTable) {
-        if (searchType == 0) {            
-            addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);        
+        if (searchType == 0) {  
+            if(pname){
+                console.log(pname);
+                storeToProjectActivityTable(userID, project_id, query,  fromDate, toDate, _MODE, full_query);  
+            }        
+            else
+                addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);        
         } else {
             //TODO::add to sparkstarsTable
         
-        addQueryToStatusTable('uaAdvStatusTable',searchType, null, query, fromDate, toDate, unique_name_timestamp, false, mentionUniqueID, hashtagsUniqueID, true); //mala
+            addQueryToStatusTable('uaAdvStatusTable',searchType, null, query, fromDate, toDate, unique_name_timestamp, false, mentionUniqueID, hashtagsUniqueID, true); //mala
         }
     }
 
-    // for project
-    // let pname=null; 
-    // if($(this).attr('projectName')){
-    //     pname = $(this).attr('projectName'); 
-    // }  
+   
+      
 
 
     if (searchType === 0) {
@@ -371,19 +395,17 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
         // if (localStorage.getItem('projectName')) {
         //     checkAnalysisExistorNotFunction(userID, SearchID, fromDate, toDate, 'ua');
         // }
-        let pname= null;
        
-
 
         getUserDetails(SearchID).then(data => makePageReady(data));
         // window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
         frequencyDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'freqContentUA', false, null, pname);
 
-        sentimentDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'sentiContentUA', false);
+        sentimentDistributionUA(SearchID, rangeType, fromDate, toDate, null, 'sentiContentUA', false, null, pname);
         //forHashtagsGraph
-        plotDistributionGraphUA(SearchID, fromDate, toDate, 'hashtag', hashtagsUniqueID, userID, 'hashtagsContentTab');
+        plotDistributionGraphUA(SearchID, fromDate, toDate, 'hashtag', hashtagsUniqueID, userID, 'hashtagsContentTab', null, pname);
         //forMentionsGraph
-        plotDistributionGraphUA(SearchID, fromDate, toDate, 'mention', mentionUniqueID, userID, 'mentionsContentUA');
+        plotDistributionGraphUA(SearchID, fromDate, toDate, 'mention', mentionUniqueID, userID, 'mentionsContentUA', null, pname);
     } else {
         //mala
         if (filename) {
@@ -492,7 +514,6 @@ const get_tokens_wrt_pattern = (queries, pattern = null) => {
 
 
 const makePageReady = (userDetails) => {
-
     $('.haTab').removeClass('active show');
     $('#freqContentUA').addClass('active show');
     $('.uaNav').removeClass('active');
@@ -564,10 +585,11 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateFreqDistBarChart(query, response, rangeType, chartDivID);
+                    generateFreqDistBarChart(query, response, rangeType, chartDivID, pname);
                     freqSummaryGenerator(response, summaryDivID, rangeType);
-                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    console.log("parammmmmmmmmm",query, fromDate, toDate, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
                 }
 
@@ -584,14 +606,15 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 0, pname).then(response => {
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateFreqDistBarChart(query, response, rangeType, chartDivID);
+                    generateFreqDistBarChart(query, response, rangeType, chartDivID, pname);
                     freqSummaryGenerator(response, summaryDivID, rangeType);
-                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    console.log("parammmmmmmmmm",query, fromDate, toDate, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
                 }
             });
@@ -609,15 +632,16 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
+            getFreqDistDataForUA(query, fromDate, toDate, null, rangeType, 1, pname).then(response => {
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateFrequencyLineChart(query, response, rangeType, chartDivID);
                     freqSummaryGenerator(response, summaryDivID, rangeType);
-                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1).then(response => {
+                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1, pname).then(response => {
                         let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType, pname);
                     });
                 }
             });
@@ -628,7 +652,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
 
 
 let sentiParentDiv = 'sentiContentUA';
-export const sentimentDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null) => {
+export const sentimentDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname=null) => {
     let chartType = 'senti-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
@@ -661,14 +685,15 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0, pname).then(response => {
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateSentiDistBarChart(response, query, rangeType, chartDivID);
+                    generateSentiDistBarChart(response, query, rangeType, chartDivID, pname);
                     generateSentimentSummary(response, summaryDivID, rangeType);
-                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
                 }
 
@@ -687,14 +712,15 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0).then(response => {
+            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 0, pname).then(response => {
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateSentiDistBarChart(response, query, rangeType, chartDivID);
+                    generateSentiDistBarChart(response, query, rangeType, chartDivID, pname);
                     generateSentimentSummary(response, summaryDivID, rangeType);
-                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null).then(response => {
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
                 }
             });
@@ -711,15 +737,16 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
-            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 1).then(response => {
+            getSentiDistDataForUA(query, fromDate, toDate, null, rangeType, 1, pname).then(response => {
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
                     generateSentiDistLineChart(query, response, rangeType, chartDivID);
                     generateSentimentSummary(response, summaryDivID, rangeType);
-                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1).then(response => {
+                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1, pname).then(response => {
                         let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType, pname);
                     });
                 }
             });
@@ -730,7 +757,7 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
 
 }
 
-const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null) => {
+const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null, pname=null) => {
     //Loader...
     let chartDivID = option + '-chart';
     $('#' + div).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
@@ -744,7 +771,8 @@ const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, user
             $('#' + option + '-total').text(response[0]['nodes']);
         });
     } else {
-        getCooccurDataForUA(query, fromDate, toDate, option, uniqueID, userID).then(response => {
+        console.log("infoooo",query, fromDate, toDate, option, uniqueID, userID);
+        getCooccurDataForUA(query, fromDate, toDate, option, uniqueID, userID, pname).then(response => {
             if (response[0]['data'].length < 1) {
                 $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
             } else {
@@ -1035,7 +1063,10 @@ const getDataFromMySqlTablesFor_normal_advance = () => {
 }
 
 
+// TODO
 const getDataForProjectTable = (userID, projectName, projectID, module_name) => {
+    let mentionUniqueID = generateUniqueID();
+    let hashtagsUniqueID = generateUniqueID();
     // normal searches for project
     console.log(userID, projectName, projectID, module_name);
     getAnalysisForAProjectAPI(userID, projectID, module_name).then(response => {
@@ -1043,7 +1074,9 @@ const getDataForProjectTable = (userID, projectName, projectID, module_name) => 
             displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
         }
         response.forEach(element => {
-            updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName);
+            // updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName);
+
+            addQueryToStatusTable('uaStatusTable',0,null,element.analysis_name,element.from_date,element.to_date,null,true,mentionUniqueID,hashtagsUniqueID,false,'success');
         });
     });
 }

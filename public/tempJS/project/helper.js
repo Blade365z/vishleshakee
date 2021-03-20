@@ -9,13 +9,13 @@ var HeadersForApi = {
 };
 
 //Fetch Api calls
-export const createProjectAPI = async (projectName, option, user_id, query, from_date, to_date, query_list) => {
+export const createProjectAPI = async (projectName, option, user_id, query, from_date, to_date, query_list, uniqueTimeStamp) => {
     let route = 'createKT'; //declare route here
     let response = await fetch(route, {
         method: 'post', //http method
         headers: HeadersForApi,
         body: JSON.stringify({
-            projectName, option, user_id, query, from_date, to_date, query_list   //declare body to be parsed in server
+            projectName, option, user_id, query, from_date, to_date, query_list, uniqueTimeStamp   //declare body to be parsed in server
         })
     });
     // return response; //return here
@@ -160,13 +160,13 @@ export const checkIfProjectExitsByName = async (name) => {
 
 
 
-export const storeToProjectTable = async (projectName, user_id, project_id, project_description) => {
+export const storeToProjectTable = async (projectName, user_id, project_id, project_description, from_date, to_date, seed_tokens) => {
     let route = 'storeToProjectTable'; //declare route here
     let response = await fetch(route, {
         method: 'post', //http method
         headers: HeadersForApi,
         body: JSON.stringify({
-            projectName, user_id, project_id, project_description   //declare body to be parsed in server
+            projectName, user_id, project_id, project_description, from_date, to_date, seed_tokens   //declare body to be parsed in server
         })
     });
     // return response; //return here
@@ -289,15 +289,100 @@ export const getPlotsFromServer = async (projectID, userID) => {
 }
 
 
-export const uploadStoryToServer =  async (projectID, StoryName, StoryObj,userID) => {
+export const uploadStoryToServer = async (projectID, StoryName,storyDescription ,StoryObj, userID ,key) => {
     let route = 'SaveStoryElementsJSON'; //declare route here
+    let data = key!=='null' && key ? JSON.stringify({
+        projectID, StoryName, StoryObj, userID,storyDescription ,key
+    })  : 
+    JSON.stringify({
+        projectID, StoryName, StoryObj, userID,storyDescription
+    })
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: data
+    });
+     response  = await response.json()
+    return response;
+}
+
+export const getStoriesOfUserFromServer = async (projectID, userID) => {
+    let route = 'readStories'; //declare route here
     let response = await fetch(route, {
         method: 'post', //http method
         headers: HeadersForApi,
         body: JSON.stringify({
-            projectID, StoryName, StoryObj,userID
+            projectID, userID
         })
     });
     let data = await response.json()
+    return data;
+}
+
+export const getStoryObjFromServer = async (projectID, filename, userID) => {
+    let route = 'getStoryData'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectID, filename, userID
+        })
+    });
+    let data = await response.json()
+    return data;
+}
+
+
+export const activateProjectAPI = async (projectName) => {
+    let route = 'activateProject'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectName
+        })
+    });
+    let data = await response.json()
+    return data;
+}
+
+
+
+export const getAllTagsForSHOW = async (projectID, userID, type) => {
+    let route = 'getAllTagsForSHOW'; //declare route here
+    let response = await fetch(route, {
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectID, userID, type
+        })
+    });
+    let data = await response.json();
+    return data;
+}
+
+
+export const getTokenCountForProject = async (projectID, userID,type) => {
+    let response = await fetch('readTokenCountProject',{
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectID, userID,type
+        })
+    });
+    let data = await response.json();
+    return data;
+}
+
+
+export const getTweetsForProject = async (projectID,userID,tweetType) =>{
+    let response = await fetch('getTweetidListOrderByTweetTypeCount',{
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectID,userID,tweetType
+        })
+    });
+    let data = await response.json();
     return data;
 }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\story;
 use App\storyContent;
 use Illuminate\Http\Request;
-
+use DateTime;
 class storyController extends Controller
 {
     public function uploadStoryContent(Request $request)
@@ -139,19 +139,130 @@ class storyController extends Controller
             'projectID' => 'required',
             'StoryName' => 'required',
             'StoryObj' => 'required',
-            'userID' => 'required'
+            'userID' => 'required',
         ]);
         $userID = $request->input('userID');
         $projectID = $request->input('projectID');
         $storyName = $request->input('StoryName');
         $elemntObj = $request->input('StoryObj');
+        $storyDescription = $request->input('storyDescription');
         $json_data = json_encode($elemntObj);
+        if($request->input('key')){
+            $key = $request->input('key');
+
+        }else{
+            $key =   substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,7).'smat'.$userID;
+ 
+        }
         try {
-            $filePath = "storage/$userID/$projectID/$storyName.json";
+            $this->saveStoryInfoToDB($projectID,$storyName,$storyDescription,$key);
+
+            $filePath = "storage/$userID/$projectID/$key.json";
             file_put_contents($filePath, $json_data);
-            return response()->json(array('status' => 'Updated Successfully!'), 200);
+            return response()->json(array('status' => 'Updated Successfully!','key'=>$key), 200);
         } catch (Exception $e) {
             return response()->json(['error' => 'Some error occured!'], 404);
+        }
+    }
+    public function readStories(Request $request)
+    {
+        $userID = $request->input('userID');
+        $projectID = $request->input('projectID');
+        $files = story::where('projectID', '=', $projectID)->get();
+        return $files;
+    }
+    public function getStoryData(Request $request)
+    {
+        $request->validate([
+            'projectID' => 'required',
+            'filename' => 'required',
+            'userID' => 'required',
+        ]);
+        $userID = $request->input('userID');
+        $projectID = $request->input('projectID');
+        $storyName = $request->input('filename');
+        try {
+            $filepath = "storage/$userID/$projectID/$storyName.json";
+            $str = file_get_contents($filepath);
+            $json = json_decode($str, true);
+            return $json;
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some error occured!'], 404);
+        }
+    }
+    public function readStoryStatsForShow(Request $request)
+    {
+        $request->validate([
+            'projectID' => 'required',
+            'userID' => 'required',
+        ]);
+        try {
+            $userID = $request->input('userID');
+            $projectID = $request->input('projectID');
+            $type = $request->input('type');
+            if ($type === 'hashtag') {
+                $filePath = "storage/$userID/$projectID/statistics/hashtag_count_500.csv";
+            } else if ($type === 'mention') {
+                $filePath = "storage/$userID/$projectID/statistics/mention_count_500.csv";
+            } else if ($type === 'user') {
+                $filePath = "storage/$userID/$projectID/statistics/user_count_500.csv";
+            } else if ($type === 'location') {
+                $filePath = "storage/$userID/$projectID/statistics/location_count_500.csv";
+            }
+
+            $str = file_get_contents($filePath);
+            $array = array_map("str_getcsv", explode("\n", $str));
+            $array = array_slice($array, 1);
+            $json = json_encode($array);
+            return $json;
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some error occured!'], 404);
+        }
+    }
+    public function readTokenCountProject(Request $request)
+    {
+        $request->validate([
+            'projectID' => 'required',
+            'userID' => 'required',
+            'type' => 'required',
+        ]);
+        try {
+            $userID = $request->input('userID');
+            $projectID = $request->input('projectID');
+            $type = $request->input('type');
+            if ($type == 'token') {
+                $filePath = "storage/$userID/$projectID/statistics/aggregate_count.json";
+                $str = file_get_contents($filePath);
+                $json = json_decode($str, true);
+                return $json['data'];
+            } else if ($type == 'tweet') {
+                $filePath = "storage/$userID/$projectID/statistics/total_tweet_count_category_wise_statistics.json";
+                $str = file_get_contents($filePath);
+                $json = json_decode($str, true);
+                return $json['data'];
+            }
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some error occured!'], 404);
+        }
+    }
+
+    public function saveStoryInfoToDB($projectID, $storyName, $storyDescription,$key)
+    {
+        $storyObj = new story;
+        $statusObj = story::where([['storyName', '=', $storyName], ['projectID', '=', $projectID]])->first();
+        if($statusObj){
+            $statusObj = story::where('storyID','=',$key)->update(array(
+                'storyName' => $storyName,'storyDescription'=>$storyDescription));
+        }else{
+            $datetime = new DateTime();
+            $statusObj = new story([
+                'storyID' => $key,
+                'projectID' => $projectID,
+                'storyName' => $storyName,
+                'storyDescription' => $storyDescription,
+                'createdOn' =>  $datetime->format('Y-m-d H:i:s')
+            ]);
+            $statusObj->save();
         }
     }
 

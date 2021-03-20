@@ -28,7 +28,7 @@ Route::get('/configure', function () {
     return view('modules.configure');
 })->middleware('isAdmin');
 
-Route::get('/project', function () {
+Route::get('/create-project', function () {
     return view('modules.project');
 });
 
@@ -36,12 +36,38 @@ Route::get('/home', function (Request $request) {
     $query = '';
     if ($request->input('query')) {
         $query = $request->input('query');
+        
     } elseif ($request->input('query')) {
-        $query = $request->input('query');
-      
+        $query = '';
     }
     return view('modules.home', compact('query'));
 });
+
+Route::get('/story', function (Request $request) {
+    $projectID = '';
+    $storyID = '';
+    $projectID = $request->input('projectID');
+    if ($request->input('storyID')) {
+        $storyID = $request->input('storyID');
+    }
+    return view('modules.storyBuilder', compact('projectID','storyID'));
+});
+
+Route::get('/networkUserAnalysis', function (Request $request) {
+    $query = '';
+    $tweet_id = '';
+    $from = '';
+    $to = '';
+    if ($request->input('query') && $request->input('tweet_id') && $request->input('from') && $request->input('to')) {
+        $query = $request->input('query');
+        $tweet_id = $request->input('tweet_id');
+        $from = $request->input('from');
+        $to = $request->input('to');
+    }
+    return view('modules.networkUserAnalysis', compact('query', 'tweet_id', 'from', 'to'));
+
+})->middleware('auth');
+
 Route::get('/userAnalysis', function (Request $request) {
     $query = '';
     $from = '';
@@ -81,8 +107,8 @@ Route::get('/networkAnalysis', function (Request $request) {
         $uniqueID = $request->input('uniqueID');
         $relation = $request->input('relation');
         $user = $request->input('user');
-    } 
-    return view('modules.networkAnalysis', compact('query', 'from', 'to','uniqueID','relation','user'));
+    }
+    return view('modules.networkAnalysis', compact('query', 'from', 'to', 'uniqueID', 'relation', 'user'));
 })->middleware('auth');
 
 Route::get('/locationMonitor', function () {
@@ -106,6 +132,19 @@ Route::get('/tracking', function (Request $request) {
     }
 
 })->middleware('auth');
+
+Route::get('/manageProject', function (Request $request) {
+    return view('modules.project');
+})->middleware('auth');
+
+Route::get('/project', function (Request $request) {
+    $projectID = $request->input('projectID');
+    return view('modules.manageProject', compact('projectID'));
+    
+})->middleware('auth');
+
+
+
 
 //Few Auth Routes
 Auth::routes();
@@ -147,9 +186,6 @@ Route::group(['prefix' => 'HA'], function () {
     Route::post('getSentimentDataForHistoricalAdvance', 'HistoricalAdvanceController@getSentimentDataForHistoricalAdvance');
     Route::post('getCooccurDataForAdvance', 'HistoricalAdvanceController@getCooccurDataForAdvance');
     Route::post('getTweetIDForAdvance', 'HistoricalAdvanceController@getTweetIDForAdvance');
-
-
-
 
     // just for testing
     Route::get('freqDistDataHA', 'HistoricalController@getFrequencyDataForHA');
@@ -215,7 +251,8 @@ Route::group(['prefix' => 'UA'], function () {
     Route::post('/getTweetIDs', 'UserAnalysisController@getTweetIDUA');
     Route::post('/getSentimentDataForUser', 'UserAnalysisController@getSentimentDataForUser');
     Route::post('/getCooccurDataForUser', 'UserAnalysisController@getCooccurDataForUser');
-    Route::get('/getUsersFromCrawlerList','UserAnalysisController@getUAListFromCrawler');
+    Route::get('/getUsersFromCrawlerList', 'UserAnalysisController@getUAListFromCrawler');
+    Route::post('/getNetworkTweetIDs', 'UserAnalysisController@getNetworkTweetIDUA');
 });
 
 //Define API routes requiring middleware here for Map
@@ -234,10 +271,7 @@ Route::group(['prefix' => 'LM'], function () {
     Route::post('/generate_tweet_network', 'LocationMap@generate_tweet_network');
     Route::post('/generate_tweet_network_', 'LocationMap@generate_tweet_network_');
     Route::post('/tweetid_userInfo', 'LocationMap@tweetid_userInfo');
-
-    
-    
-    
+    Route::post('/user_tweet_info', 'LocationMap@user_tweet_data');
 
 });
 
@@ -255,11 +289,8 @@ Route::post('/extractFeedbacks', 'FeebackController@extractFeedbacks');
 Route::resource('status', 'queryStatusController', ['except' => ['show']]);
 Route::post('/status/{username}', 'queryStatusController@show');
 
-
 Route::resource('normalStatus', 'normalQueryStatusController', ['except' => ['show']]);
 Route::post('/normalStatus/{id}', 'normalQueryStatusController@show');
-
-
 
 //Define API routes requiring middleware here for Tweet Tracking
 Route::group(['prefix' => 'track'], function () {
@@ -270,24 +301,21 @@ Route::group(['prefix' => 'track'], function () {
     Route::post('/getDatesDist', 'TweetTracking@getDatesDist');
 });
 
-
-
 Route::group(['prefix' => 'configure'], function () {
     Route::post('/getConfigurations', 'ConfigureSmat@getConfigs');
-    Route::post('/save','ConfigureSmat@insertConfig');
-    Route::post('/saveCrawlerInfo','ConfigureSmat@AddTrackToken');
-    Route::post('/GetAllTrackToken','ConfigureSmat@GetAllTrackToken');
-    Route::put('/updateTrackWordStatus','ConfigureSmat@updateTrackWordStatus');
-    Route::delete('/deletefromCrawlList','ConfigureSmat@DeleteTrackToken');
+    Route::post('/save', 'ConfigureSmat@insertConfig');
+    Route::post('/saveCrawlerInfo', 'ConfigureSmat@AddTrackToken');
+    Route::post('/GetAllTrackToken', 'ConfigureSmat@GetAllTrackToken');
+    Route::put('/updateTrackWordStatus', 'ConfigureSmat@updateTrackWordStatus');
+    Route::delete('/deletefromCrawlList', 'ConfigureSmat@DeleteTrackToken');
 });
-
 
 // project - feature
 Route::post('insertKT', 'ProjectActivityController@insert_to_new_keyspace');
 Route::post('showP/{id}', 'ProjectActivityController@show');
 Route::post('getProjectName/{project_id}', 'ProjectActivityController@get_project_name');
 Route::post('getAllProject/{id}', 'ProjectActivityController@get_all_projects');
-Route::get('checkIfAnyKeySpaceCreating/{id}','ProjectActivityController@checkIfAnyKeySpaceCreating');
+Route::get('checkIfAnyKeySpaceCreating/{id}', 'ProjectActivityController@checkIfAnyKeySpaceCreating');
 Route::post('deleteProjectFromRecords', 'ProjectActivityController@deleteProjectFromRecords');
 Route::get('checkIfAnyAnalysisStoreGoingOn/{id}', 'ProjectActivityController@checkIfAnyAnalysisStoreGoingOn');
 Route::get('getAnalysisDetails/{userID}/{queryString}', 'ProjectActivityController@getAnalysisDetails');
@@ -300,21 +328,13 @@ Route::get('/ShowProject', function () {
     return view('modules.ShowProject');
 })->middleware('auth');
 
-
-
-
-
-
 // log file route
 Route::post('log', 'LogController@write_to_log_file');
-
 
 //check for data streaming status
 Route::get('checkStatus', 'CommonController@check_for_cassandra_data_streaming_status');
 Route::post('/destroy/{id}', 'queryStatusController@destroy');
 Route::post('/destroynets', 'queryStatusController@destroy_network_query_rec');
-
-
 
 //RoutesforProject.
 Route::post('getRelatedWords', 'ProjectActivityController@getRelatedWords');
@@ -323,9 +343,6 @@ Route::get('checkIfProjectExitsByName/{name}', 'ProjectActivityController@checkI
 Route::post('createKT', 'ProjectActivityController@create_table_keyspace_api');
 Route::post('storeToProjectTable', 'ProjectActivityController@store_to_project_table_api');
 Route::post('storeToProjectActivityTable', 'ProjectActivityController@store_to_project_activity_table_api');
-
-
-
 
 //Routes For Story
 Route::post('uploadStoryContent', 'storyController@uploadStoryContent');
@@ -336,16 +353,25 @@ Route::get('getAllAnalysisUnderStory/{storyID}', 'storyController@getAllAnalysis
 Route::get('getStoryInfo/{storyName}', 'storyController@getStoryInfo');
 Route::get('getBaseUrl', 'storyController@getBaseUrl');
 Route::post('ReadPlotsFromDir', 'storyController@ReadPlotsFromDir');
+Route::post('readStories', 'storyController@readStories');
+Route::post('getStoryData', 'storyController@getStoryData');
+
+Route::post('activateProject', 'ConfigureSmat@activateProject');
+Route::post('deactivateProject', 'ConfigureSmat@deactivateProject');
+
+
+
 
 Route::post('SaveStoryElementsJSON', 'storyController@SaveStoryElementsJSON');
-
 
 Route::post('updateStoryAnalysis', 'storyController@updateStoryAnalysis');
 
 
+Route::post('getAllTagsForSHOW', 'storyController@readStoryStatsForShow');
 
 
 
+Route::post('readTokenCountProject', 'storyController@readTokenCountProject');
 
 
-
+Route::post('getTweetidListOrderByTweetTypeCount', 'ProjectActivityController@getTweetidListOrderByTweetTypeCount');

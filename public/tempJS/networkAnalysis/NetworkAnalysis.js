@@ -11,8 +11,10 @@ import {
 import { makeAddToStoryDiv, makeSuggestionsReady } from '../utilitiesJS/smatExtras.js'
 import { formulateUserSearch } from '../utilitiesJS/userSearch.js';
 
+// for project
+import { checkIfAnyProjectActive, getProjectDetailsFromLocalStorage, madeFullQuery } from '../project/commonFunctionsProject.js';
 
-
+var projectDetails; //for project
 let totalQueries = 0;
 let totalNetworkatInstance = 0;
 let searchRecords = [];
@@ -45,6 +47,14 @@ var mynetworks=[];
 var query_mynetworks_mapping = {};
 
 let mynetworks_counter = 0;
+
+ // check if any project is active
+ if (checkIfAnyProjectActive()){
+    // if yes
+    projectDetails = getProjectDetailsFromLocalStorage();
+    console.log(projectDetails);
+ }
+
 
 if (localStorage.getItem('smat.me')) {
     let userInfoTemp = JSON.parse(localStorage.getItem('smat.me'));
@@ -245,9 +255,11 @@ jQuery(function () {
             }
             totalQueries = totalQueries + 1;
             totalNetworkatInstance = totalNetworkatInstance + 1;
+            
+            let pname = get_project_name();
 
             let filename = incoming + fromDateReceived + toDateReceived + 50 + networkType;
-            networkGeneration('na/genNetwork', incoming, fromDateReceived+" 00:00:00", toDateReceived+" 00:00:00", 50 , relationReceived, filename,"enabled").then(response => {
+            networkGeneration('na/genNetwork', incoming, fromDateReceived+" 00:00:00", toDateReceived+" 00:00:00", 50 , relationReceived, filename,"enabled", pname).then(response => {
                 generateCards(totalQueries, incoming, fromDateReceived, toDateReceived, 50, relationReceived, currentNetworkEngine, filename, 'naCards',"normal");    
                 message_displayer("NETWORK GENERATED SUCCESSFULLY","success");
                 return;
@@ -455,7 +467,9 @@ jQuery(function () {
                 }
             }
 
-            networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename,"enabled").then(response => {
+            let pname = get_project_name();
+
+            networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename,"enabled", pname).then(response => {
                
                 if(response["res"]=="empty"){
                     if(totalQueries>=1){
@@ -589,7 +603,8 @@ $("body").on('click', ".authorName",function(){
     let netCategory = $("#net_category").val();
     let naEngine = $('#networkEngineNA').val();
     let filename = queryTemp + fromDateStripped + toDateStripped + noOfNodesTemp + naTypeTemp;
-    networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename,"enabled").then(response => {
+    let pname = get_project_name();
+    networkGeneration('na/genNetwork', queryTemp, fromDateTemp, toDateTemp, noOfNodesTemp, naTypeTemp, filename,"enabled", pname).then(response => {
         generateCards(totalQueries, name_text, fromDateStripped, toDateStripped, noOfNodesTemp, naTypeTemp, naEngine, filename, 'naCards',"normal");
         message_displayer("Network generated successfully","success");
         return;
@@ -1832,3 +1847,15 @@ $('body #netview').dblclick(function(event) {
     $('body .btn_mynetwork').tooltip({title: "Click to use the network", html: true, placement: "bottom"}); 
     $('body .btn_mynetwork').tooltip('enable'); 
 });
+
+
+
+
+function get_project_name(){
+    let pname = null;
+    if (checkIfAnyProjectActive()){           
+        console.log('project');
+        pname = projectDetails.projectMetaData.project_name;
+    }
+    return pname;
+}

@@ -112,6 +112,11 @@
                                             id="dbUserInput" placeholder="Enter Database User">
                                     </div>
                                     <div class="form-group">
+                                        <label class=" m-0 text-muted" for="dbPortNo">Default Keyspace</label>
+                                        <input type="text" class="form-control  dbCredentialsInput smat-rounded "
+                                            id="defaultKeyspace" placeholder="Enter Default Keyspace Name">
+                                    </div>
+                                    <div class="form-group">
                                         <label class=" m-0 text-muted" for="dbPassInput">DB Password</label>
                                         <input type="password" class="form-control  dbCredentialsInput smat-rounded "
                                             id="dbPassInput" placeholder="Enter Database Password">

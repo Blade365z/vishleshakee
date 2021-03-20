@@ -8,15 +8,8 @@
             </div>
         </div>
         <div class="col-md-4 text-right">
-            <button class="btn btn-primary smat-rounded" id="deactivateProject" onclick="clearProjectMetaData()"> Deactive project</button>
+            <button class="btn btn-primary smat-rounded" id="deactivateProject" > Deactive project</button>
         </div>
     </div>
 </div>
 
-<script>
-function clearProjectMetaData(){
-    localStorage.removeItem('projectMetaData');
-    location.reload();
-}
-
-</script>

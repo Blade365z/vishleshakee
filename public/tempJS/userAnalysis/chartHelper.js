@@ -27,7 +27,7 @@ import { forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.j
 
 
 //Functions for Freqeuncy Distribution chart :: contains --->  1. Bar chart , 2. Line chart
-export const generateFreqDistBarChart = (query, data = null, rangeType, div) => {
+export const generateFreqDistBarChart = (query, data = null, rangeType, div, pname=null) => {
     // Create chart instance
     am4core.useTheme(am4themes_animated);
     var chart = am4core.create(div, am4charts.XYChart);
@@ -100,7 +100,7 @@ export const generateFreqDistBarChart = (query, data = null, rangeType, div) => 
             let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
             var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
             var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
-            frequencyDistributionUA(query, 'hour', date, date, null, div, true);
+            frequencyDistributionUA(query, 'hour', date, date, null, div, true, null, pname);
             //ARGS format :: (query=null,rangeType,fromDate=null,toDate=null,toTime=null,div,appendArg=false)
         } else if (rangeType == 'hour') {
             let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
@@ -108,7 +108,7 @@ export const generateFreqDistBarChart = (query, data = null, rangeType, div) => 
             let startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
             let dateTimeTemp = date + ' ' + startTime;
             console.log(div);
-            frequencyDistributionUA(query, '10sec', dateTimeTemp, dateTimeTemp, null, div, true);
+            frequencyDistributionUA(query, '10sec', dateTimeTemp, dateTimeTemp, null, div, true, null, pname);
             //ARGS format :: (query=null,rangeType,fromDate=null,toDate=null,toTime=null,div,appendArg=false)
         }
     });
@@ -181,7 +181,7 @@ export const generateFrequencyLineChart = (query, data = null, rangeType, div) =
 }
 
 
-export const generateSentiDistBarChart = (data, query, rangeType, div) => {
+export const generateSentiDistBarChart = (data, query, rangeType, div, pname=null) => {
     am4core.useTheme(am4themes_animated);
     var chart = am4core.create(div, am4charts.XYChart);
     chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
@@ -277,13 +277,13 @@ export const generateSentiDistBarChart = (data, query, rangeType, div) => {
                     var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
                     var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
                     let dateTimeTemp = date + ' ' + startTime;
-                    sentimentDistributionUA(query, '10sec', dateTimeTemp, dateTimeTemp, null, div, true);
+                    sentimentDistributionUA(query, '10sec', dateTimeTemp, dateTimeTemp, null, div, true, null, pname);
                 } else if (rangeType == 'day') {
                     let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
                     var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
                     var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
 
-                    sentimentDistributionUA(query, 'hour', date, date, null, div, true);
+                    sentimentDistributionUA(query, 'hour', date, date, null, div, true, null, pname);
                 }
             });
         }

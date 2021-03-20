@@ -52,67 +52,7 @@
                 <div class="" id="trackNetworkMsg">
 
                 </div>
-                <div class="px-3 mb-4">
-                    <div class="row px-3 " style="display:none;" id="networkDiv">
-                        <div class="col-md-8 p-0">
-                            <div class="border" id="track_net" style="height:650px;">
-
-                            </div>
-                        </div>
-                        <div class="col-md-4 p-0 border">
-                            <div>
-                                <div class="text-dark" id="hoveredOnDiv" style="display:none;">Hovered on <span class="font-weight-bold " id="hoveredOnType"></span>
-                                    by
-                                    <span class="font-weight-bold " id="hoveredOnAuthor"> </span>
-                                </div>
-                                <div class="" style="height:400px;overflow-y:auto;overflow-x:hidden;"
-                                    id="networkTrackTweetDiv">
-                                </div>
-                            </div>
-                            <div class="px-3">
-                                <div class="text-dark">The network contains</div>
-                                <div class="d-flex ">
-                                    <div>
-                                        <h4 class="m-0 font-weight-bold text-dark" id="ttNodesCountNetwork">0</h4>
-                                        <p class="m-0">Nodes </p>
-                                    </div>
-                                    <div class="mx-2">
-                                        <h4 class="m-0 font-weight-bold text-dark" id="ttEdgesCountNetwork">0</h4>
-                                        <p class="m-0">Edges </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="px-3 py-1">
-                                <div>
-                                    <h4 class="text-dark font-weight-bold">Notations</h4>
-                                </div>
-                                <div>
-                                    <i class="fa fa-circle mr-1 " aria-hidden="true" style="color:#CF6ED2"title="Normal"></i> <span>Source
-                                        Tweet</span>
-                                </div>
-                                <div>
-                                    <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
-                                        style="color:#ff704d"></i>
-                                    <span>Quoted Tweet</span>
-                                </div>
-                                <div>
-                                    <i class="fa fa-circle mr-1" aria-hidden="true" title="Normal"
-                                        style="color:#00e600"></i>
-                                    <span>Reply Tweet</span>
-                                </div>
-                                <div>
-                                    <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
-                                        style="color:#0099cc"></i>
-                                    <span>Re-Tweet</span>
-                                </div>
-                                <div>
-                                    <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
-                                        style="color:yellow"></i>
-                                    <span>Query Tweet</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="px-3 mb-4" id="networkDivMain">
                 </div>
             </div>
         </div>

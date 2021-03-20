@@ -2,19 +2,19 @@
 @section('content')
     <link href="public/tempCSS/project.css" rel="stylesheet" />
     <link href="public/tempCSS/story.css" rel="stylesheet" />
-
-
-    <div class="row">
+<h1>Created projects</h1>
+<div class="row" id="projects-created"></div>
+    <div class="row mt-3">
         {{-- <div class="col-sm-5 ">
          
 
         </div> --}}
-        <div class="col-sm-8">
-            <div>
+        <div class="col-sm-12">
+            {{-- <div>
                 <button class="btn btn-primary smat-rounded" id="openProjectFormBtn">+ Click here to create a new
                     project</button>
-            </div>
-            <div class="confirmPanelCollapse" id="projectCreationForm">
+            </div> --}}
+            <div class="" id="projectCreationForm">
                 <div class="smat-mainHeading ">
                     Create a new project
                 </div>
@@ -128,106 +128,21 @@
                 </div>
             </div>
             <div id="creatingProject"></div>
-            <div class="smat-mainHeading ">
-                Manage Projects
-            </div>
-            <div>
-                <h5 class="text-dark my-0"><span id="numberOfProjectsCreatedByYou"></span> Projects created by you</h5>
-                <div id="listOfProjects"></div>
-            </div>
-            <div class="confirmPanelCollapse" id="openProjectDiv">
-
-                <div class="card card-body">
-                    <div class=" d-flex" id="closeModifyProjectDiv" title="close"><span class="ml-auto"
-                            style="cursor:pointer">close <i class="fas fa-times "></i></span> </div>
-                    <h2 class="m-0 font-weight-bold" id="modifyDivProjName"></h2>
-                    <div>Created on: <span id="modifyDivProjCreatedOn"> </span> </div>
-                    <div>Description: <span id="modifyDivProjDescription"> </span> </div>
-                    <div class="d-flex mt-2">
-                        <button class="btn btn-success smat-rounded mr-3" type="button" id="activeProject">Activate
-                            project</button>
-                        <button class="btn btn-primary smat-rounded mr-3" type="button">Create Story</button>
-                        <button class="btn btn-danger smat-rounded mr-3" type="button">Delete project</button>
-
-                    </div>
-                    <div class="mt-2 pt-2 ">
-                        <h5 class="text-dark my-0"><span id="numberOfStories">0</span> Stories created under the project
-                        </h5>
-                        <div id="listOfStoriesOFProjectDiv" class="mt-1"
-                            style="border-radius:24px;display:flex;flex-wrap:wrap;"> </div>
-                    </div>
-                </div>
-                {{-- <div class="mt-3 confirmPanelCollapse" id="storyContentDiv">
-                        <div class="card card-body" id="storyInfo">
-                            <div class=" pb-2 mb-2">
-                                <h3 class="m-0 font-weight-bold" id="storyMetaDataName">
-                               
-                                </h3>
-                                <div class="storyMetaData">
-                                    <p class="m-0 text-dark">Created on: <span class="font-weight-bold" id="storyMetaDataCreatedOn"></span></p>
-                                    <p class="m-0 text-dark">Description: <span class="font-weight-bold"  id="storyMetaDataDescription"></span></p>
-                                </div>
-                            </div>
-                       
-                            <div id="storyContent"></div>
-                        </div>
-                    </div> --}}
-            </div>
+                      
 
         </div>
     </div>
-    <div class="row mt-3">
-     
-        <div class="col-sm-10 ">
-            <div>
-                <h4>Create a new story</h4>
-            </div>
-            <div class="row">
-                <div class="col-sm-7">
-                    <div class="form-group">
-                        <input class="form-control" type="text" id="storyName" placeholder="Type story name" style="font-size:30px;" />
-                    </div>
-                </div>
-                <div class="col-sm-5">
-                    <div class="d-flex mt-3">
-                        <button  class="btn btn-primary smat-rounded mr-2" id="saveStorybtnStory"><i class="fa fa-download mr-1" aria-hidden="true"></i> Download Story</button>
-                        <button  class="btn btn-primary smat-rounded" id="saveStorybtnStory"><i class="fas fa-save mr-1"></i> Save Story</button>
-                    </div>
-                </div>
-            </div>
-      
-      
-            <div class=" bg-white  p-2" id="storyMakerDiv">
+  
 
-            </div>
-        </div>
-        <div class="col-sm-2">
-            <div class="element-box bg-white py-1 px-2" style="margin-top:110px;">
-                <div>
-                <h6 class="mt-2 mb-0">Add Elements to story</h6>
-                </div>
-                <div class="border textElementStory p-2 m-1" value="title">
-                    <h2 class="text-left m-0">Title</h2>
-                    <p class="m-0">Lorem ipsum dolor sit amet.. </p>
-                </div>
-                <div class="border  textElementStory p-2  m-1" value="section">
-                    <h4 class="text-left m-0">Section</h4>
-                    <p class="m-0">Lorem ipsum dolor sit amet.. </p>
-                </div>
-                <div class="border  textElementStory p-2  m-1" value="description">
-                    <h4 class="text-left m-0">Description</h4>
-                    <p class="m-0">Lorem ipsum dolor sit amet..</p>
-                </div>
-                <div class="pt-2 px-2">
-                    <p class="text-left m-0">Available Images</p>
-                </div>
-                <div class="story-images">
+  
 
-                </div>
-            </div>
-        </div>
-    </div>
-    <script  src="public/jqueryUI/jquery-ui.min.js"></script>
+
+
+
+
+
+
 
     <script type="module" src="public/tempJS/project/smatProject.js"></script>
+
 @endsection

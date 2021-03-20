@@ -9,7 +9,7 @@ import { displayErrorMsg } from '../utilitiesJS/smatExtras.js';
 import { getDatabaseEnvParameters, getCrawlerList, addTrackToDb, updateStatusToDB, updateTrackWordInDb, deletefromCrawlList, saveConfigInfoToDb } from './helper.js';
 
 //globals
-var dbNodes = [], dbUser, dbPass, dbKeyspace, appURL,dbPort,confID=null,sparkEngine;
+var dbNodes = [], dbUser, dbPass, dbKeyspace, appURL,dbPort,confID=null,sparkEngine,defaultKeyspace;
 var changeFlag = 0, totalNodes = 0, lastIDofTrackWords;
 //logic starts here
 jQuery(function () {
@@ -27,7 +27,8 @@ jQuery(function () {
         dbPort=response['dbPort'];
         confID=response['id'];
         sparkEngine=response['sparkEngine'];
-        updateFormValues(appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort);
+        defaultKeyspace=response['defaultKeyspace'];
+        updateFormValues(appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort,defaultKeyspace);
         }
     });
     $('body').on('click', 'div .crawlListRadio', function () {
@@ -197,12 +198,13 @@ jQuery(function () {
 
 });
 
-const updateFormValues = (appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort) => {
+const updateFormValues = (appURL, dbUser, dbPass, dbNodes, dbKeyspace,dbPort,defaultKeyspace) => {
     $('#appUrlInput').val(appURL);
     $('#dbUserInput').val(dbUser);
     $('#dbPassInput').val(dbPass);
     $('#dbPortNo').val(dbPort);
     $('#sparkIPconf').val(sparkEngine);
+    $('#defaultKeyspace').val(defaultKeyspace)
     for (let i = 0; i < dbNodes.length; i++) {
         printNodes(dbNodes[i], i, '--');
     }
@@ -303,9 +305,10 @@ const procssToSaveConfParametersToDB = () => {
     let dbNodesTemp = fromArrayToString(dbNodes).trim();
     let dbKeyspaceTemp = fromArrayToString(dbKeyspace).trim();
     let sparkIPTemp = $('#sparkIPconf').val().trim();
+    let defaultKeyspace = $('#defaultKeyspace').val().trim()
     // let dbKeyspaceTemp = $('#dbKeySpace').val();
     let dbPortTemp = $('#dbPortNo').val();
-    saveConfigInfoToDb(confID,appUrlTemp, dbUserTemp, dbPassTemp, dbNodesTemp, dbKeyspaceTemp, dbPortTemp,sparkIPTemp).then(response => {
+    saveConfigInfoToDb(confID,appUrlTemp, dbUserTemp, dbPassTemp, dbNodesTemp, dbKeyspaceTemp, dbPortTemp,sparkIPTemp,defaultKeyspace).then(response => {
         if(response['message']){
             displayErrorMsg('msg-Box','error');
         }else{

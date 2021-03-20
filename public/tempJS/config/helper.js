@@ -96,16 +96,16 @@ export const deletefromCrawlList = async (id) => {
     let data = await response.json();
     return data;
 }
-export const saveConfigInfoToDb = async (id = null, appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine) => {
+export const saveConfigInfoToDb = async (id = null, appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine,defaultKeyspace) => {
     console.log(dbKeyspace);
     let dataArgs = {};
     if (id) {
         dataArgs = JSON.stringify({
-            id, appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine
+            id, appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine,defaultKeyspace
         });
     } else {
         dataArgs = JSON.stringify({
-            appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine
+            appUrl, dbUser, dbPass, dbNodes, dbKeyspace, dbPort, sparkEngine,defaultKeyspace
         });
     }
 

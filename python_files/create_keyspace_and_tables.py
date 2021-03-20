@@ -66,6 +66,14 @@ def create_tables(session):
 		country text,
 		bounding_box list<frozen<list<double>>>
 	)'''
+	tweet_track = '''CREATE TABLE tweet_track (
+		source_tweet_id text,
+		datetime date,
+		tweet_type text,
+		type_tweet_id text,
+		user_id text,
+		PRIMARY KEY (source_tweet_id, datetime, tweet_type, type_tweet_id)
+	) WITH CLUSTERING ORDER BY (datetime DESC, tweet_type DESC, type_tweet_id DESC)'''
 	tweet_info_by_id_test = '''CREATE TABLE tweet_info_by_id_test (
 		tid text,
 		datetime timestamp,
@@ -119,6 +127,7 @@ def create_tables(session):
 		confidence double,
 		hashtags list<text>,
 		keyword_list list<text>,
+		local_datetime text,
 		mention_list_id list<text>,
 		mentions list<text>,
 		sentiment smallint,
@@ -269,6 +278,10 @@ def create_tables(session):
 
 
 	session.execute(tweet_place_dict)
+	session.execute(tweet_info_by_id_test)
+	session.execute(temp)
+	session.execute(user_record)
+	session.execute(tweet_track)
 	# time.sleep(1)
 	session.execute(location_token_co_occur)
 	session.execute(location_token_co_occur_hour_wise)
@@ -279,9 +292,7 @@ def create_tables(session):
 	session.execute(token_count)
 	session.execute(token_count_hour_wise)
 	session.execute(token_count_day_wise)
-	session.execute(tweet_info_by_id_test)
-	session.execute(temp)
-	session.execute(user_record)
+	
 	
 
 

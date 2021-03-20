@@ -22,6 +22,9 @@ class CreateConfiguresTable extends Migration
             $table->string('dbKeyspace');
             $table->string('dbPort');
             $table->string('sparkEngine');
+            $table->string('defaultKeyspace');
+            $table->tinyInteger('isProjectFlag')->default('1');
+            $table->string('org');
         });
     }
 

@@ -214,13 +214,17 @@ class Home extends Controller
 
     public function getRawTweets()
     {
+        $pname = null;
         if (isset($_GET['tweet_id_list'])) {
-            $tIDlist = $_GET['tweet_id_list'];
+            $tIDlist = $_GET['tweet_id_list'];            
+            if (isset($_GET['pname'])) {
+                $pname = $_GET['pname'];
+            }
         } else {
             return response()->json(['error' => 'No Data Captured'], 400);
         }
         $commonObj = new CommonController;
-        $data = $commonObj->get_tweets_info($tIDlist);
+        $data = $commonObj->get_tweets_info($tIDlist, true, $pname);
         return $data;
     }
 }

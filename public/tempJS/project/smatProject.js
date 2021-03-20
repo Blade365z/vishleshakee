@@ -1,10 +1,10 @@
-import { getRelatedSuggestions, storeToProjectTable, createProjectAPI, checkIfAnyKeySpaceCreatingAPI, getProjectName, checkIfProjectExitsByName, getAllProject, getAllStoriesFromProject, getAllAnalysisUnderStory, getStoryInfo, getBaseURL, updateStoryAnalysis, getPlotsFromServer, uploadStoryToServer } from "./helper.js";
+import { getRelatedSuggestions, storeToProjectTable, createProjectAPI, checkIfAnyKeySpaceCreatingAPI, getProjectName, checkIfProjectExitsByName, getAllProject, getAllStoriesFromProject, getAllAnalysisUnderStory, getStoryInfo, getBaseURL, updateStoryAnalysis, getPlotsFromServer, uploadStoryToServer, getStoriesOfUserFromServer, getStoryObjFromServer ,activateProjectAPI} from "./helper.js";
 import { displayErrorMsg, getUserDetail } from "../utilitiesJS/smatExtras.js";
 import { generateUniqueID } from "../utilitiesJS/uniqueIDGenerator.js";
 
 import { getMe } from "../home/helper.js";
 
-import { getDateRange } from "../utilitiesJS/smatDate.js";
+import { getCurrentDate, getDateRange } from "../utilitiesJS/smatDate.js";
 
 var projeToBeCreated = "sars_2020", tagsArr = [], projectAlreadyExists = 0;
 var confirmedDataSetToBeCreated;
@@ -16,21 +16,16 @@ var currentlySelected = null;
 var reportElements = [];
 var UserId = null;
 
+_MODE ='PROJECT';
+if (!localStorage.getItem('projectMetaData')) {
+    $('#saveDownloadOptionStory').remove();
+    $('#storyElementsToolBox').remove();
+}
 getMe().then(id => {
     UserId = id;
     checkRecordsForProjects(id);
     $("#listOfProjects").html("");
-    getAllProject(id).then(res => {
-        $("#numberOfProjectsCreatedByYou").text(res.length);
-
-        res.map(project => {
-            if (project.status == "1") {
-                $("#listOfProjects").append(
-                    '<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' + project.project_id + "|" + project.project_name + '" id="' + project.project_id + '-btn"><div><h5 class="m-0">' + project.project_name + '<h5></div><div class="text-left">Created on: ' + project.project_creation_date + "</div></button>"
-                );
-            }
-        });
-    });
+    populateProjectsForUser(UserId)
 });
 
 var isFormOpen = 0;
@@ -49,82 +44,19 @@ $("#closeCreateProjectDiv").on("click", function () {
 });
 $('[data-toggle="popover"]').popover(); //Initalizing popovers
 
-$("body").on("click", ".projecstBtn", function () {
-    $("#openProjectDiv").removeClass("confirmPanelExpand");
-    $("#openProjectDiv").addClass("");
+// $('body').on('mouseover', '.projectBtn', function () {
+//     $('.projectBtnOptions').addClass('confirmPanelCollapse');
+//     $(this).find('.projectBtnOptions').removeClass('confirmPanelCollapse')
+//     $(this).find('.projectBtnOptions').addClass('confirmPanelExpand')
+// })
+// $('body').on('mouseout', '.projectBtn', function () {
+//     $('.projectBtnOptions').addClass('confirmPanelCollapse');
+// })
 
-    $("#storyContentDiv").removeClass("confirmPanelExpand");
-    $("#storyContentDiv").addClass("confirmPanelCollapse");
 
-    $(".projectBtn").removeClass("active");
-    $(this).addClass("active");
-    let value = $(this).attr("value").split(/[|]/).filter(Boolean);
-    currentlySelected = value;
-    $("#listOfStoriesOFProjectDiv").html("");
-    getAllStoriesFromProject(currentlySelected[0]).then(res => {
-        $("#numberOfStories").text(res.length);
-        res.map(story => {
-            $("#listOfStoriesOFProjectDiv").append(
-                '<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' + story.projectID + '">' + story.storyName + "</button>"
-            );
-        });
-    });
-    getProjectName(value[0]).then(res => {
-        $("#modifyDivProjName").text(res[0]["project_name"]);
-        $("#modifyDivProjCreatedOn").text(res[0]["project_creation_date"]);
-        $("#modifyDivProjDescription").text(res[0]["project_description"]);
-        setTimeout(() => {
-            $("#openProjectDiv").removeClass("confirmPanelCollapse");
-            $("#openProjectDiv").addClass("confirmPanelExpand");
-        }, 100);
-    });
-    // openProjectModifyDiv(value[0],value[1]);
-});
-
-$("body").on("click", ".projectBtn", async function () {
-    $("#openProjectDiv").removeClass("confirmPanelExpand");
-    $("#openProjectDiv").addClass("");
-
-    $("#storyContentDiv").removeClass("confirmPanelExpand");
-    $("#storyContentDiv").addClass("confirmPanelCollapse");
-
-    $(".projectBtn").removeClass("active");
-    $(this).addClass("active");
-    let value = $(this).attr("value").split(/[|]/).filter(Boolean);
-    currentlySelected = value;
-    $("#listOfStoriesOFProjectDiv").html("");
-    getAllStoriesFromProject(currentlySelected[0]).then(res => {
-        $("#numberOfStories").text(res.length);
-        res.map(story => {
-            $("#listOfStoriesOFProjectDiv").append('<button class="btn btn-light smat-rounded border mr-3 storyBtnProj" value="' + story.storyID + '">' + story.storyName + "</button>"
-            );
-        });
-    });
-    getProjectName(value[0]).then(res => {
-        $("#modifyDivProjName").text(res[0]["project_name"]);
-        $("#modifyDivProjCreatedOn").text(res[0]["project_creation_date"]);
-        $("#modifyDivProjDescription").text(res[0]["project_description"]);
-        setTimeout(() => {
-            $("#openProjectDiv").removeClass("confirmPanelCollapse");
-            $("#openProjectDiv").addClass("confirmPanelExpand");
-        }, 100);
-    });
-
-    const baseURL = await getBaseURL();
-    const userID = await getMe();
-    //value[0] is the story ID
-    // openProjectModifyDiv(value[0],value[1]);
-});
 $("body").on("click", "#closeModifyProjectDiv", function () {
     $("#openProjectDiv").removeClass("confirmPanelExpand");
     $("#openProjectDiv").addClass("confirmPanelCollapse");
-});
-$("body").on("click", "#activeProject", function () {
-    getProjectName(currentlySelected[0]).then(res => {
-        let projectMetaData = res[0];
-        localStorage.setItem("projectMetaData", JSON.stringify({ projectMetaData }));
-        location.reload();
-    });
 });
 
 $("body").on("input", "#projectName", function () {
@@ -270,7 +202,7 @@ $("body").on("click", "div #confirmBtnProj", function () {
     console.log("QueryString-->", "(" + queryStringConfirm + ")");
 
     //MALA
-    createProject(tempProjToBeCreated["projName"], tempProjToBeCreated["description"], "(" + queryStringConfirm + ")", tempProjToBeCreated["from"], tempProjToBeCreated["to"], "baseDataset");
+    createProject(tempProjToBeCreated["projName"], tempProjToBeCreated["description"], "(" + queryStringConfirm + ")", tempProjToBeCreated["from"], tempProjToBeCreated["to"], "baseDataset", queryStringConfirm);
 
     // if (projectCurrentlyCreatingFlag == 0) {
     //     projectCurrentlyCreatingFlag = 1;
@@ -287,7 +219,7 @@ $("body").on("click", "div #cancelBtnProj", function () {
 
 
 
-const createProject = (proj_name, proj_description, query, from_date, to_date, option = null) => {
+const createProject = (proj_name, proj_description, query, from_date, to_date, option = null, seed_tokens=null) => {
     $("#projectCreationForm").removeClass("confirmPanelExpand");
     $("#projectCreationForm").addClass("confirmPanelCollapse");
     $("#openProjectFormBtn").css("display", "block");
@@ -304,19 +236,21 @@ const createProject = (proj_name, proj_description, query, from_date, to_date, o
     let queries = [query, from_date, to_date];
     let query_list = get_tokens_wrt_pattern(queries); // get token
     console.log(query_list);
+    // create_unique_timestamp
+    let uniqueTimeStamp = (new Date().getTime()).toString();
 
     console.log(proj_name, proj_description, option);
     let project_id = generateUniqueID();
     getUserDetail().then(response => {
         let userIDForProject = response.id;
         // 1 store to project table
-        storeToProjectTable(proj_name, userIDForProject, project_id, proj_description).then(response => {
+        storeToProjectTable(proj_name, userIDForProject, project_id, proj_description, from_date, to_date, seed_tokens).then(response => {
             console.log(response);
             displayErrorMsg('creatingProject', 'success', `Please wait your project <b>${proj_name}</b> is being created. In the meantime you can do other activities.`, false);
             $('#creatingProject').fadeIn('slow')
             checkRecordsForProjects(userIDForProject);
             // 2 create to keyspace and tables
-            createProjectAPI(proj_name, option, userIDForProject, query, from_date, to_date, query_list).then(response => {
+            createProjectAPI(proj_name, option, userIDForProject, query, from_date, to_date, query_list, uniqueTimeStamp).then(response => {
                 console.log(response);
             });
         });
@@ -361,14 +295,7 @@ const runLoggerToCheckStats = userID =>
                     );
                     $("#creatingProject").fadeIn("slow");
                     $("#listOfProjects").html("");
-                    getAllProject(res[0]["user_id"]).then(res => {
-                        res.map(project => {
-                            if (project.status == "1") {
-                                $("#listOfProjects").append(
-                                    '<button class="btn btn-light mr-3 my-2 projectBtn border text-dark" value="' + project.project_id + "|" + project.project_name + '" id="' + project.project_id + '-btn"><div><h5 class="m-0">' + project.project_name + '<h5></div><div class="text-left">Created on: ' + project.project_creation_date + "</div></button>");
-                            }
-                        });
-                    });
+                    populateProjectsForUser(userID);
                     updateNotificationToLocalStorage(res[0].project_name);
                     projectReadyNotification(element, res[0].project_name);
                     projectPending = projectPending.filter(
@@ -478,149 +405,41 @@ const printStory = async (analysisID, analysisName, analysisDescription, baseUrl
 };
 //_---------------------------------------------REPORT SCRIPT-------------------------------------//
 
-const storyMakerDiv = "storyMakerDiv";
-var isOptionOpenFor = null;
-var storyElements = [],storyNameInput,
-    projectID = "58162b9d",
-    offsetCounter = 0; //TODO::makeDYTNAMIC
 
 
-$("body").on('input','#storyName',function(){
-    //TODO::check if already exists
-    storyNameInput=$(this).val().trim();
+
+$("body").on('input', '#storyName', function () {
+    storyNameInput = $(this).val().trim();
 });
 
-getPlotsFromServer(projectID, 7).then(res => {
-    res.map(image => {
-        $(".story-images").append(
-            '<div class="p-2 text-center   textElementStory"  value="image" style="overflow:hidden;"  imgName="' + image + '" ><img src="storage/' +
-            7 + "/" + projectID + "/plots/" + image + '" / style="width:300px;"></div>'
-        );
+
+$("body").on("click", ".projectBtn", async function () {
+    $("#openProjectDiv").removeClass("confirmPanelExpand");
+    $("#openProjectDiv").addClass("");
+
+    $("#storyContentDiv").removeClass("confirmPanelExpand");
+    $("#storyContentDiv").addClass("confirmPanelCollapse");
+
+    $(".projectBtn").removeClass("active");
+    $(this).addClass("active");
+    let value = $(this).attr("value").split(/[|]/).filter(Boolean);
+    currentlySelected = value;
+    $("#listOfStoriesOFProjectDiv").html("");
+    getProjectName(value[0]).then(res => {
+        fetchStoriesOfProject(value[0], res[0]["project_name"], 'listOfStoriesOFProjectDiv', UserId)
+        $("#modifyDivProjName").text(res[0]["project_name"]);
+        $("#modifyDivProjCreatedOn").text(res[0]["project_creation_date"]);
+        $("#modifyDivProjDescription").text(res[0]["project_description"]);
+        setTimeout(() => {
+            $("#openProjectDiv").removeClass("confirmPanelCollapse");
+            $("#openProjectDiv").addClass("confirmPanelExpand");
+        }, 100);
     });
-});
 
-
-
-const AddItemToStoryEditor = (type, imgName = null) => {
-    offsetCounter = storyElements.length;
-    const ID = offsetCounter + "-" + type + '-element';
-    storyElements.push({
-        type: type,
-        text: null,
-        style: null,
-        id: ID,
-        image: null
-    });
-    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offsetCounter + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white deleteElement " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div></div></div>';
-    if (type === "title") {
-        $("#" + storyMakerDiv).append(
-            '<div class="smat-story-element-main bg-white"   value="' + offsetCounter + '" id="' + ID + '"   type="' + type + '"  >' + storyBoradOptions + '<div class="text-center  smat-story-element" ><input class="from-control  story-input titleStory text-center" value="Title" /></div></div>'
-        );
-    }
-    if (type === "section") {
-        $("#storyMakerDiv").append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offsetCounter + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-left" value="Section"  /></div></div>'
-        );
-    }
-    if (type === "description") {
-        $("#storyMakerDiv").append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offsetCounter + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"   ><textarea class="   w-100  story-description-input  text-left" value="Description"  id="' +
-            projectID + "-" + type + "-" + offsetCounter + '-text">Description</textarea></div></div>'
-        );
-    }
-    if (type === 'image') {
-        storyElements[offsetCounter]['image'] = imgName;
-        $("#storyMakerDiv").append(
-            '<div class="smat-story-element-main bg-white" id="' + ID + '" value="' + offsetCounter + '" > ' + storyBoradOptions + '<div  class= "smat-story-element d-flex " > <img  src="storage/' + UserId + "/" + projectID + "/plots/" + imgName + '" ></div ></div > '
-        );
-    }
-};
-$('body').on('click', '.deleteElement', function () {
-    let offset = $(this).parent().parent().attr("value");
-    $(this).parent().parent().remove();
-    storyElements = storyElements.filter(element => element !== storyElements[offset]);
-});
-
-
-$("body").on("click", ".smat-story-element", function (e) {
-    $(".storyBoardOptions").css("display", "none");
-    $('div').removeClass("border-story-active");
-    $(this).parent().addClass("border-story-active");
-    $(this).parent().find(".storyBoardOptions").css("display", "flex");
-});
-
-
-$(document).on("click", function (event) {
-    if (!$(event.target).closest("#storyMakerDiv").length) {
-        $(".storyBoardOptions").css("display", "none");
-        $(".smat-story-element-main").removeClass("border-story-active");
-    }
-});
-
-$("body").on("click", ".textElementStory", function () {
-    let imgName = $(this).attr('imgName') ? $(this).attr('imgName') : null
-    AddItemToStoryEditor($(this).attr("value"), imgName);
-});
-
-$("body").on("click", "#saveStorybtnStory", function () {
-    getMe().then(id=>{
-        uploadStoryToServer(projectID,storyNameInput,storyElements,id).then(res=>{
-            if(res.error){
-                alert('Some error occured!');
-            }else{
-                alert('Saved successfully!');
-            }
-        });
-    })
-});
-
-$("body").on("input", ".story-input", function () {
-    let offset = $(this).parent().parent().attr("value");
-    storyElements[offset]["text"] = $(this).val();
-});
-$("body").on("input", ".story-description-input", function () {
-    this.style.height = "";
-    this.style.height = this.scrollHeight + "px";
-    let offset = $(this).parent().parent().attr("value");
-    storyElements[offset]["text"] = $(this).val();
-});
-
-const swapStoryElements = (current = null, prevElement = null, nextElement = null) => {
-    let tempArr = [];
-    let cloneOriginal = storyElements;
-    var target = null;
-    if (prevElement === null) {
-        tempArr[0] = storyElements[current];
-        storyElements.map(element => element !== storyElements[current] && tempArr.push(element))
-    } else if (nextElement === null) {
-        storyElements.map(element => element !== storyElements[current] && tempArr.push(element))
-        tempArr[storyElements.length - 1] = storyElements[current];
-    } else {
-        target = prevElement + 1;
-        var tempL = cloneOriginal.slice(0, target)
-        var tempR = cloneOriginal.slice(target);
-        tempL.map(element => element !== storyElements[current] && tempArr.push(element));
-        tempArr.push(storyElements[current]);
-        tempR.map(element => element !== storyElements[current] && tempArr.push(element));
-    }
-    storyElements = tempArr;
-    updateStoryDomElements();
-};
-$("#storyMakerDiv").sortable({
-    containment: "parent",
-    cursor: "grabbing",
-    change: function (event, ui) {
-        ui.placeholder.css({
-            visibility: "visible",
-            border: "3px solid #297EB4"
-        });
-    },
-    update: function (ev, ui) {
-        var currentSelected = parseInt(ui.item.attr("value"));
-        var nextElementToWhereDragged = ui.item[0].nextElementSibling ? parseInt(ui.item[0].nextElementSibling.getAttribute("value")) : null
-        var prevElementToWhereDragged = ui.item[0].previousElementSibling ? parseInt(ui.item[0].previousElementSibling.getAttribute("value")) : null
-        swapStoryElements(currentSelected, prevElementToWhereDragged, nextElementToWhereDragged);
-    }
+    const baseURL = await getBaseURL();
+    const userID = await getMe();
+    //value[0] is the story ID
+    // openProjectModifyDiv(value[0],value[1]);
 });
 
 
@@ -639,19 +458,105 @@ const get_tokens_wrt_pattern = (queries, pattern = null) => {
 };
 
 
-const updateStoryDomElements = () => {
-    let counter = 0
-    var allDiv = document.querySelectorAll('storyMakerDiv');
-    allDiv.forEach(function (item, i) {
-        item.setAttribute('value', 'FCV');
+
+
+
+const populateProjectsForUser = (userID) => {
+    let projectID = null;
+    if (localStorage.getItem('projectMetaData')) {
+        let metaData = JSON.parse(localStorage.getItem('projectMetaData'));
+        projectID = metaData['projectMetaData']['project_id'];
+    }
+    let createStoryBtnDOM = ''
+    getAllProject(userID).then(res => {
+        if (!res) {
+            $('#projectsDiv').css('display', 'none');
+            $("#projects-created").html('<div class="mx-3">No projects created</div>')
+        }
+        else {
+            $("#projects-created").html('')
+            $('#projectsDiv').css('display', 'flex');
+            $("#numberOfProjectsCreatedByYou").text(res.length);
+            res.map(project => {
+                if (project.project_id == projectID) {
+                    createStoryBtnDOM = '<button class="btn btn-light mr-2 smat-rounded createStoryBtn" id=""> Create Story</button>'
+                } else {
+                    createStoryBtnDOM = ''
+                }
+                if (project.status == "1") {
+                    $("#projects-created").append('<div class="projectBtn border shadow text-truncate py-2 px-3 my-1 mx-2  " style=""  value="' + project.project_id + "|" + project.project_name + '" id="' + project.project_id + '-btn"   ><h3 class="m-0 font-weight-bold">' + project.project_name + '</h3 ><div>' + project.project_description + '</div><div>Created at:   ' + project.project_creation_date + '</div><div></div></div>');
+                }
+            });
+
+        }
     });
-    storyElements.map(async element => {
-        if (element) {
-            let newID = counter + '-' + element.type + '-element';
-            let targetID = '#' + element.id;
-            $(targetID).attr("value", counter);
-            counter += 1;
+}
+
+
+
+$("body").on("click", "#activeProject", function () {
+    getProjectName(currentlySelected[0]).then(res => {
+        let projectMetaData = res[0];
+        // activateProjectAPI(currentlySelected[1]);
+        localStorage.setItem("projectMetaData", JSON.stringify({ projectMetaData }));
+        location.reload();
+    });
+})
+
+const fetchStoriesOfProject = (projectID, projectName, div, userID) => {
+    $('#' + div).html('');
+    getStoriesOfUserFromServer(projectID, userID).then(stories => {
+    $('#numberOfStories').html(stories.length)
+        if (stories.length >= 2) {
+            $('#storyProjectName').html(projectName);
+            stories.map(story => {
+                if (story.includes('.json')) {
+                    // $('#' + div).append('<div class="d-flex border py-2 px-3" style="border-radius:24px;"> <h3>'+ story.replace('.json', '')+'</h3> <div class="d-flex ml-auto"><button class="btn  smat-rounded  btn-primary mx-2 storyShowBtn"  value="' + story + '"  >Show</button><button class="btn smat-rounded btn-danger  value="' + story + '" ">Delete</button></div></div>');
+                    $('#' + div).append('<span class="storyBtn smat-rounded py-2 px-4 mr-2 my-2 border"  value="'+projectID+'|'+ story + '"><h5 class="m-0">' + story.replace('.json', '') + '</h5></span>');
+                }
+            })
+        } else {
+            $('#' + div).append('<div>No stories created. <div><div></div>')
         }
     })
 }
 
+$('body').on('click', '.storyShowBtn', function () {
+    $(".storyDiv").removeClass("confirmPanelCollapse");
+    $(".storyDiv").addClass("confirmPanelExpand");
+
+
+    let filename = $(this).attr('value');
+    getStoryObjFromServer(projectID, filename, UserId).then(res => {
+        if (res.error) {
+            alert('Some error occured')
+        } else {
+            $('#storyName').val(res.storyName);
+            storyNameInput = res.storyName;
+            storyElements = res.elements;
+            let i = 0
+            $('#storyMakerDiv').html('');
+
+            storyElements.map(element => {
+                renderElementsToStoryDiv(i, element.id, element.type, element.image, element.text);
+                i += 1;
+            })
+        }
+    });
+})
+
+
+
+$('body').on('click', '.createStoryBtn', function () {
+    storyViewer(currentlySelected[0]);
+});
+
+$('body').on('click','.storyBtn',function(){
+    let value = $(this).attr("value").split(/[|]/).filter(Boolean);
+    storyViewer(value[0],value[1]);
+})
+
+
+const storyViewer = async (projectID, storyName = null) => {
+    window.open(`story?projectID=${projectID}&storyName=${storyName}`);
+} 

@@ -12,23 +12,7 @@ export const wordCloudLM = (hashtag_data,div) => {
     series.randomness = 0.1;
     series.rotationThreshold = 0.5;
 
-    var data = [{ 'token': '#50DaysForSRKDay', 'count': 2344, 'color': '#297EB4' },
-    { 'token': '#SushantSinghRajput', 'count': 2344, 'color': '#297EB4' },
-    { 'token': '#coronavirus', 'count': 1244, 'color': '#FF00FF' },
-    { 'token': '#bantiktok', 'count': 4544, 'color': '#297EB4' },
-    { 'token': '#iitguwahati', 'count': 1244, 'color': '#3D3D3D' },
-    { 'token': '#covid19', 'count': 4244, 'color': '#FF00FF' },
-    { 'token': '#IndiaWantsCBIInvestigation', 'count': 3344, 'color': '#3D3D3D' },
-    { 'token': '#hello123', 'count': 832, 'color': '#FF00FF' },
-    { 'token': '#python', 'count': 1232, 'color': '#3D3D3D' },
-    { 'token': '#indiavschina', 'count': 1111, 'color': '#3D3D3D' },
-    ,{ 'token': '#iitguwahati', 'count': 2244, 'color': '#3D3D3D' },
-    { 'token': '#TIKTOK', 'count': 2211, 'color': '#FF00FF' },
-    { 'token': '#SSR', 'count': 2013, 'color': '#3D3D3D' },
-    { 'token': '#galwanValley', 'count': 832, 'color': '#FF00FF' },
-    { 'token': '#IndianArmy', 'count': 1922, 'color': '#3D3D3D' },
-    { 'token': '#indiavschina', 'count': 1711, 'color': '#3D3D3D' },
-    ]
+    var data = [];
 
 
     var dataformat = [];

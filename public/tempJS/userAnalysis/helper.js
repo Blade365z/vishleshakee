@@ -12,6 +12,8 @@ IMPORTANT NOTE
 Script written by : Mala Das (maladas601@gmail.com), Amitabh Boruah(amitabhyo@gmail.com)
 */
 
+// import { isArray } from "lodash";
+
 
 
 
@@ -47,19 +49,24 @@ export const getSuggestionsForUA = (userIDArray) => {
 Input----> UserID as string;
 Output----> User Details (json)
 */
-export const getUserDetails = async (id) => {
+export const getUserDetails = async (idList) => {
+    let data = isArray(idList) ? JSON.stringify({
+        userIDList : idList
+    }) : JSON.stringify({
+        userID:idList
+    })
     let response = await fetch('UA/getUserDetailsTemp', {
         method: 'post',
         headers: HeadersForApi,
-        body: JSON.stringify({
-            userID: id
-        })
+        body: data
     });
-    let data = await response.json()
-    return data;
+    response= await response.json()
+    return response;
 }
 
-
+function isArray(obj) {
+    return Object.prototype.toString.call(obj) === '[object Array]';
+}
 //FETCH API Request for Frequency Distribution data 
 /*
 Input----> IF(Day,Hour):query,fromDate,toDate,rangeType ELSE : Time 
@@ -86,12 +93,12 @@ export const getFreqDistDataForUA = async (query, from, to, toTime = null, range
 
 
 
-export const getSentiDistDataForUA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0) => {
+export const getSentiDistDataForUA = async (query, from, to, toTime = null, rangeType, isDateTimeAlready = 0, pname=null) => {
     let dataArg;
     if (toTime) {
-        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, toTime, rangeType, isDateTimeAlready, pname });
     } else {
-        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready });
+        dataArg = JSON.stringify({ query, from, to, rangeType, isDateTimeAlready, pname });
     }
     let response = await fetch('UA/getSentimentDataForUser', {
         method: 'post',
@@ -103,12 +110,12 @@ export const getSentiDistDataForUA = async (query, from, to, toTime = null, rang
     return data;
 
 }
-export const getTweetIDsForUA = async (query, from = null, to = null, rangeType, filter = null, isDateTimeAlready = 0) => {
+export const getTweetIDsForUA = async (query, from = null, to = null, rangeType, filter = null, isDateTimeAlready = 0, pname=null) => {
     let dataArgs;
     if (from != null && to != null && isDateTimeAlready == 0) {
-        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready });
+        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready, pname });
     } else if (isDateTimeAlready == 1) {
-        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready });
+        dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready, pname });
     }
     let response = await fetch('UA/getTweetIDs', {
         method: 'post',
@@ -118,11 +125,11 @@ export const getTweetIDsForUA = async (query, from = null, to = null, rangeType,
     let data = await response.json();
     return data;
 }
-export const getCooccurDataForUA = async (query, from, to, option, uniqueID, userID) => {
+export const getCooccurDataForUA = async (query, from, to, option, uniqueID, userID, pname=null) => {
     //TODO::REMOVE THE HARDCODE!!
     let dataArrayTemp=[],noOfNodes=0;
     let dataArgs = JSON.stringify({
-        query, from, to, option, uniqueID, userID, mode: 'write'
+        query, from, to, option, uniqueID, userID, mode: 'write', pname
     });
     let dataArgsForRead = JSON.stringify({
         option, uniqueID, userID, limit: 50, mode: 'read'

@@ -18,6 +18,48 @@ import { getAnalysisForAProjectAPI, removeFromProjectActivityTable, storeToProje
 
 
 
+
+
+
+
+
+// class Solution {
+//     ispar(x)
+//     {   
+//         // i/o - {([])}
+//         let len_input = x.length;
+//         let all_brackets = '[]{}()<>';
+//         if(len_input == 0){
+//             console.log("Input lenght of atleast 1 is must");
+//             return false;
+//         }
+//         else if(len_input >= 1 && len_input <= 32000){
+//             console.log("enter");
+//         }else{
+//             console.log("Input lenght is not too big. only upto 32000 is supported");
+//             return false;
+//         }
+//     }
+// }
+
+
+
+// MAP Global Variables
+var clear_map;
+
+
+
+var all_tweet_id_list = [];
+
+
+
+
+
+
+
+
+
+
 //Global variable definitions 
 var mainInputCounter = 0, statusTableFlag = 0, searchType = 0;
 var searchRecords = [];
@@ -38,7 +80,7 @@ if (localStorage.getItem('smat.me')) {
 var suggestionsGlobal, suggInputBoxBuffer = [];
 
 
-var projectDetails;
+var projectDetails;//for project
 
 _MODE='HA';
 // ready function
@@ -259,11 +301,7 @@ jQuery(function () {
             console.log(pname);
         }
         localStorage.getItem('projectMetaData') && makeAddToStoryDiv('result-div-map')
-        get_tweet_location(query, fromDate, toDate, rangeType, null,0,pname).then(response => {
-            console.log("wwww");
-            // console.log(response);
-            getCompleteMap('result-div-map', response);
-        });
+        tweetResults(query,"result-div-map");
     });
 
 
@@ -767,17 +805,23 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
             });
 
             getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                all_tweet_id_list = response.data;
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
             getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 0, pname).then(data => {
+                console.log('day');
+                console.log(pname);
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateFreqDistBarChart(query, data, rangeType, chartDivID);
+                    generateFreqDistBarChart(query, data, rangeType, chartDivID, null, pname);
                     freqSummaryGenerator(data, summaryDivID, rangeType);
                     getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                        console.log("tweet_info",pname);
+                        all_tweet_id_list = response.data;
+                        console.log(all_tweet_id_list);
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
                 }
             });
@@ -791,17 +835,21 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
             });
 
             getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
+                all_tweet_id_list = response.data;
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
             getFreqDistDataForHA(query, fromDate, toDate, null, rangeType, 0, pname).then(data => {
+                console.log('hour');
+                console.log(pname);
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateFreqDistBarChart(query, data, rangeType, chartDivID);
+                    generateFreqDistBarChart(query, data, rangeType, chartDivID, null, pname);
                     freqSummaryGenerator(data, summaryDivID, rangeType);
                     getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
+                        all_tweet_id_list = response.data;
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
                 }
             });
@@ -816,6 +864,7 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
 
             getTweetIDsForAdvanceHA(query, fromDate, toDate, rangeType, null, filename, userID).then(response => {
                 // console.log(rangeType);
+                all_tweet_id_list = response.data;
                 TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
             });
         } else {
@@ -827,7 +876,8 @@ export const frequencyDistributionHA = (query = null, rangeType, fromDate = null
                     freqSummaryGenerator(data, summaryDivID, rangeType);
                     getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 1, pname).then(response => {
                         let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
-                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType);
+                        all_tweet_id_list = response.data;
+                        TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType, pname);
                     });
                 }
             });
@@ -876,7 +926,7 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateSentiDistBarChart(data, query, rangeType, chartDivID);
+                    generateSentiDistBarChart(data, query, rangeType, chartDivID, null, pname);
                     generateSentimentSummary(data, summaryDivID, rangeType);
                     getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);
@@ -901,7 +951,7 @@ export const sentimentDistributionHA = (query = null, rangeType, fromDate = null
                 if (data.data.length < 1) {
                     $('.resultDiv-'+rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateSentiDistBarChart(data, query, rangeType, chartDivID);
+                    generateSentiDistBarChart(data, query, rangeType, chartDivID, null, pname);
                     generateSentimentSummary(data, summaryDivID, rangeType);
                     getTweetIDsForHA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType);

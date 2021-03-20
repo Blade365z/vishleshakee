@@ -1,3 +1,21 @@
+:root {
+    --color-white: white;
+    --color-bg: #f3f3f3;
+    --color-active: #297EB4;
+    --color-normal: #297EB4;
+    --color-sec: #3D3D3D;
+    --color-com: #ff0055;
+    --color-com_sec: #FF00FF;
+    --color-pos: #33CCCC;
+    --color-neg: #FC5F4F;
+    --color-neu: #FFC060;
+    --color-text: #808080ea;
+    --color-text-dark: #4c545cd8;
+    --color-blue: #011627;
+    --dark-text: #313131;
+    --color-green: #31A745;
+    --color-lightGray: #e5e5e5;
+}
 
 .confirmPanelExpand{
     max-height: 100%;
@@ -9,3 +27,22 @@
     transition: max-height 300ms ease-out;
     overflow: hidden;
 }
+/* 
+.projectBtn{
+    color:var(--color-text-dark);
+    border-radius: 10px;
+} */
+
+.storyBtn{
+    /* color:var(--color-text-dark); */
+    border-radius: 10px;
+}
+
+
+.projectBtn:hover{
+    background-color: var(--color-active);
+    cursor:pointer;
+    border-radius: 10px;
+    color: white;
+}
+

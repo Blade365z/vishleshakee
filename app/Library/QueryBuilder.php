@@ -21,18 +21,18 @@ class QueryBuilder{
                         $query_class = $this->get_query_class($token);                            
                         if($range_type == '10sec'){
                             $columns = 'created_date, created_time, category_class_list, count_list';
-                            $table_name = 'token_count';
+                            $table_name =  $this->get_table_name('token_count');
                             $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name='" . $token ."'";
                         }
                         else if($range_type == 'hour'){
                             $columns = 'created_date, created_time, category_class_list, count_list';
-                            $table_name = 'token_count_hour_wise';
+                            $table_name = $this->get_table_name('token_count_hour');
                             $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name='" . $token ."'";
                         }else if($range_type == 'day'){
                             $columns = 'created_date, category_class_list, count_list';
-                            $table_name = 'token_count_day_wise';
+                            $table_name = $this->get_table_name('token_count_day');
                             $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND token_name='" . $token ."'";
                         }
@@ -40,17 +40,17 @@ class QueryBuilder{
                         $query_class = $this->get_query_class($token);                            
                         if($range_type == '10sec'){
                             $columns = 'created_date, created_time, category_class_list, count_list';
-                            $table_name = 'token_count';
+                            $table_name = $this->get_table_name('token_count');
                             $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name='" . $token ."'";
                         }else  if($range_type == 'hour'){
                             $columns = 'created_date, created_time, category_class_list, count_list';
-                            $table_name = 'token_count_hour_wise';
+                            $table_name = $this->get_table_name('token_count_hour');
                             $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name='" . $token ."'";
                         }else if($range_type == 'day'){
                             $columns = 'created_date, category_class_list, count_list';
-                            $table_name = 'token_count_day_wise';
+                            $table_name = $this->get_table_name('token_count_day');
                             $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND token_name='" . $token ."'";
                         }
@@ -58,19 +58,19 @@ class QueryBuilder{
                         $query_class = $this->get_query_class($token, 'co_occur', $co_occur_option);
                         if($range_type == '10sec'){
                             $columns = 'created_date, created_time, token_name2, count_list';
-                            $table_name = 'token_co_occur';
+                            $table_name = $this->get_table_name('token_co_occur');
                             // $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name1='" . $token ."'";
                         }else if($range_type == 'hour'){
                             $columns = 'created_date, created_time, token_name2, count_list';
-                            $table_name = 'token_co_occur_hour_wise';
+                            $table_name = $this->get_table_name('token_co_occur_hour');
                             // $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name1='" . $token ."'";
                         }else if($range_type == 'day'){
                             $columns = 'created_date, token_name2, count_list';
-                            $table_name = 'token_co_occur_day_wise';
+                            $table_name = $this->get_table_name('token_co_occur_day');
                             // $table_name = $this->select_co_occur_table_for_token($token, $range_type);
                             $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND token_name1='" . $token ."'";
@@ -79,17 +79,17 @@ class QueryBuilder{
                         $query_class = $this->get_query_class($token);
                         if($range_type == '10sec'){
                             $columns = 'category_class_list, tweetidlist';
-                            $table_name = 'token_count';
+                            $table_name = $this->get_table_name('token_count');
                             $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name='" . $token ."'";
                         }else if($range_type == 'hour'){
                             $columns = 'category_class_list, tweetidlist';
-                            $table_name = 'token_count_hour_wise';
+                            $table_name = $this->get_table_name('token_count_hour');
                             $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ? AND token_name='" . $token ."'";
                         }else  if($range_type == 'day'){
                             $columns = 'category_class_list, tweetidlist';
-                            $table_name = 'token_count_day_wise';
+                            $table_name = $this->get_table_name('token_count_day');
                             $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
                             $where_clause = "created_date = ? AND class=" . $query_class . " AND token_name='" . $token ."'";
                         }
@@ -116,17 +116,17 @@ class QueryBuilder{
             $query_class = $this->get_query_class($feature_option_split[2], $feature_option_split[0]);
             if(($range_type == '10sec') or ($range_type == 'hour') or ($range_type == 'day')){
                 if($range_type == '10sec'){
-                    $table_name = 'location_token_co_occur';
+                    $table_name =  $this->get_table_name('location_token_co_occur');
                     $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                     $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ?";                   
                 }else if($range_type == 'hour'){
-                    $table_name = 'location_token_co_occur_hour_wise';
+                    $table_name = $this->get_table_name('location_token_co_occur_hour');
                     $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                     $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ?"; 
                 }else if($range_type == 'day'){
-                    $table_name = 'location_token_co_occur_day_wise';
+                    $table_name = $this->get_table_name('location_token_co_occur_day');
                     $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
-                    $where_clause = "created_date = ? AND class=" . $query_class; 
+                    $where_clause = "created_date = ? AND class=" . $query_class;
                 }
             }
             $columns = 'category_class_list, count_list, token_name, tweet_cl_latitude, tweet_cl_longitude, country, city, state';
@@ -138,15 +138,15 @@ class QueryBuilder{
             $query_class = $this->get_query_class($feature_option_split[1], $feature_option_split[0]);
             if(($range_type == '10sec') or ($range_type == 'hour') or ($range_type == 'day')){
                 if($range_type == '10sec'){
-                    $table_name = 'token_count';
+                    $table_name = $this->get_table_name('token_count');
                     $input_args = $ut_obj->get_10sec_list_for_cassandra($to_datetime, $from_datetime);
                     $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ?";                   
                 }else if($range_type == 'hour'){
-                    $table_name = 'token_count_hour_wise';
+                    $table_name = $this->get_table_name('token_count_hour');
                     $input_args = $ut_obj->get_hour_list_for_cassandra($to_datetime, $from_datetime);
                     $where_clause = "created_date = ? AND class=" . $query_class . " AND created_time = ?"; 
                 }else if($range_type == 'day'){
-                    $table_name = 'token_count_day_wise';
+                    $table_name = $this->get_table_name('token_count_day');
                     $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
                     $where_clause = "created_date = ? AND class=" . $query_class; 
                 }
@@ -163,14 +163,14 @@ class QueryBuilder{
         // for tweet info....................................................
         if($feature_option == 'tweet_info'){
             if($async){
-                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,tweet_text,retweet_source_id,media_list,type,category,tl_longitude,tl_latitude,confidence from tweet_info_by_id_test WHERE tid=?";
+                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,tweet_text,retweet_source_id,media_list,type,category,tl_longitude,tl_latitude,confidence,hashtags,mentions from tweet_info_by_id_test WHERE tid=?";
                 $input_args = array();
                 foreach ($id_list as $value) {
                     array_push($input_args, array($value));
                 }
                 $final_res[1] = $input_args;
             }else{
-                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,replyto_source_id,retweet_source_id,tweet_text,retweet_source_id,media_list,type,category,tl_longitude,tl_latitude,confidence from tweet_info_by_id_test WHERE tid=" . "'" .$token."'";
+                $final_res[0] = "SELECT t_location,datetime,tid,author,author_id,author_profile_image,author_screen_name,sentiment,quoted_source_id,replyto_source_id,retweet_source_id,tweet_text,retweet_source_id,media_list,type,category,tl_longitude,tl_latitude,confidence,hashtags,mentions from tweet_info_by_id_test WHERE tid=" . "'" .$token."'";
             }
         }
 
@@ -337,6 +337,28 @@ class QueryBuilder{
     }
 
 
+    public function get_table_name($option){
+        $table_name = null;
+        if($option == 'token_count')
+            $table_name = 'token_count';
+        else if($option == 'token_count_hour')
+            $table_name = 'token_count_hour_wise';
+        else if($option == 'token_count_day')
+            $table_name = 'token_count_day_wise';
+        else if($option == 'token_co_occur')
+            $table_name = 'token_co_occur';
+        else if($option == 'token_co_occur_hour')
+            $table_name = 'token_co_occur_hour_wise';
+        else if($option == 'token_co_occur_day')
+            $table_name = 'token_co_occur_day_wise';
+        else if($option == 'location_token_co_occur')
+            $table_name = 'location_token_co_occur';
+        else if($option == 'location_token_co_occur_hour')
+            $table_name = 'location_token_co_occur_hour_wise';
+        else if($option == 'location_token_co_occur_day')
+            $table_name = 'location_token_co_occur_day_wise';
+        return $table_name;
+    }
 
 
     public function select_co_occur_table_for_token($token=null, $range){

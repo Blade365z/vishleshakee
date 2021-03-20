@@ -904,7 +904,7 @@ class CommonController extends Controller
                     }
                     $datetime_str = $ut_obj->get_date_time_from_cass_date_obj($row["datetime"], 'Y-m-d H:i:s');
                     $datetime_str = $ut_obj->convert_utc_datetime_to_local_datetime($datetime_str);
-                    $temp_arr = array("t_location" => $row["t_location"], "Latitude" => $row["tl_latitude"], "Longitude" => $row["tl_longitude"], "datetime" => $datetime_str, "tid" => $row["tid"], "author" => $row["author"], "author_id" => $row["author_id"], "author_profile_image" => $row["author_profile_image"], "author_screen_name" => $row["author_screen_name"], "sentiment" => $row["sentiment"]->value(), "quoted_source_id" => $row["quoted_source_id"], "tweet_text" => $row["tweet_text"], "retweet_source_id" => $row["retweet_source_id"], "media_list" => $media_list_temp, "type" => $row["type"], "category" => $category ,"confidence" => $row["confidence"]);
+                    $temp_arr = array("t_location" => $row["t_location"], "Latitude" => $row["tl_latitude"], "Longitude" => $row["tl_longitude"], "datetime" => $datetime_str, "tid" => $row["tid"], "author" => $row["author"], "author_id" => $row["author_id"], "author_profile_image" => $row["author_profile_image"], "author_screen_name" => $row["author_screen_name"], "sentiment" => $row["sentiment"]->value(), "quoted_source_id" => $row["quoted_source_id"], "tweet_text" => $row["tweet_text"], "retweet_source_id" => $row["retweet_source_id"], "media_list" => $media_list_temp, "type" => $row["type"], "category" => $category ,"confidence" => $row["confidence"], "hashtags" => $row["hashtags"], "mentions" => $row["mentions"]);
                     array_push($final_result, $temp_arr);
                 }
             }
@@ -937,7 +937,7 @@ class CommonController extends Controller
             $datetime_str = $ut_obj->get_date_time_from_cass_date_obj($row["datetime"], 'Y-m-d H:i:s');
             $datetime_str = $ut_obj->convert_utc_datetime_to_local_datetime($datetime_str);
 
-            $final_result = array("t_location" => $row["t_location"], "datetime" => $datetime_str, "tid" => $row["tid"], "author" => $row["author"], "author_id" => $row["author_id"], "author_profile_image" => $row["author_profile_image"], "author_screen_name" => $row["author_screen_name"], "sentiment" => $row["sentiment"]->value(), "quoted_source_id" => $row["quoted_source_id"], "tweet_text" => $row["tweet_text"], "retweet_source_id" => $row["retweet_source_id"], "replyto_source_id" => $row["replyto_source_id"], "media_list" => $media_list_temp, "type" => $row["type"], "category" => $category, "confidence" => $row["confidence"]);
+            $final_result = array("t_location" => $row["t_location"], "datetime" => $datetime_str, "tid" => $row["tid"], "author" => $row["author"], "author_id" => $row["author_id"], "author_profile_image" => $row["author_profile_image"], "author_screen_name" => $row["author_screen_name"], "sentiment" => $row["sentiment"]->value(), "quoted_source_id" => $row["quoted_source_id"], "tweet_text" => $row["tweet_text"], "retweet_source_id" => $row["retweet_source_id"], "replyto_source_id" => $row["replyto_source_id"], "media_list" => $media_list_temp, "type" => $row["type"], "category" => $category, "confidence" => $row["confidence"], "hashtags" => $row["hashtags"], "mentions" => $row["mentions"]);
 
             return $final_result;
         }
@@ -957,14 +957,13 @@ class CommonController extends Controller
         $db_object = new DBmodelAsync;
         $dbmodel_object = new DBmodel;
         if($async){
-            // echo json_encode($user_id_list);
             // user_id_list = ['$821712536215362', '$82171253621542']
             $stm_list = $qb_obj->get_statement(null, null, null, null, $feature_option='user_info', null, $async=true, null, $id_list=$user_id_list);        
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0], $ks);
             foreach ($result_async_from_db as $rows) {             
                 foreach ($rows as $row) {
                     $author_name = null;
-                    array_push($final_res,array('$'.$row['author_id'],$row["author"], $row["author_screen_name"], $row["profile_image_url_https"]));
+                    array_push($final_res,array('author_id' => $row['author_id'], 'author' => $row["author"], 'author_screen_name' => $row["author_screen_name"], 'profile_image_url_https' => $row["profile_image_url_https"]));
                 }
             }     
         }else{
@@ -1192,7 +1191,6 @@ class CommonController extends Controller
         }else if($filter_type == 'all'){
             $index_arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         }
-
         return $index_arr;
     }
 

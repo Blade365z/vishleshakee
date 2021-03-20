@@ -1,26 +1,39 @@
 import { getMe } from "./home/helper.js";
+import { getAllProject, getProjectName } from "./project/helper.js";
 import { getCurrentDate } from "./utilitiesJS/smatDate.js";
 import { displayErrorMsg } from "./utilitiesJS/smatExtras.js";
 var _PROJECTID = null;
 
-getMe();
+getMe().then(id=>{
+    populateProjectsForUser(id)
+});
+
+if (localStorage.getItem('sideBarState')) {
+    let state = localStorage.getItem('sideBarState');
+    if(state === 'show')
+        $('#wrapper').toggleClass('toggled');
+} else {
+    localStorage.setItem('sideBarState', 'show')
+}
+
+
 const projectReadyNotification = (id, name) => {
     $("#" + id + "-Loader").remove();
     $("#notificationNav").append(
         '<div class="d-flex bg-success smat-rounded pl-1 pr-3  m-1 projectCreateLoader" id="' +
-            id +
-            '-Loader" style="display:none;"><div id="' +
-            id +
-            '-Spinner"><i class="far fa-times-circle fa-2x closeProjectLoader  my-2 mx-1 text-white " style="cursor:pointer;" title="close" value="' +
-            id +
-            '" ></i></div><div class="text-white smat-notification-text" id="' +
-            id +
-            '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Created project suceessfully<p class="m-0"> <b class="">' +
-            name +
-            "</b></p></div></div></div>"
+        id +
+        '-Loader" style="display:none;"><div id="' +
+        id +
+        '-Spinner"><i class="far fa-times-circle fa-2x closeProjectLoader  my-2 mx-1 text-white " style="cursor:pointer;" title="close" value="' +
+        id +
+        '" ></i></div><div class="text-white smat-notification-text" id="' +
+        id +
+        '-LoaderText"><div class="mx-1 text-truncate" style="margin-top:5px;font-size:12px; opacity: 100%">Created project suceessfully<p class="m-0"> <b class="">' +
+        name +
+        "</b></p></div></div></div>"
     );
 };
- const checkIfNotificationSeen = () => {
+const checkIfNotificationSeen = () => {
     if (localStorage.getItem("smat-proj-stats")) {
         let tempArr = JSON.parse(localStorage.getItem("smat-proj-stats"));
         tempArr.map(el => {
@@ -34,8 +47,9 @@ const projectReadyNotification = (id, name) => {
 };
 checkIfNotificationSeen();
 
-if (_MODE !== 'HOME') {
+if (_MODE !== 'HOME' && _MODE !== 'PROJECT') {
     if (localStorage.getItem('projectMetaData')) {
+
         let metaData = JSON.parse(localStorage.getItem('projectMetaData'));
         $('#projNav').fadeIn('slow')
         _PROJECTID = metaData['projectMetaData']['project_id'];
@@ -93,17 +107,17 @@ $('body').on('click', '.addToStory', function () {
         document
             .getElementById('storyPlot')
             .appendChild(canvas);
-        base64URL =  canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream');
+        base64URL = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream');
         window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight);
-        _APICALLFORCAPTURE(_PROJECTID, base64URL).then(res=>{
-            if(res.error){
+        _APICALLFORCAPTURE(_PROJECTID, base64URL).then(res => {
+            if (res.error) {
                 alert('Some error occured!');
-            }else{
+            } else {
                 alert('Uploaded SuccessFully!')
             }
         });
     });
- 
+
     // $('#storyPlot').html('')
     // populateStories();
     // $('#storyAnalysisDiv').css('display','block');
@@ -188,24 +202,7 @@ const _CREATESTORYAPI = async (storyName, projectID, storyDescription, createdOn
     return data;
 }
 
-// const _APICALLFORSTORYUPLOAD = (storyID, storyName, analysisName, analysisDesc, base64URL) => {
-//     $.ajax({
-//         url: '',
-//         type: 'post',
-//         data: { storyID, storyName, analysisName, analysisDesc, image: base64URL },
-//         success: function (response) {
-//             if (response.error) {
-//                 displayErrorMsg('storyMsgDiv', 'error', response.error);
-//                 alert(response.error);
-//             } else {
-//                 alert('Saved successfully!')
-//                 base64URL = null;
-//                 $('#storyAnalysisDiv').css('display','none');
-//                 displayErrorMsg('storyMsgDiv', 'success', response.data);
-//             }
-//         }
-//     });
-// }
+
 
 const _APICALLFORCAPTURE = async (projectID, base64URL) => {
     const userID = await getMe();
@@ -217,7 +214,7 @@ const _APICALLFORCAPTURE = async (projectID, base64URL) => {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         body: JSON.stringify({
-            projectID, image: base64URL,userID
+            projectID, image: base64URL, userID
         })
     });
     let data = await response.json();
@@ -255,3 +252,52 @@ const populateStories = () => {
         }
     });
 }
+$("#toggleSideBar , .toggleSideBar").on('click', function (e) {
+    e.preventDefault();
+    $("#wrapper").toggleClass("toggled");
+    if (localStorage.getItem('sideBarState')) {
+        let state = localStorage.getItem('sideBarState');
+        if (state === 'hide') {
+            localStorage.setItem('sideBarState', 'show')
+        } else {
+            localStorage.setItem('sideBarState', 'hide')
+        }
+    } else {
+        localStorage.setItem('sideBarState', 'show')
+    }
+});
+
+$('body').on('click', '#deactivateProject', async function () {
+    localStorage.removeItem('projectMetaData');
+    location.reload();
+});
+
+
+
+function populateProjectsForUser(userID) {
+    let projectID = null;
+    if (localStorage.getItem('projectMetaData')) {
+        let metaData = JSON.parse(localStorage.getItem('projectMetaData'));
+        projectID = metaData['projectMetaData']['project_id'];
+    }
+    let createStoryBtnDOM = ''
+    getAllProject(userID).then(res => {
+        $('#numOfProjects').text(res.length )
+        if (!res) {
+            $('#projectsDiv').css('display', 'none');
+            $("#projects-created").html('<div class="mx-3">No projects created</div>')
+        }
+        else {
+            res.map(project => {
+                $('#smat-project-list').append(`<div class="p-2 border-bottom project-list-item" title="Click to switch project" value="${project.project_id}"><h6 class="font-weight-bold m-0" > ${project.project_name} </h6><div class="text-muted">created on: ${project.project_creation_date}</div>${projectID === project.project_id ? 'Active <i class="fas fa-circle text-success"></i>' : ''}</div>`)
+            })
+        }
+    });
+}
+
+
+
+$('body').on('click', '.project-list-item', function () {
+    let id = $(this).attr('value');
+    window.location.href=`project?projectID=${id}`;
+})

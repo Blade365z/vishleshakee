@@ -20,6 +20,9 @@ class CreateProjectsTable extends Migration
             $table->string('user_id');
             $table->string('status');
             $table->string('project_description');
+            $table->string('seed_tokens');
+            $table->string('from_date');
+            $table->string('to_date');
         });
     }
 

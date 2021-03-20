@@ -8,6 +8,7 @@
     <script src="public/js/app.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="public/css/app.css" rel="stylesheet">
+    
     <link href="public/datepicker/datepicker-min.css" rel="stylesheet">
     <link href="public/tempCSS/smat.css" rel="stylesheet">
     <link href="public/font-awesome/css/all.css" rel="stylesheet">
@@ -15,28 +16,42 @@
     </style>
 </head>
 
-<body>
+<body> 
 
+    <div class="d-flex toggled" id="wrapper">
+        <!-- Sidebar -->
 
-    <div class="container" id="main-wrapper">
+        @if(Auth::check())
+        @include("inc.sideBar")
+        @endif
+        <!-- /#sidebar-wrapper -->
+    
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+          <div class="container">
+            @include("inc.navbar")
+            @include("inc.projectNav")
+            @include("inc.story")
+            @include("inc.storyImage-modal")
+            @include("inc.createProjectModal")
+            @include("inc.selectProjectModal")
+            @include('inc.publicTweets')
+            @include('inc.helpHA')
+            @include('inc.feedbackmodal')
+            @include('inc.userSearchModal')
+            @yield('content')
+        </div>
+        <!-- /#page-content-wrapper -->
+    @include("inc.footer")
+
+      </div>
+    {{-- <div class="container" id="main-wrapper">
         <div class="row " id="notificationNav">
           
 
         </div>
-
-        @include("inc.navbar")
-        @include("inc.projectNav")
-        @include("inc.story")
-        @include("inc.storyImage-modal")
-        @include("inc.createProjectModal")
-        @include("inc.selectProjectModal")
-        @include('inc.publicTweets')
-        @include('inc.helpHA')
-        @include('inc.feedbackmodal')
-        @include('inc.userSearchModal')
-        @yield('content')
-    </div>
-    @include("inc.footer")
+   
+    </div> --}}
 </body>
 
 

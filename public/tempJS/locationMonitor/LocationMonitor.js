@@ -18,9 +18,11 @@ import {
 } from '../utilitiesJS/redirectionScripts.js';
 import {makeAddToStoryDiv} from '../utilitiesJS/smatExtras.js'
 
-var hashtag_info, global_tweetid_list, locations;
+var hashtag_info, global_tweetid_list, locations,global_place;
 var interval, currentPlace;
 let currentlyTrendingLocFlag = 1;
+let fromDate,toDate;
+let clear_map;
 const categoryColor = {
     'normal': 'text-normal',
     'com': 'text-com',
@@ -172,7 +174,7 @@ button.onAdd = function (LM_Map) {
 };
 
 button.addTo(LM_Map);
-makeAddToStoryDiv('lmMap','lmPanel')
+localStorage.getItem('projectMetaData') && makeAddToStoryDiv('lmMap','lmPanel')
 
 
 jQuery(function () {
@@ -180,6 +182,7 @@ jQuery(function () {
      Below is the code writtn to filter out the hashtags from the word cloud.
      written by : Amitabh Boruah(amitabhyo@gmail.com)
     */
+     global_place = "^" + $("#queryLM").val().toLowerCase();
     $('body').on('click', 'div .filter-hashtags', function () {
         let filterValue = $(this).attr('value');
         $('#currentlyTrendingLocBtn').addClass('text-normal');
@@ -217,10 +220,11 @@ jQuery(function () {
 
 
 
-
+    global_datetime = ["2021-02-19 00:00:00", "2021-02-19 01:00:00"];
     trigger();
 
     $('#submit-btn').on('click', function (e) {
+        global_place = "^" + $("#queryLM").val().toLowerCase();
         trigger();
     });
 
@@ -269,6 +273,7 @@ jQuery(function () {
         var token = $(this).text();
         console.log(token);
         $("#queryLM").val(token);
+        // global_datetime = get_current_time(interval);
         // console.log($("#location_button").text());
         trigger();
     });
@@ -299,6 +304,33 @@ jQuery(function () {
 
     });
 
+    $('#lmDate').on('submit', function (e) {
+        e.preventDefault();
+        //logic different in historical analysis :: If required please update in other module
+        //This logic is written on basis of requirement raised by Rahul Yumlembam.
+        fromDate = $('#fromDateUA').val();
+        toDate = $('#toDateUA').val();
+        
+        global_place = "^" + $("#rangeQueryLM").val().toLowerCase();
+
+        console.log(" dateee::  ",fromDate+" 00:00:00",toDate+" 00:00:00");
+        global_datetime = [fromDate+" 00:00:00",toDate+" 00:00:00"];
+        trigger();
+            
+        
+    });
+
+    $('#range').on('click', function (e) {
+        $('#lmDate').show();
+        $('#lmInputs').hide();
+    });
+
+    $('#live').on('click', function (e) {
+        $('#lmDate').hide();
+        $('#lmInputs').show();
+    });
+
+
 });
 
 
@@ -310,12 +342,11 @@ function trigger() {
     var type,
         from_datetime,
         to_datetime,
+        place = global_place,
         refresh_type = $("#lmTefreshType").val(),
-        timeLimit = $("#lmInterval :selected").val(),
-        place = "^" + $("#queryLM").val();
-    place = place.toLowerCase();
+        timeLimit = $("#lmInterval :selected").val();
 
-    currentPlace = place
+    currentPlace = place;
     localStorage.setItem("lmTefreshType", "manual");
 
     if (timeLimit == "1 Minute") {
@@ -334,52 +365,53 @@ function trigger() {
             clearInterval(i);
         }
         $('#currentlyTrendingLocDiv').html('<div class="text-center smat-loader " ><i class="fa fa-circle-o-notch donutSpinner mt-5" aria-hidden="true"></i></div>');
-        global_datetime = get_current_time(interval);
-        // global_datetime = ["2020-12-25 00:00:00", "2020-12-26 06:23:10"];
+        // global_datetime = get_current_time(interval);
+        // global_datetime = ["2021-02-19 00:00:00", "2021-02-19 01:00:00"];
         to_datetime = global_datetime[1];
         from_datetime = global_datetime[0];
         console.log(global_datetime);
-        findLocation('^guwahati').then(result => {
-            console.log(result);
-        });
+        // findLocation('^guwahati').then(result => {
+        //     console.log(result);
+        // });
         checkLocation(place.split("^")[1]).then(result => {
-            console.log(result);
+            console.log("location result   ",result);
             console.log("this os the place name", place);
-            if (Number.isInteger(parseInt(result.value)) == true) {
-                getTweetIdList(from_datetime, to_datetime, place, "tweet_id", pname).then(response => {
+            if (Number.isInteger(parseInt(result)) == true) {
+                getTweetIdList(from_datetime, to_datetime, place, "tweet_id", pname).then((response) => {
+                    tweetResults(response);
                     global_tweetid_list = response;
-                    console.log(global_tweetid_list);
+                    // console.log(global_tweetid_list);
             
-                    let idx = 0;
-                    let chunk_size = 100;
-                    for (let i = 0; i < response.length / chunk_size; i++) {
-                        let temp = [];
-                        for (let j = idx; j < idx + chunk_size; j++) {
-                            temp.push(response[j]);
-                        }
-                        console.log(temp);
-                        idx = idx + chunk_size;
-                        tweetChunkInfo(temp).then(response=>{
-                            console.log(response);
-                        });
-                        console.log("----------------------------------------------------");
-                    }
+                    // let idx = 0;
+                    // let chunk_size = 100;
+                    // for (let i = 0; i < response.length / chunk_size; i++) {
+                    //     let temp = [];
+                    //     for (let j = idx; j < idx + chunk_size; j++) {
+                    //         temp.push(response[j]);
+                    //     }
+                    //     console.log(temp);
+                    //     idx = idx + chunk_size;
+                    //     // const v = await tweetChunkInfo(temp);
+                    //     const tt = await tweetChunkInfo(temp);
+                        
+                    //     console.log("----------------------------------------------------");
+                    // }
                 });
-                getTweetIdList(from_datetime, to_datetime, place, "tweet_info", pname).then(response => {
-                    if (response.length == 0) {
-                        $("#modal_text").text("Location based tweet not found!");
-                        $("#exampleModal").modal();
-                    } else {
-                        console.log("This is the tweet info response", response);
-                        rander_map(response);
-                    }
-                });
+                // getTweetIdList(from_datetime, to_datetime, place, "tweet_info", pname).then(response => {
+                //     if (response.length == 0) {
+                //         $("#modal_text").text("Location based tweet not found!");
+                //         $("#exampleModal").modal();
+                //     } else {
+                //         console.log("This is the tweet info response", response);
+                //         rander_map(response);
+                //     }
+                // });
 
-                if ((parseInt(result.value)) == 2) {
+                if ((parseInt(result)) == 2) {
                     type = "country"
-                } else if ((parseInt(result.value)) == 1) {
+                } else if ((parseInt(result)) == 1) {
                     type = "state"
-                } else if ((parseInt(result.value)) == 0) {
+                } else if ((parseInt(result)) == 0) {
                     type = "city"
                 }
 
@@ -464,20 +496,43 @@ function trigger() {
     }
 }
 
+// export const getTweetIdList = async (from,to,query,option,pname=null)
+export const tweetResults = async (response) =>{
+    clear_map = true;
+    let idx = 0;
+    let chunk_size = 50;
+    for (let i = 0; i < response.length / chunk_size; i++) {
+        let temp = [];
+        for (let j = idx; j < idx + chunk_size; j++) {
+            temp.push(response[j]);
+        }
+        idx = idx + chunk_size;
+        const tweetInfoMap = await tweetChunkInfo(temp);
+        console.log("ttttttt",tweetInfoMap);
+        rander_map(tweetInfoMap);
+        clear_map = false;
+        
+    }
+    clear_map = true;
+  }
+
 
 const rander_map = (data) => {
 
-    group1.clearLayers();
-    if (data[0]["sentiment"] == "2") {
-
-        LM_Map.setView([parseFloat(data[0]["Latitude"]), parseFloat(data[0]["Longitude"])], 4);
-    } else if (data[0]["sentiment"] == "1") {
-
-        LM_Map.setView([parseFloat(data[0]["Latitude"]), parseFloat(data[0]["Longitude"])], 4);
-    } else if (data[0]["sentiment"] == "0") {
-
-        LM_Map.setView([parseFloat(data[0]["Latitude"]), parseFloat(data[0]["Longitude"])], 4);
+    // group1.clearLayers();
+    if (clear_map==true) {
+        group1.clearLayers();
     }
+    // if (data[0]["sentiment"] == "2") {
+
+    //     LM_Map.setView([parseFloat(data[0]["Latitude"]), parseFloat(data[0]["Longitude"])], 4);
+    // } else if (data[0]["sentiment"] == "1") {
+
+    //     LM_Map.setView([parseFloat(data[0]["Latitude"]), parseFloat(data[0]["Longitude"])], 4);
+    // } else if (data[0]["sentiment"] == "0") {
+
+    //     LM_Map.setView([parseFloat(data[0]["Latitude"]), parseFloat(data[0]["Longitude"])], 4);
+    // }
 
     for (var i = 0; i < data.length; i++) {
         //   var dat = { lat: op[i].Latitude , lng: op[i].Longitude , count: 1};

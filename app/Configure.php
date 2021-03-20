@@ -14,6 +14,7 @@ class Configure extends Model
         'dbNodes',
         'dbKeyspace',
         'dbPort',
-        'sparkEngine'
+        'sparkEngine',
+        'defaultKeyspace'
     ];
 }

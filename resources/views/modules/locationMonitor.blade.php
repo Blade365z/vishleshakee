@@ -32,6 +32,52 @@
     <div class="smat-mainHeading ">
         Location Monitor
     </div>
+
+    <div class="mb-3" style="display: -webkit-box;">
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-secondary active">
+            <input class="mr-3 " type="radio" name="options" id="live" autocomplete="off" checked> Live
+            </label>
+            <label class="btn btn-secondary">
+            <input type="radio" name="options" id="range" autocomplete="off"> Range
+            </label>
+        </div>
+        <div class="pt-2 smat-rounded  ml-auto  ">
+            <h5>
+                <span class="mx-3 clickable text-dark" id="locationTweets"><i class="fab fa-twitter locationOptions"
+                        title="See Tweets"></i></span>
+                
+
+                <span class="mx-3 clickable text-dark">
+                    <div class="btn-group"> <i class="fas fa-filter locationOptions"  class="smat-rounded text-normal" data-toggle="dropdown"
+                        aria-haspopup="true" 
+                                title="Filter"></i> 
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <li class="dropdown-item clickable filter-hashtags" value="all">Show All</li>
+                            <li class="dropdown-item clickable filter-hashtags" value="normal"> <i
+                                    class="fa fa-circle text-normal" aria-hidden="true"></i> Normal Hashtags</li>
+                            <li class="dropdown-item clickable filter-hashtags" value="com"> <i
+                                    class="fa fa-circle text-com" aria-hidden="true"></i> Communal Hashtags</li>
+                            <li class="dropdown-item clickable filter-hashtags" value="sec"> <i
+                                    class="fa fa-circle text-sec" aria-hidden="true"></i> Security Hashtags</li>
+                            <li class="dropdown-item clickable filter-hashtags" value="com_sec"> <i
+                                    class="fa fa-circle text-com_sec" aria-hidden="true"></i> Communal and Security
+                                    Hashtags</li>
+                        </div>
+                    </div>
+
+
+
+
+
+                </span>
+                <span class="mx-3 clickable text-dark"> <i class="fas fa-hashtag locationOptions "
+                        id="currentlyTrendingLocBtn" title="Hide trending hashtags"></i> </span>
+            </h5>
+
+        </div>
+    </div>
+
     <div class="mb-3">
         <form id="lmInputs">
 
@@ -65,43 +111,43 @@
 
 
                 </div>
-                <div class="pt-2 smat-rounded  ml-auto  ">
-                    <h5>
-                        <span class="mx-3 clickable text-dark" id="locationTweets"><i class="fab fa-twitter locationOptions"
-                                title="See Tweets"></i></span>
-                        
-
-                        <span class="mx-3 clickable text-dark">
-                            <div class="btn-group"> <i class="fas fa-filter locationOptions"  class="smat-rounded text-normal" data-toggle="dropdown"
-                                aria-haspopup="true" 
-                                        title="Filter"></i> 
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <li class="dropdown-item clickable filter-hashtags" value="all">Show All</li>
-                                    <li class="dropdown-item clickable filter-hashtags" value="normal"> <i
-                                            class="fa fa-circle text-normal" aria-hidden="true"></i> Normal Hashtags</li>
-                                    <li class="dropdown-item clickable filter-hashtags" value="com"> <i
-                                            class="fa fa-circle text-com" aria-hidden="true"></i> Communal Hashtags</li>
-                                    <li class="dropdown-item clickable filter-hashtags" value="sec"> <i
-                                            class="fa fa-circle text-sec" aria-hidden="true"></i> Security Hashtags</li>
-                                    <li class="dropdown-item clickable filter-hashtags" value="com_sec"> <i
-                                            class="fa fa-circle text-com_sec" aria-hidden="true"></i> Communal and Security
-                                            Hashtags</li>
-                                </div>
-                            </div>
-
-
-
-
-
-                        </span>
-                        <span class="mx-3 clickable text-dark"> <i class="fas fa-hashtag locationOptions "
-                                id="currentlyTrendingLocBtn" title="Hide trending hashtags"></i> </span>
-                    </h5>
-
-                </div>
                 <!-- <button class="btn  text-normal smat-rounded  mx-1" id="showTableBtn" onclick="return false"> <span> Show Search History </span> </button> -->
             </div>
 
+        </form>
+        <form id="lmDate" style="display: none;">
+           
+            <div class="mb-3" id="date-divLM">
+
+                <div class="d-flex mb-0">
+                    <div class="form-group  text-normal  border smat-rounded d-flex  mr-2 px-2 py-1  bg-white"
+                    id="uaSearchInput">
+                    <i class="fa fa-search px-1 pt-2" aria-hidden="true" style="margin-top:5px"></i>
+                    <input type="text" class="form-control" value="india" name="query" id="rangeQueryLM"
+                        placeholder="Search a location" style="border:0px;" autocomplete="OFF" required>
+                </div>
+                    <div class="form-group border smat-rounded d-flex px-2 py-1  bg-white">
+                        <i class="far fa-calendar-alt mx-2 text-normal " style="margin-top:11px;"></i>
+                        <input type="text" class="form-control datepicker-here  smat-from" name="fromDate"
+                            id="fromDateUA" placeholder="From Date" onkeydown="return false;"
+                            style="border:0px;" autocomplete="OFF" data-language='en' required>
+                    </div>
+                    <div class="form-group border smat-rounded d-flex px-2 py-1  bg-white">
+                        <i class="far fa-calendar-alt mx-2 text-normal" style="margin-top:11px;"></i>
+                        <input type="text" class="form-control datepicker-here smat-to " name="toDate"
+                            id="toDateUA" placeholder="To Date" onkeydown="return false;" style="border:0px;"
+                            autocomplete="OFF" data-language='en' required>
+                    </div>
+
+                    <div>
+                        <button class="btn smat-btn  smat-rounded  mx-1" id="submit-btn" type="submit"> <span>Search
+                                Location</span> </button>
+    
+    
+                    </div>
+                    
+
+            </div>
         </form>
     </div>
 

@@ -6,6 +6,10 @@
     background-color: rgb(223, 223, 223);
     cursor: pointer;
 }
+
+.textElementStory img:hover {
+    opacity: .5;
+}
 .plotsDivStory{
     overflow-x:hidden;
 }
@@ -24,6 +28,7 @@
 }
 .titleStory{
     font-size: 3em;
+    width:100%;
 }
 .sectionStory{
     font-size: 1.5em;
@@ -31,6 +36,12 @@
 .storyOptionsBtn:hover{
 opacity: 50%;
 cursor: pointer;
+}
+.storyBtn:hover{
+    background-color: var(--color-active);
+    cursor:pointer;
+    border-radius: 10px;
+    color: white;
 }
 
 

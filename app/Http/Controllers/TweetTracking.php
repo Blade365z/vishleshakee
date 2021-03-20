@@ -112,23 +112,20 @@ class TweetTracking extends Controller
         $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0]);
 
         foreach ($result_async_from_db as $rows) {
-            $total_count = 0;
-         
-            foreach ($rows as $row) {
-                
+            $total_count = 0;         
+            foreach ($rows as $row) {                
                 if($row['tweet_type']){
-                $t = $row['datetime'];
-                $datetime1 = $ut_obj->get_date_time_from_cass_date_obj($t, "Y-m-d");
-                $total_count += 1;
-                $month=$monthsArr[explode("-",$datetime1)[1]-1];
-                $week=$this->weekOfMonth($datetime1);
+                    $t = $row['datetime'];
+                    $datetime1 = $ut_obj->get_date_time_from_cass_date_obj($t, "Y-m-d");
+                    $total_count += 1;
+                    $month=$monthsArr[explode("-",$datetime1)[1]-1];
+                    $week=$this->weekOfMonth($datetime1);
                 }
             }
             if ($total_count > 0) {
                 array_push($temp_arr, array($datetime1,$total_count,$month ,$week));
                 // $temp_arr[$type] = $datetime1;
             }
-
         }
     
         $final_result["chart_type"] = "freq_dist_tweet_tracking_of_type_$distribution_type";

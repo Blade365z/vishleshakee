@@ -6,6 +6,11 @@ use App\DBModel\DBmodel;
 use App\Http\Controllers\CommonController as CC;
 use Illuminate\Http\Request;
 use App\CrawlerList;
+use PhpParser\Node\Expr\Cast\Array_;
+
+use function GuzzleHttp\json_decode;
+use function GuzzleHttp\Promise\each;
+use function PHPSTORM_META\type;
 
 class UserAnalysisController extends Controller
 {
@@ -33,7 +38,7 @@ class UserAnalysisController extends Controller
                 'page_size' => 20,
             );
         }
-        $result = $trigger->execute_query($statement, $options, 'raw');
+        $result = $trigger->execute_query($statement, $options);
         $request->session()->put('page_state_token', $result->pagingStateToken());
         $data = array();
         foreach ($result as $record) {
@@ -46,11 +51,16 @@ class UserAnalysisController extends Controller
         }
         echo json_encode($data);
     }
+
+
+
     public function get_page_state_token(Request $request)
     {
         $page_state = $request->session()->get('page_state_token');
         return $page_state;
     }
+
+
 
     public function getSuggestedUsers()
     {
@@ -63,15 +73,28 @@ class UserAnalysisController extends Controller
         echo $common_object->get_user_info($userIDsArr, true);
     }
 
+
+
     public function getUserDetails(Request $request)
-    {
+    {   
+        $pname = null;
+        if ($request->input('pname')){
+            $pname = $request->input('pname');
+            
+        }
         if ($request->input('userID')) {
             $userID = $request->input('userID');
-        } else {
+            $common_object = new CC;
+        return $common_object->get_user_info($userID, false, $pname);
+        }else if($request->input('userIDList')){
+            $userIDList = $request->input('userIDList');
+            $common_object = new CC;
+            return $common_object->get_user_info($userIDList, true, $pname);
+        }
+         else {
             return response()->json(['error' => 'No Data Captured'], 400);
         }
-        $common_object = new CC;
-        return $common_object->get_user_info($userID, false);
+        
     }
 
 
@@ -118,12 +141,15 @@ class UserAnalysisController extends Controller
     
     public function getTweetIDUA(Request $request)
     {
-
         if ($request->input('to') && $request->input('from') && $request->input('query')) {
             $rangeType = $request->input('rangeType');
             $query = $request->input('query');
             $from = $request->input('from');
             $to = $request->input('to');
+            $pname = null;
+            if ($request->input('pname')){
+                $pname = $request->input('pname');
+            }
             if ($request->input('isDateTimeAlready') == 0) {
                 $fromTime = date('Y-m-d H:i:s', strtotime($from) + 0);
                 $toTime = date('Y-m-d H:i:s', strtotime($to) + 0);
@@ -143,13 +169,13 @@ class UserAnalysisController extends Controller
             }
             $arrTemp = ["range_type" => $rangeType, "fromTime" => $fromTime, "toTime" => $toTime, "query" => $query, "filter" => $filter];
             $commonObj = new CommonController;
-            $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter);
+            $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter, $pname);
             return $data;
         } else {
             return response()->json(['error' => 'Please check yout arguments'], 400);
         }
-
     }
+
 
     public function getSentimentDataForUser(Request $request)
     {
@@ -167,6 +193,12 @@ class UserAnalysisController extends Controller
                 $toTime = $to;
             }
 
+            $pname = null;
+            if ($request->input('pname')){
+                $pname = $request->input('pname');
+            }
+
+
             //A little extra processing for 10seconds plot.
             if ($rangeType == '10sec') {
                 $fromTime = date('Y-m-d H:i:s', strtotime($fromTime) - 3600);
@@ -174,13 +206,14 @@ class UserAnalysisController extends Controller
             }
 
             $commonObj = new CommonController;
-            $data = $commonObj->get_sentiment_distribution_data($toTime, $fromTime, $query, $rangeType);
+            $data = $commonObj->get_sentiment_distribution_data($toTime, $fromTime, $query, $rangeType, $pname);
             return $data;
 
         } else {
             return response()->json(['error' => 'Please check yout arguments'], 400);
         }
     }
+
 
     public function getCooccurDataForUser(Request $request)
     {
@@ -202,9 +235,13 @@ class UserAnalysisController extends Controller
                 $toTime = date('Y-m-d H:i:s', strtotime($to) + 0);
                 //To Debug using the line below :: To check if all the arguments in the body are being parsed or not.
                 // return response()->json(['fromDate' => $fromTime,'toDate'=>$toTime,'query'=>$query,'option'=>$option,'uniqueID'=>$uniqueID,'userID'=>$userID ,'filePath'=> $path ], 200);
+                $pname = null;
+                if ($request->input('pname')){
+                    $pname = $request->input('pname');
+                }
 
                 $commonObj = new CommonController;
-                $data = $commonObj->get_co_occur_data($toTime, $fromTime, $query, null, $option, $file_path, true, false, $userID);
+                $data = $commonObj->get_co_occur_data($toTime, $fromTime, $query, null, $option, $file_path, true, false, $userID, $pname);
                 return $data;
             } else {
                 return response()->json(['error' => 'Please check yout arguments'], 400);
@@ -217,10 +254,119 @@ class UserAnalysisController extends Controller
         }
 
     }
+
+
+
     public function getUAListFromCrawler()
     {
         $crawlerListObj = CrawlerList::where('type', '=', 'user')->get('track');
         return $crawlerListObj;
+    }
+
+
+    
+
+    public function getNetworkTweetIDUA(Request $request)
+    {
+        if ($request->input('to') && $request->input('from') && $request->input('query')) {
+            $rangeType = $request->input('rangeType');
+            $query = $request->input('query');
+            $from = $request->input('from');
+            $to = $request->input('to');
+            $hashtags = $request->input('hashtags');
+            $mentions = $request->input('mentions');
+            if ($request->input('isDateTimeAlready') == 0) {
+                $fromTime = date('Y-m-d H:i:s', strtotime($from) + 0);
+                $toTime = date('Y-m-d H:i:s', strtotime($to) + 0);
+            } else {
+                $fromTime = $from;
+                $toTime = $to;
+            }
+            if ($request->input('filter') != 'all') {
+                $filter = $request->input('filter');
+            } else {
+                $filter = null;
+            }
+
+            $pname = null;
+            if ($request->input('pname')){
+                $pname = $request->input('pname');
+            }
+            
+            //A little extra processing for 10seconds plot.
+            if ($rangeType == '10sec') {
+                $fromTime = date('Y-m-d H:i:s', strtotime($fromTime) - 3600);
+                $toTime = date('Y-m-d H:i:s', strtotime($toTime) + 0);
+            }
+            $arrTemp = ["range_type" => $rangeType, "fromTime" => $fromTime, "toTime" => $toTime, "query" => $query, "filter" => $filter];
+            // return $arrTemp;
+            $commonObj = new CommonController;
+            $data = $commonObj->get_tweets($toTime, $fromTime, $query, $rangeType, $filter, $pname);
+
+            $tweetinfo = json_decode($commonObj->get_tweets_info($data["data"], true, $pname),true);
+            
+            // echo json_encode($tweetinfo);
+            $tweetIdRelated = Array();
+            $tweetIdNonRelated = [];
+            // $hashtags = ['#IPL2021Auction','#Shweta','#RIP','#Brother','#RollBackModiTax','#LPGPriceHike','#RollBac…RT'];
+            foreach ($hashtags as $hash) {
+                foreach ($tweetinfo as $t) {
+                    if (strpos($t["tweet_text"], "#".$hash." ") !== false) {
+                        // echo json_encode($t);
+                        array_push($tweetIdRelated,$t["tid"]);
+                    }
+                    
+                }   
+            }
+        
+            // return $tweetIdRelated;
+
+            $array = array();
+
+            // Use strtotime function 
+            $Variable1 = strtotime($from);
+            $Variable2 = strtotime($to);
+
+            // Use for loop to store dates into array 
+            // 86400 sec = 24 hrs = 60*60*24 = 1 day 
+            for ($currentDate = $Variable1; $currentDate <= $Variable2; 
+                                            $currentDate += (86400)) { 
+                                                
+            $Store = date('Y-m-d', $currentDate); 
+            $array[] = $Store; 
+            }
+
+            function process_source__($ST_id, $date_list){
+                    $tweet_id_type = ["retweet", "QuotedTweet", "Reply"];
+                    $trigger = new TweetTracking;
+                    $all_type_data = array();
+                    $all_type_data["total"] = 0;
+                    foreach ($tweet_id_type as $type) {
+                        $temp_data = [];
+                        foreach ($date_list as $date) {
+                            $result = $trigger->get_tweet_idlist_for_sourceid($to = $date, $from = null, $source_tweet_id = $ST_id, $tweet_id_list_type = $type);
+                            array_push($temp_data, $result["data"]);
+                        }
+                        $temp_data = call_user_func_array('array_merge', $temp_data);
+                        $all_type_data[$type] = sizeof($temp_data);
+                        $all_type_data["total"] = $all_type_data["total"] + sizeof($temp_data);
+                    }
+                    // echo json_encode($all_type_data);
+                    $all_type_data["tid"]=$ST_id;
+                    return $all_type_data;
+            }
+            $Total =array();
+            $TweetIdCountDetails = [];
+            $TweetIdCountDetails["tweetId"] = $tweetIdRelated;
+            foreach ($tweetIdRelated as $t){
+                array_push($Total,process_source__($t,$array));
+            }
+            $TweetIdCountDetails["tweetCount"] = $Total;
+            return json_encode($TweetIdCountDetails);
+        } else {
+            return response()->json(['error' => 'Please check yout arguments!'], 400);
+        }
+
     }
 
 }

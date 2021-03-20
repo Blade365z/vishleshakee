@@ -43,10 +43,8 @@ export const get_tweet_location_home = async (interval = null, query, fromTime =
     return data;
 }
 
-
-export const getCompleteMap = (id,op) => {
-    
-    $('#'+id).css('height', '0px');
+export const tweetResults = async (response,id) =>{
+    $('#'+id).css('height', '450px');
     var modal = document.querySelector(".modal_lm");
     var closeButton = document.querySelector(".close-button");
     var markersList = document.getElementById('markersList');
@@ -125,16 +123,40 @@ export const getCompleteMap = (id,op) => {
     let setView_coordinates_lat = 0.0;
     let setView_coordinates_lng = 0.0;
     var location_tweet_count = 0;
+    clear_map = true;
+    let idx = 0;
+    let chunk_size = 50;
+    for (let i = 0; i < response.length / chunk_size; i++) {
+        let temp = [];
+        for (let j = idx; j < idx + chunk_size; j++) {
+            temp.push(response[j]);
+        }
+        idx = idx + chunk_size;
+        const tweetInfoMap = await tweetChunkInfo(temp);
+        console.log("ttttttt",tweetInfoMap);
+        rander_map(tweetInfoMap);
+        clear_map = false;
+        
+    }
+    clear_map = true;
+  }
+
+
+export const getCompleteMap = (op) => {
+    if (clear_map==true) {
+        group1.clearLayers();
+    }
+
     
     for (var i = 0; i < op.length; i++) {
         
         if (op[i].Latitude != null) {
-            console.log(op[i]);
-            if(setView_coordinates!==true){
-                setView_coordinates_lat = op[i].Latitude;
-                setView_coordinates_lng = op[i].Longitude;
-                setView_coordinates = true;
-            }
+            // console.log(op[i]);
+            // if(setView_coordinates!==true){
+            //     setView_coordinates_lat = op[i].Latitude;
+            //     setView_coordinates_lng = op[i].Longitude;
+            //     setView_coordinates = true;
+            // }
 
             location_tweet_count = location_tweet_count + 1;
             
@@ -232,66 +254,66 @@ export const getCompleteMap = (id,op) => {
         }
     }
     
-    var legend = L.control({position: 'bottomright'});
+    // var legend = L.control({position: 'bottomright'});
 
-    legend.onAdd = function (History_Map) {
-        var div = L.DomUtil.create("div", "legend_info shadow");
+    // legend.onAdd = function (History_Map) {
+    //     var div = L.DomUtil.create("div", "legend_info shadow");
         
-        div.innerHTML += '<i style="background: white"></i><span>Total Tweets       :'+op.length+'</span><br>';
-        div.innerHTML += '<i style="background: white"></i><span>Tweet with Location:'+location_tweet_count+'</span><br>';
+    //     div.innerHTML += '<i style="background: white"></i><span>Total Tweets       :'+op.length+'</span><br>';
+    //     div.innerHTML += '<i style="background: white"></i><span>Tweet with Location:'+location_tweet_count+'</span><br>';
         
-        
-
-        return div;
-    };
-
-    legend.addTo(History_Map);
-
-
-    $('.legend_info').css({'background':'white','border-radius': '5%','padding': '5px'});
-    if(location_tweet_count==0)
-    {
-        // displayErrorMsg(id,'error','No Location Found',false);
-        // $('#'+id).css('height', '50px');
-        // $('#'+id).html(`<div style="height: 50px;font-size:1.6em;"><div class="text-center ">No Map Data Found.</div></div>`);
-        $('.legend_info').css({'padding': '25px'});
-        if(id=='result-div-map'){
-            $('#'+id).css('height', '400px');
-            History_Map.invalidateSize();
-            History_Map.zoomOut(2, {
-                "animate": true
-                });
-        }
-        else{
-            $('#'+id).css('height', '450px');
-            History_Map.invalidateSize('true');
-            History_Map.zoomOut(2, {
-                "animate": true
-                });
-        }
         
 
-    }
-    else{
-        if(id=='result-div-map'){
-            $('#'+id).css('height', '400px');
-            History_Map.invalidateSize();
-            History_Map.setView([setView_coordinates_lat,setView_coordinates_lng], History_Map.getZoom(), {
-                "animate": true,
-                "pan": {
-                    "duration": 2
-                }
-                });
-        }
-        else{
-            $('#'+id).css('height', '450px');
-            History_Map.invalidateSize('true');
-            History_Map.setView([setView_coordinates_lat,setView_coordinates_lng], History_Map.getZoom(), {
-                "animate": true,
-                "pan": {
-                    "duration": 2
-                }
-                })
-        }
-    }
+    //     return div;
+    // };
+
+    // legend.addTo(History_Map);
+
+
+    // $('.legend_info').css({'background':'white','border-radius': '5%','padding': '5px'});
+    // if(location_tweet_count==0)
+    // {
+    //     // displayErrorMsg(id,'error','No Location Found',false);
+    //     // $('#'+id).css('height', '50px');
+    //     // $('#'+id).html(`<div style="height: 50px;font-size:1.6em;"><div class="text-center ">No Map Data Found.</div></div>`);
+    //     $('.legend_info').css({'padding': '25px'});
+    //     if(id=='result-div-map'){
+    //         $('#'+id).css('height', '400px');
+    //         History_Map.invalidateSize();
+    //         History_Map.zoomOut(2, {
+    //             "animate": true
+    //             });
+    //     }
+    //     else{
+    //         $('#'+id).css('height', '450px');
+    //         History_Map.invalidateSize('true');
+    //         History_Map.zoomOut(2, {
+    //             "animate": true
+    //             });
+    //     }
+        
+
+    // }
+    // else{
+    //     if(id=='result-div-map'){
+    //         $('#'+id).css('height', '400px');
+    //         History_Map.invalidateSize();
+    //         History_Map.setView([setView_coordinates_lat,setView_coordinates_lng], History_Map.getZoom(), {
+    //             "animate": true,
+    //             "pan": {
+    //                 "duration": 2
+    //             }
+    //             });
+    //     }
+    //     else{
+    //         $('#'+id).css('height', '450px');
+    //         History_Map.invalidateSize('true');
+    //         History_Map.setView([setView_coordinates_lat,setView_coordinates_lng], History_Map.getZoom(), {
+    //             "animate": true,
+    //             "pan": {
+    //                 "duration": 2
+    //             }
+    //             })
+    //     }
+    // }
 }

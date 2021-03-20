@@ -38,6 +38,7 @@ class ConfigureSmat extends Controller
                     'dbKeyspace' => $request->get('dbKeyspace'),
                     'dbPort' => $request->get('dbPort'),
                     'sparkEngine' => $request->get('sparkEngine'),
+                    'defaultKeyspace' => $request->get('defaultKeyspace'),
                 ));
                 return response()->json(['data' => 'Updated Successfully!'], 200);
             } else {
@@ -49,6 +50,7 @@ class ConfigureSmat extends Controller
                     'dbKeyspace' => $request->get('dbKeyspace'),
                     'dbPort' => $request->get('dbPort'),
                     'sparkEngine' => $request->get('sparkEngine'),
+                    'defaultKeyspace' => $request->get('defaultKeyspace'),
                 ]);
                 $configObj->save();
                 return response()->json(['data' => 'Submitted Successfully!'], 200);
@@ -78,10 +80,10 @@ class ConfigureSmat extends Controller
         $datetimeobj = new DateTime();
         $datetime = $datetimeobj->format('Y-m-d');
         $date = date('Y-m-d', strtotime($datetime) - 0);
-        $checkFlag=$this->checkIfAlreadyExists($request->get('trackToken'));
-        if($checkFlag==true){
-            return response()->json(['error' => 'Already exists in the crawler'],400 );
-        }else{
+        $checkFlag = $this->checkIfAlreadyExists($request->get('trackToken'));
+        if ($checkFlag == true) {
+            return response()->json(['error' => 'Already exists in the crawler'], 400);
+        } else {
             $crawlerListObj = new CrawlerList([
                 'track' => $request->get('trackToken'),
                 'handle' => $request->get('handle'),
@@ -92,7 +94,7 @@ class ConfigureSmat extends Controller
             $crawlerListObj->save();
             return response()->json(['data' => 'Successfully added to the crawler'], 200);
         }
-     
+
     }
     public function GetAllTrackToken(Request $request)
     {
@@ -148,10 +150,33 @@ class ConfigureSmat extends Controller
     {
         $crawlerListObj = CrawlerList::where('track', $query)->get();
 
-        if(count($crawlerListObj)>=1){
+        if (count($crawlerListObj) >= 1) {
             return true;
-        }else{
+        } else {
             return false;
         }
+    }
+    public function activateProject(Request $request)
+    {
+        $request->validate([
+            'projectName' => 'required',
+        ]);
+        $org = 'iitg';
+        $crawlerListObj = Configure::where('org', $org)->update(array(
+            'dbKeyspace' => $request->input('projectName')
+        ));
+        return response()->json(['data' => 'Status Successfully Updated!'], 200);
+    }
+    public function deactivateProject(Request $request)
+    {
+      
+        $org = 'iitg';
+        $defaultKey =Configure::where('org',$org)->first();
+        $defaultKey=$defaultKey['defaultKeyspace'];
+        // echo $defaultKey;
+        $crawlerListObj = Configure::where('org', $org)->update(array(
+            'dbKeyspace' => $defaultKey
+        ));
+
     }
 }

@@ -60,6 +60,9 @@ class ProjectActivityController extends Controller
         $user_id = $request->input('user_id');
         $project_id = $request->input('project_id');
         $project_description = $request->input('project_description');
+        $seed_tokens = $request->input('seed_tokens');
+        $from_date = $request->input('from_date');
+        $to_date = $request->input('to_date');
 
         // insert into mysql
         $datetimeobj = new DateTime();
@@ -67,7 +70,7 @@ class ProjectActivityController extends Controller
         // $project_id = $datetimeobj->getTimestamp();
 
         $status = 0;
-        $this->storeToProjectTable($project_id, $keyspace_name, $project_creation_date, $user_id, $status, $project_description);
+        $this->storeToProjectTable($project_id, $keyspace_name, $project_creation_date, $user_id, $status, $project_description, $seed_tokens, $from_date, $to_date);
         echo json_encode(array("res" => 'success'));
     }
 
@@ -100,22 +103,23 @@ class ProjectActivityController extends Controller
         $from_date = $request->input('from_date');
         $to_date = $request->input('to_date');
         $query_list = $request->input('query_list');
-        $this->create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date, $query_list);
+        $uniqueTimeStamp = $request->input('uniqueTimeStamp');
+        $this->create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date, $query_list, $uniqueTimeStamp);
     }
 
 
 
-    public function create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date, $query_list)
+    public function create_table_keyspace($keyspace_name, $option, $user_id, $query, $from_date,  $to_date, $query_list, $uniqueTimeStamp)
     {
         // echo json_encode(array("res" => 'running'));
         if($option == 'baseDataset'){
             // 1 trigger spark for to compute final tweet id list
-            $rname = 'mala2';//should be uniquetimestamp
+            $rname = $uniqueTimeStamp.'a77';//should be uniquetimestamp
             $result = $this->curlData($query_list,  $rname);
             $result = json_decode($result, true);
             $status = $result['state'];
             $spark_id =  $result['id'];
-            echo json_encode(array('query_time' => $rname, 'status' => $status, 'id' => $id));
+            echo json_encode(array('query_time' => $rname, 'status' => $status, 'id' => $spark_id));
 
             // 2 create ks
             $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
@@ -124,9 +128,9 @@ class ProjectActivityController extends Controller
 
 
             // 3 insert to tables.....doing
-            if($status == 'starting' or $status == 'running'){
-                $this->insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date, $spark_id);
-            }            
+            // if($status == 'starting' or $status == 'running'){
+                // $this->insert_to_new_keyspace($keyspace_name, $user_id, $query, $from_date,  $to_date, $spark_id);
+            // }            
         }else{
             // $command = escapeshellcmd('/usr/bin/python python_files/create_keyspace_and_tables.py ' . $keyspace_name);
             // exec("nohup " . $command . " > /dev/null 2>&1 &");
@@ -136,7 +140,7 @@ class ProjectActivityController extends Controller
     }
 
 
-    
+
 
     //TODO
     public  function  curlData($query_list, $rname)
@@ -230,7 +234,7 @@ class ProjectActivityController extends Controller
     /**
      * Store into project table
      */
-    public function storeToProjectTable($project_id, $project_name, $project_creation_date, $user_id, $status, $project_description)
+    public function storeToProjectTable($project_id, $project_name, $project_creation_date, $user_id, $status, $project_description,  $seed_tokens, $from_date, $to_date)
     {
         $statusObj = new Project([
             'project_id' => $project_id,
@@ -238,7 +242,10 @@ class ProjectActivityController extends Controller
             'project_creation_date' => $project_creation_date,
             'user_id' => $user_id,
             'status' => $status,
-            'project_description' => $project_description
+            'project_description' => $project_description,
+            'seed_tokens' => $seed_tokens,
+            'from_date' => $from_date,
+            'to_date' => $to_date
         ]);
         $statusObj->save();
         return response()->json(['data' => 'Submitted Successfully!'], 200);
@@ -345,4 +352,48 @@ class ProjectActivityController extends Controller
             return 0;
         }
     }   
+
+
+
+    public function getTweetidListOrderByTweetTypeCount(Request $request)
+    {
+        $request->validate([
+            'projectID' => 'required',
+            'userID' => 'required',
+            'tweetType' => 'required',
+        ]);
+        
+        try {
+            $userID = $request->input('userID');
+            $projectID = $request->input('projectID');
+            $type = $request->input('tweetType');
+            if ($type === 'retweet') {
+                $filePath = "storage/$userID/$projectID/statistics/tweets_orderby_rtcount.csv";
+            } else if ($type === 'QuotedTweet') {
+                $filePath = "storage/$userID/$projectID/statistics/tweets_orderby_qtcount.csv";
+            } else if ($type === 'Reply') {
+                $filePath = "storage/$userID/$projectID/statistics/tweets_orderby_replycount.csv";
+            }
+            $file_data_array = array_slice(file($filePath), 1);
+            // $tweet_arr = array_map(function($x){ return str_getcsv($x)[0]; }, $str);
+            // $tweet_arr_with_count = array_map(function($x){ $d = str_getcsv($x); return array($d[0] => $d[1]); }, $str);
+            $tweet_arr = [];
+            $tweet_count_hashmap = [];
+            foreach ($file_data_array as $line) {
+                $temp_arr = str_getcsv($line);
+                array_push($tweet_arr, $temp_arr[0]);
+                if ($type === 'retweet')
+                    $type = 'retweet';
+                else if ($type === 'QuotedTweet')
+                    $type = 'QuotedTweet';
+                else if ($type === 'Reply')
+                    $type = 'Reply';
+                $tweet_count_hashmap[$temp_arr[0]] = array('count' => $temp_arr[1], 'type' => $type);
+            }
+            $json = json_encode(array('tweetid_list' => $tweet_arr, 'tweet_count_hashmap' => $tweet_count_hashmap));
+            return $json;
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Some error occured!'], 404);
+        }
+    }
 }

@@ -68,7 +68,7 @@ class LocationMap extends Controller
 
         $commonObj = new CommonController;
 
-        $r = $commonObj->get_tweets($to_datetime, $from_datetime, $query, '10sec', 'all', $pname);
+        $r = $commonObj->get_tweets($to_datetime, $from_datetime, $query, 'day', 'all', $pname);
 
         $tweetid_list_array = array();
 
@@ -90,7 +90,7 @@ class LocationMap extends Controller
         $from_datetime = $request->input('from');
         $to_datetime = $request->input('to');
         $type = $request->input('type');
-        $r = $commonObj->get_top_data_cat_by_location($to_datetime, $from_datetime, 'top_latlng_hashtag', $query, '10sec');
+        $r = $commonObj->get_top_data_cat_by_location($to_datetime, $from_datetime, 'top_latlng_hashtag', $query, 'day');
         return $r;
     }
 
@@ -102,7 +102,7 @@ class LocationMap extends Controller
         $from_datetime = $request->input('from');
         $to_datetime = $request->input('to');
         $type = $request->input('type');
-        $r = $commonObj->get_top_data_lat_lng($to_datetime, $from_datetime, 'top_latlng_hashtag', $query, '10sec');
+        $r = $commonObj->get_top_data_lat_lng($to_datetime, $from_datetime, 'top_latlng_hashtag', $query, 'day');
         return json_encode($r);
     }
 
@@ -221,12 +221,8 @@ class LocationMap extends Controller
     public function checkLocation_(Request $request)
     {
         $place = $request->input('place');
-        $trigger = new DBmodel;
-        $statement = "SELECT code from location_code WHERE location ='" . $place . "'";
-        $result_code = $trigger->execute_query($statement, null, null);
-        foreach ($result_code as $c) {
-            $code = $c['code'];
-        }
+        $locationCodeObj = LocationCode::select('code')->where('location', $place)->get();
+        $code = $locationCodeObj[0]["code"];
         return json_encode($code);
     }
     public function getLocationNames()
@@ -428,6 +424,7 @@ class LocationMap extends Controller
         // return $trigger->get_tweet_idlist_for_sourceid($to="2020-10-31", $from=null, $source_tweet_id="1322562906014306311", $tweet_id_list_type="retweet");
     }
 
+    
     public function generate_tweet_network_(Request $request)
     {
         $pname = null;
@@ -445,13 +442,15 @@ class LocationMap extends Controller
         $SourceTweetID->enqueue("H");
 
         $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","w");
+        $file = fopen("storage/".$dir_name."/".$tweet_id.".csv","a+");
+        fputcsv($file,array());
         fclose($file);
 
         // nested function
         function r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name)
         {
 
-            print_r($SourceTweetID);
+            // print_r($SourceTweetID);
             $SourceTweetID->rewind();
             $ST_id = $SourceTweetID->current();
             if ($hop_count!=10) {
@@ -462,16 +461,16 @@ class LocationMap extends Controller
                     $SourceTweetID->rewind();
                     $temp_check = $SourceTweetID->current();
                     if ($temp_check) {
-                        print_r($temp_check);
+                        // print_r($temp_check);
                         $hop_count = $hop_count + 1;
                         $SourceTweetID->enqueue("H");
-                        echo "Hope Count";
-                        echo($hop_count);
+                        // echo "Hope Count";
+                        // echo($hop_count);
                         r_($SourceTweetID,$hop_count,$date_list,$tweet_id,$dir_name);
                     }
                     else {
-                        echo "Hope Exist till   :";
-                        echo($hop_count);
+                        // echo "Hope Exist till   :";
+                        // echo($hop_count);
                         return array($tweet_id);
                     }
                     
@@ -515,7 +514,7 @@ class LocationMap extends Controller
                     $temp_data = call_user_func_array('array_merge', $temp_data);
                     $all_type_data[$type] = $temp_data;
                 }
-                echo json_encode($all_type_data);
+                // echo json_encode($all_type_data);
                 return $all_type_data;
             }
 
@@ -545,4 +544,56 @@ class LocationMap extends Controller
     {
         $tweet_id = $request->input('id_array');
     }
+
+    public function user_tweet_data(Request $request){
+        $pname = null;
+        if ($request->input('pname')) {
+        $pname = $request->input('pname');
+        }
+        $query = $request->input('query');
+        $from_date = $request->input('from');
+        $to_date = $request->input('to');
+        $commonObj = new CommonController;
+        $temp = $commonObj->get_tweets($to_date,$from_date,$query,null,null,$pname);
+
+        // Declare an empty array 
+        $array = array(); 
+
+        // Use strtotime function 
+        $Variable1 = strtotime($from_date);
+        $Variable2 = strtotime($to_date);
+
+        // Use for loop to store dates into array 
+        // 86400 sec = 24 hrs = 60*60*24 = 1 day 
+        for ($currentDate = $Variable1; $currentDate <= $Variable2; 
+                                        $currentDate += (86400)) { 
+                                            
+        $Store = date('Y-m-d', $currentDate); 
+        $array[] = $Store; 
+        } 
+
+        // Display the dates in array format 
+        print_r($array); 
+
+        function process_source__($ST_id, $date_list)
+            {
+                $tweet_id_type = ["retweet", "QuotedTweet", "Reply"];
+                $trigger = new TweetTracking;
+                $all_type_data = array();
+                foreach ($tweet_id_type as $type) {
+                    $temp_data = [];
+                    foreach ($date_list as $date) {
+                        $result = $trigger->get_tweet_idlist_for_sourceid($to = $date, $from = null, $source_tweet_id = "1362475106728042507", $tweet_id_list_type = $type);
+                        array_push($temp_data, $result["data"]);
+                    }
+                    $temp_data = call_user_func_array('array_merge', $temp_data);
+                    $all_type_data[$type] = sizeof($temp_data);
+                }
+                // echo json_encode($all_type_data);
+                return $all_type_data;
+            }
+        echo json_encode(process_source__("1234",$array));
+        // echo json_encode($temp);
+    }
+
 }
