@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 //imports 
 
-import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
+import { tweetResults} from '../utilitiesJS/getMap.js';
 import { getFreqDistDataForHA, getTweetIDsForHA, getSentiDistDataForHA, getCooccurDataForHA, getQueryStatues, removeFromStatusTable, removeFromStatusTableNormal  } from './helper.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
 import { getCurrentDate, getRangeType, dateProcessor, getDateRange} from '../utilitiesJS/smatDate.js';
@@ -81,6 +81,7 @@ var suggestionsGlobal, suggInputBoxBuffer = [];
 
 
 var projectDetails;//for project
+var proj_name=null, proj_id=null;
 
 _MODE='HA';
 // ready function
@@ -100,14 +101,16 @@ jQuery(function () {
         // if yes
         projectDetails = getProjectDetailsFromLocalStorage();
         console.log(projectDetails);
-        let proj_name = projectDetails.projectMetaData.project_name;
-        let proj_id = projectDetails.projectMetaData.project_id;
+        proj_name = projectDetails.projectMetaData.project_name;
+        proj_id = projectDetails.projectMetaData.project_id;
         $("#recent_searches_word_id").html('Recent Searches for <b class="projName">'+ proj_name +'</b>');
         getDataForProjectTable(userID, proj_name, proj_id, _MODE);  
     }else{
         // if not then normal
         $("#recent_searches_word_id").html('Recent Searches');
         getDataFromMySqlTablesFor_normal_advance();
+        proj_name=null;
+        proj_id=null;
     }
 
 
@@ -294,14 +297,17 @@ jQuery(function () {
                                             </div>
                                         </div>`);
         let rangeType = getRangeType(fromDate, toDate);
-        let pname=null; 
+
+        // let pid = projectDetails.projectMetaData.project_id;
+        // let pname_ = projectDetails.projectMetaData.project_name;
+        // let uid = projectDetails.projectMetaData.user_id;
         if (checkIfAnyProjectActive()){           
             let pname = projectDetails.projectMetaData.project_name;       
             console.log('location');
             console.log(pname);
         }
         localStorage.getItem('projectMetaData') && makeAddToStoryDiv('result-div-map')
-        tweetResults(query,"result-div-map");
+        tweetResults(all_tweet_id_list,"result-div-map",pname);
     });
 
 
@@ -418,8 +424,28 @@ const getDataForProjectTable = (userID, projectName, projectID, module_name) => 
             displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
         }
         response.forEach(element => {
-            updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName);
+            updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName);           
         });
+
+        // pass redirect queries only after having the past advance searches from mysql
+        if (incoming) {
+            console.log(incoming);
+            console.log(userID, projectName, projectID, module_name);
+            if (incoming.includes('&') || incoming.includes('|')) {
+                searchType = 1;
+                setTimeout(() => {
+                    openSpecificTab('advQueryTab', 'recentSearchTab'); 
+                }, 200);
+        
+            } else {
+                searchType = 0;
+                setTimeout(() => {
+                    openSpecificTab('normalQueryTab', 'recentSearchTab');
+                }, 200);
+            
+            }            
+            updateStatusTable(incoming, fromDateReceived, toDateReceived, searchType, false, null, true, projectName, projectID);
+        }
     });
 }
 
@@ -473,7 +499,6 @@ const getDataFromMySqlTablesFor_normal_advance = () => {
             }
             
             updateStatusTable(incoming, fromDateReceived, toDateReceived, searchType, false, null, true);
-
         }
     });
 }

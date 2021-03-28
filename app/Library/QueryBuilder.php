@@ -221,6 +221,18 @@ class QueryBuilder{
             }
             
         }
+
+
+        if($feature_option == 'dataset_distribution'){
+            $columns = 'created_date, category_class_list, count_list';
+            $table_name = $this->get_table_name('dataset_distribution');
+            $input_args = $ut_obj->get_day_list_for_cassandra($to_datetime, $from_datetime);
+            $where_clause = "created_date = ?";
+
+            $prepared_statement = "SELECT ".$columns." FROM ".$table_name." WHERE ".$where_clause;  
+            $final_res[0] = $prepared_statement;
+            $final_res[1] = $input_args;
+        }
         
         return $final_res;
     }
@@ -357,6 +369,8 @@ class QueryBuilder{
             $table_name = 'location_token_co_occur_hour_wise';
         else if($option == 'location_token_co_occur_day')
             $table_name = 'location_token_co_occur_day_wise';
+        else if($option == 'dataset_distribution')
+            $table_name = 'dataset_distribution';
         return $table_name;
     }
 

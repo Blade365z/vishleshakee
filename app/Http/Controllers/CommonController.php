@@ -911,8 +911,7 @@ class CommonController extends Controller
             return json_encode($final_result);  
         }else{
             $stm_list = $qb_obj->get_statement(null, null, $tweet_id_list, null, $feature_option='tweet_info', null, $async=false);
-            $row = $dbmodel_object->execute_query_first_require($stm_list[0], $ks); // return StdClass() object
-
+            $row = $dbmodel_object->execute_query_first_require($stm_list[0], null, $ks); // return StdClass() object
             $media_list_temp = array();
             $media_list = $row["media_list"];
             if($row["category"] != null)
@@ -939,7 +938,8 @@ class CommonController extends Controller
 
             $final_result = array("t_location" => $row["t_location"], "datetime" => $datetime_str, "tid" => $row["tid"], "author" => $row["author"], "author_id" => $row["author_id"], "author_profile_image" => $row["author_profile_image"], "author_screen_name" => $row["author_screen_name"], "sentiment" => $row["sentiment"]->value(), "quoted_source_id" => $row["quoted_source_id"], "tweet_text" => $row["tweet_text"], "retweet_source_id" => $row["retweet_source_id"], "replyto_source_id" => $row["replyto_source_id"], "media_list" => $media_list_temp, "type" => $row["type"], "category" => $category, "confidence" => $row["confidence"], "hashtags" => $row["hashtags"], "mentions" => $row["mentions"]);
 
-            return $final_result;
+            // return $final_result;
+            return json_encode($final_result);  
         }
     }
 

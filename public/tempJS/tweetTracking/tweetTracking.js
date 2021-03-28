@@ -28,12 +28,32 @@ import { getTweetInfo, getFreqDataForTweets, getTweetsForSource, getDatesDist, g
 import { displayErrorMsg, makeAddToStoryDiv, makeSmatReady } from '../utilitiesJS/smatExtras.js';
 import { getCurrentDate, ordinal_suffix_of } from '../utilitiesJS/smatDate.js';
 import { drawFreqDataForTweet, drawFreqDataForTweetMonth } from './chartHelper.js';
-import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
-import {
-    getMe
-} from '../home/helper.js';
+import {  getCompleteMap_} from '../utilitiesJS/getMap.js';
+import { getMe } from '../home/helper.js';
+// for project
+import { checkIfAnyProjectActive, getProjectDetailsFromLocalStorage, madeFullQuery } from '../project/commonFunctionsProject.js';
+var projectDetails;//for project
+var pname=null, proj_id=null;
+
+
+// check if any project is active
+if (checkIfAnyProjectActive()){
+    // if yes
+    projectDetails = getProjectDetailsFromLocalStorage();
+    console.log(projectDetails);
+    pname = projectDetails.projectMetaData.project_name;
+    proj_id = projectDetails.projectMetaData.project_id;
+    console.log(pname, proj_id);
+}else{
+    pname=null;
+    proj_id=null;
+}
+
+
+
 
 //Globals
+var clear_map = true;
 var GlobalDate = [];
 var tweetDiv = 'tweetDiv';
 var currentQuery, currentlyAnalysed, fromDate, toDate,networkDivID=0;
@@ -46,6 +66,7 @@ var analysisHistory = [], currentlyWatching = [];
 var allocatedIDRecords = [];
 var userID;
 var isNetworkDisplaying = 0;
+var TRACKINGNETWORKGLOBAL = [];
 //Logic
 jQuery(function () {
     getMe().then(id => {
@@ -55,6 +76,7 @@ jQuery(function () {
     $('#mainQuery').fadeIn('slow')
 
     makeSmatReady();
+
     
     $('#networkDivMain').on('click', 'div .username', function (e) {
         console.log("global dates",GlobalDate);
@@ -157,7 +179,7 @@ jQuery(function () {
     //Check if currently queried Tweet is the sourceTweetAlready!
     getTweetInfo(currentQuery).then(response => {
         let arrTemp = [response];
-        generate_tweets_div(arrTemp, 'mainQuery', true, false)
+        generate_tweets_div(arrTemp, 'mainQuery', true, false);
         $('#queryAuthor').text(response.author);
         $('#dateQuery').text(response.datetime);
 
@@ -253,16 +275,30 @@ jQuery(function () {
         getDatesDist(sourceTweet, fromDate, toDate, 'all').then(response => {
             console.log("getDateDist",response);
             console.log("create_details",sourceTweet, response);
+            $('#tracking_network_option_id').show();
             $('#networkDivMain').prepend($(createDiv("track_net"+networkDivID,"networkDiv"+networkDivID,"networkTrackTweetDiv"+networkDivID,"ttNodesCountNetwork"+networkDivID,"ttEdgesCountNetwork"+networkDivID,"tweetHeirarchy"+networkDivID)));
+            $("#notation_id").show();
             let dateArr = [];
             response.data.forEach(element => {
                 dateArr.push(element[0]);
             });
             GlobalDate = dateArr;
             createNetworkForTrack(sourceTweet, dateArr,"track_net"+(networkDivID-1),"networkDiv"+(networkDivID-1),"networkTrackTweetDiv"+(networkDivID-1),"ttNodesCountNetwork"+(networkDivID-1),"ttEdgesCountNetwork"+(networkDivID-1));
-        })
+        });
+    });
 
-    })
+    $('body').on('click', '#SentimentTweetNetwork', function () {
+        $("#notation_id").hide();
+        $("#notation_id_sent").show();
+        displayTweetTrackingNetwork(TRACKINGNETWORKGLOBAL, 'sent_tweet');
+    });
+
+
+    $('body').on('click', '#TweetTypeNetworkTab', function () {
+        $("#notation_id").show();
+        $("#notation_id_sent").hide();
+        displayTweetTrackingNetwork(TRACKINGNETWORKGLOBAL, 'type_net');
+    });
 
     $('body').on('click', 'div .openTweetRaw', function () {
         let value = $(this).attr('value');
@@ -340,6 +376,8 @@ const tracker = async (searhIDTemp) => {
     analysisHistory.push(historyJSON);
 
     getTweetInfo(sourceTweet).then(tweetRawData => {
+        console.log('ssss');
+        console.log(sourceTweet);
         if (tweetRawData) {
             let dateArr = tweetRawData.datetime.split(' ');
             fromDate = dateArr[0];
@@ -905,9 +943,11 @@ const getRawTweets = async (tweetID, date, type) => {
         } else {
 
             getTweetsPlotDataForMap(responseArray.flat()).then(tweetsRaw => {
-                getCompleteMap("result-div-map", tweetsRaw);
+                getCompleteMap_("result-div-map", tweetsRaw);
+                console.log("location Tweet",tweetsRaw);
+
             });
-            TweetsGenerator(responseArray.flat(), 6, 'trackRawData-' + offset, null, null, true, null);
+            TweetsGenerator(responseArray.flat(), 6, 'trackRawData-' + offset, null, null, true, null, pname);
         }
     } else {
         getTweetsForSource(tweetID, date, null, type).then(response => {
@@ -918,9 +958,10 @@ const getRawTweets = async (tweetID, date, type) => {
             } else {
 
                 getTweetsPlotDataForMap(response).then(tweetsRaw => {
-                    getCompleteMap("result-div-map", tweetsRaw);
+                    console.log("location Tweet",tweetsRaw);
+                    getCompleteMap_("result-div-map", tweetsRaw);
                 });
-                TweetsGenerator(response, 6, 'trackRawData-' + offset, null, null, true, null);
+                TweetsGenerator(response, 6, 'trackRawData-' + offset, null, null, true, null, pname);
 
             }
         });
@@ -1033,7 +1074,9 @@ const getTweetsForMap = async (tweetID, from, to, offset, groupByType = null, or
      </div>
  </div>`);
     getTweetsPlotDataForMap(idArray).then(response => {
-        getCompleteMap("result-div-map", response);
+        console.log("location Tweet",response);
+        getCompleteMap_("result-div-map", response);
+        console.log("location Tweet",response);
     });
 }
 
@@ -1050,192 +1093,212 @@ const createNetworkForTrack = (id, dateList,track_net,networkDiv,networkTrackTwe
     localStorage.getItem('projectMetaData') && makeAddToStoryDiv(track_net);
     console.log("generate network info",userID, id, dateArr);
     getNetworkForSource(userID, id, dateArr).then(res => {
-        console.log("php return ",res);
-        getTweetInfo(id).then(response => {
-            generate_tweets_div([response], networkTrackTweetDiv, true, false)
-        });
-        $('#trackNetworkMsg').html('');
-        $(networkDiv).fadeIn('slow');
-        $("#"+ttNodesCountNetwork).html(res["nodes"].length);
-        $("#"+ttEdgesCountNetwork).html(res["edges"].length);
-        
-
-        var nodes_arr = res["nodes"];
-        var edges_arr = res["edges"];
-
-        var global_options_tt = {
-            nodes: {
-                shape: 'dot',
-                color: '',
-                size: 70,
-                scaling: {
-                    min: 10,
-                    max: 30
-                },
-                font: {
-                    size: 30,
-                    face: 'courier'
-                },
-                borderWidth: 1,
-                // shadow: true
-            },
-            edges: {
-                color: '#a3c2c2',
-                length: 2500,
-                width: 0.3,
-                arrows: "from",
-                smooth: {
-                    type: 'continuous'
-                },
-                hoverWidth: 50
-                // shadow: true
-            },
-            interaction: {
-                hideEdgesOnDrag: true,
-                hover: true,
-                tooltipDelay: 100,
-                multiselect: true,
-                navigationButtons: true,
-                keyboard: true
-            },
-            physics: {
-                forceAtlas2Based: {
-                    gravitationalConstant: -20,
-                    centralGravity: 0.00003,
-                    springLength: 2500,
-                    springConstant: 0.005,
-                    nodeDistance:500
-                },
-                maxVelocity: 500,
-                solver: "forceAtlas2Based",
-                timestep: 0.35,
-                stabilization: { 
-                    enabled: true,
-                    iterations: 5000, // maximum number of iteration to stabilize
-                    updateInterval: 100,
-                    onlyDynamicEdges: false,
-                    fit: true
-                },
-            },
-            layout: {
-
-            }
-        };
-
-        // console.log(res);
-
-        // update in network information division
-        $(".nos_of_nodes").empty();
-        $(".nos_of_nodes").text(nodes_arr.length);
-        $(".nos_of_edges").empty();
-        $(".nos_of_edges").text(edges_arr.length);
-
-
-        var nodes = new vis.DataSet();
-        var edges = new vis.DataSet();
-
-        // create a network
-        //var container = document.getElementsByClassName(id_value);
-        var container = document.getElementById(track_net);
-
-        var data = {
-            nodes: nodes,
-            edges: edges
-        };
-
-        var network_global_tracking = new vis.Network(container, data, global_options_tt);
-
-
-        network_global_tracking.focus(1, {
-            scale: 1
-        });
-
-        // number of nodes
-
-        // to add node dynamically
-        // $(".loader").remove();
-
-        let centralityValues = {};
-        $.each(edges_arr, function (index, value) {
-            if(centralityValues[value.from] == null){
-                centralityValues[value.from] = 1;
-            }else{
-                centralityValues[value.from] = centralityValues[value.from] + 1;
-            }
-
-            if(centralityValues[value.to] == null){
-                centralityValues[value.to] = 1;
-            }else{
-                centralityValues[value.to] = centralityValues[value.to] + 1;
-            }
-        });
-
-        $.each(nodes_arr, function (index, value) {
-            let node_color = value.color;
-            if(value.id == "QW"+sourceTweet){
-
-            }else if(value.id == "QW"+currentQuery){
-                node_color = "yellow";
-                centralityValues[value.id] = 20;
-            }
-
-            if(centralityValues[value.id]>50){
-                centralityValues[value.id] = (centralityValues[value.id] * 1)+40;
-            }else{
-                centralityValues[value.id] = (centralityValues[value.id] * 1.5)+20;
-            }
-
-            if(centralityValues[value.id]>180){
-                centralityValues[value.id] = 180;
-            }
-            nodes.add({
-                "id": value.id,
-                "label": value.label,
-                "shape": value.shape,
-                "size": centralityValues[value.id],
-                "borderWidth": value.borderwidth,
-                "border": value.border,
-                "color": node_color,
-                // "color":{
-                //     background: '#FFFFFF'
-                // },
-                "font": {
-                    "size": 30
-                }
-            });
-        });
-
-
-        // to add edges dynamically
-        $.each(edges_arr, function (index, value) {
-            setTimeout(function () {
-                edges.add({
-                    "from": value.from,
-                    "to": value.to,
-                    "label": value.label
-                });
-
-            }, 10);
-        });
-
-        network_global_tracking.on('hoverNode', function (properties) {
-            // alert(properties.node);
-            let id = properties.node.match(/[\d]*/g).filter(Boolean);
-            getTweetInfo(id[0]).then(response => {
-                $('#hoveredOnDiv').css('display', 'block');
-                $('#hoveredOnType').text(tweetTypeDict[response.type]);
-                $('#hoveredOnAuthor').text(response.author);
-                generate_tweets_div([response], networkTrackTweetDiv, true, false)
-            });
-        });
-        var scaleOption = {scale:0.2};
-        network_global_tracking.moveTo(scaleOption);
-        $('.vis-network').removeAttr('tabindex');
-    })
-
+        TRACKINGNETWORKGLOBAL = [res,track_net, id,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork,ttEdgesCountNetwork];
+        displayTweetTrackingNetwork(TRACKINGNETWORKGLOBAL, 'type_net');        
+    });
 }
 
-const createDiv = (track_net,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork,ttEdgesCountNetwork,tweetHeirarchy) => {
+
+const displayTweetTrackingNetwork = (TRACKINGNETWORKGLOBAL, option) => {
+    let res = TRACKINGNETWORKGLOBAL[0];
+    let track_net = TRACKINGNETWORKGLOBAL[1];
+    let id = TRACKINGNETWORKGLOBAL[2];
+    let networkDiv = TRACKINGNETWORKGLOBAL[3];
+    let networkTrackTweetDiv = TRACKINGNETWORKGLOBAL[4];
+    let ttNodesCountNetwork = TRACKINGNETWORKGLOBAL[5];
+    let ttEdgesCountNetwork = TRACKINGNETWORKGLOBAL[6];
+    if (option == 'type_net')
+        var nodes_arr = res["nodes"][0];
+    else
+        var nodes_arr = res["nodes"][1];
+    console.log("php return ",res);
+    getTweetInfo(id).then(response => {
+        generate_tweets_div([response], networkTrackTweetDiv, true, false)
+    });
+    $('#trackNetworkMsg').html('');
+    $(networkDiv).fadeIn('slow');
+    $("#"+ttNodesCountNetwork).html(res["nodes"].length);
+    $("#"+ttEdgesCountNetwork).html(res["edges"].length);
+    
+
+    
+    var edges_arr = res["edges"];
+
+    var global_options_tt = {
+        nodes: {
+            shape: 'dot',
+            color: '',
+            size: 70,
+            scaling: {
+                min: 10,
+                max: 30
+            },
+            font: {
+                size: 30,
+                face: 'courier'
+            },
+            borderWidth: 1,
+            // shadow: true
+        },
+        edges: {
+            color: '#a3c2c2',
+            length: 2500,
+            width: 0.3,
+            arrows: "from",
+            smooth: {
+                type: 'continuous'
+            },
+            hoverWidth: 50
+            // shadow: true
+        },
+        interaction: {
+            hideEdgesOnDrag: true,
+            hover: true,
+            tooltipDelay: 100,
+            multiselect: true,
+            navigationButtons: true,
+            keyboard: true
+        },
+        physics: {
+            forceAtlas2Based: {
+                gravitationalConstant: -20,
+                centralGravity: 0.00003,
+                springLength: 2500,
+                springConstant: 0.005,
+                // nodeDistance:500
+            },
+            maxVelocity: 500,
+            solver: "forceAtlas2Based",
+            timestep: 0.35,
+            stabilization: { 
+                enabled: true,
+                iterations: 5000, // maximum number of iteration to stabilize
+                updateInterval: 100,
+                onlyDynamicEdges: false,
+                fit: true
+            },
+        },
+        layout: {
+
+        }
+    };
+
+    // console.log(res);
+
+    // update in network information division
+    $(".nos_of_nodes").empty();
+    $(".nos_of_nodes").text(nodes_arr.length);
+    $(".nos_of_edges").empty();
+    $(".nos_of_edges").text(edges_arr.length);
+
+
+    var nodes = new vis.DataSet();
+    var edges = new vis.DataSet();
+
+    // create a network
+    //var container = document.getElementsByClassName(id_value);
+    var container = document.getElementById(track_net);
+
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+
+    var network_global_tracking = new vis.Network(container, data, global_options_tt);
+
+
+    network_global_tracking.focus(1, {
+        scale: 1
+    });
+
+    // number of nodes
+
+    // to add node dynamically
+    // $(".loader").remove();
+
+    let centralityValues = {};
+    $.each(edges_arr, function (index, value) {
+        if(centralityValues[value.from] == null){
+            centralityValues[value.from] = 1;
+        }else{
+            centralityValues[value.from] = centralityValues[value.from] + 1;
+        }
+
+        if(centralityValues[value.to] == null){
+            centralityValues[value.to] = 1;
+        }else{
+            centralityValues[value.to] = centralityValues[value.to] + 1;
+        }
+    });
+
+    $.each(nodes_arr, function (index, value) {
+        let node_color = value.color;
+        if(value.id == "QW"+sourceTweet){
+
+        }else if(value.id == "QW"+currentQuery){
+            node_color = "yellow";
+            centralityValues[value.id] = 20;
+        }
+
+        if(centralityValues[value.id]>50){
+            centralityValues[value.id] = (centralityValues[value.id] * 1)+40;
+        }else{
+            centralityValues[value.id] = (centralityValues[value.id] * 1.5)+20;
+        }
+
+        if(centralityValues[value.id]>180){
+            centralityValues[value.id] = 180;
+        }
+        nodes.add({
+            "id": value.id,
+            "label": value.label,
+            "shape": value.shape,
+            "size": centralityValues[value.id],
+            "borderWidth": value.borderwidth,
+            "border": value.border,
+            "color": node_color,
+            // "color":{
+            //     background: '#FFFFFF'
+            // },
+            "font": {
+                "size": 30
+            }
+        });
+    });
+
+
+    // to add edges dynamically
+    $.each(edges_arr, function (index, value) {
+        setTimeout(function () {
+            edges.add({
+                "from": value.from,
+                "to": value.to,
+                "label": value.label
+            });
+
+        }, 10);
+    });
+
+    network_global_tracking.on('hoverNode', function (properties) {
+        // alert(properties.node);
+        let id = properties.node.match(/[\d]*/g).filter(Boolean);
+        getTweetInfo(id[0]).then(response => {
+            $('#hoveredOnDiv').css('display', 'block');
+            $('#hoveredOnType').text(tweetTypeDict[response.type]);
+            $('#hoveredOnAuthor').text(response.author);
+            generate_tweets_div([response], networkTrackTweetDiv, true, false)
+        });
+    });
+    var scaleOption = {scale:0.2};
+    network_global_tracking.moveTo(scaleOption);
+    $('.vis-network').removeAttr('tabindex');
+}
+
+
+
+
+
+const createDiv = (track_net,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork,ttEdgesCountNetwork,tweetHeirarchy, sub_div_option=null) => {
     let divString = `
             <div  class="text-center text-truncate mb-3" id=`+tweetHeirarchy+` style="
             height: 150px;
@@ -1271,12 +1334,12 @@ const createDiv = (track_net,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork
                             </div>
                         </div>
                     </div>
-                    <div class="px-3 py-1">
+                    <div class="px-3 py-1" id="notation_id" style="display:none">
                         <div>
                             <h4 class="text-dark font-weight-bold">Notations</h4>
                         </div>
                         <div>
-                            <i class="fa fa-circle mr-1 " aria-hidden="true" style="color:#CF6ED2"title="Normal"></i> <span>Source
+                            <i class="fa fa-circle mr-1 " aria-hidden="true" style="color:#CF6ED2" title="Normal"></i> <span>Source
                                 Tweet</span>
                         </div>
                         <div>
@@ -1298,6 +1361,24 @@ const createDiv = (track_net,networkDiv,networkTrackTweetDiv,ttNodesCountNetwork
                             <i class="fa fa-circle  mr-1" aria-hidden="true" title="Normal"
                                 style="color:yellow"></i>
                             <span>Query Tweet</span>
+                        </div>
+                    </div>
+                    <div class="px-3 py-1" id="notation_id_sent" style="display:none">
+                        <div>
+                            <h4 class="text-dark font-weight-bold">Notations</h4>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle mr-1 " aria-hidden="true" style="color:#33CCCC" title="Positive"></i> <span>Positive</span>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle  mr-1" aria-hidden="true" title="Negative"
+                                style="color:#FC5F4F"></i>
+                            <span>Negative</span>
+                        </div>
+                        <div>
+                            <i class="fa fa-circle mr-1" aria-hidden="true" title="Neutral"
+                                style="color:#FFC060"></i>
+                            <span>Neutral</span>
                         </div>
                     </div>
                 </div>

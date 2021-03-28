@@ -43,38 +43,65 @@
                     </div>
                 </div>
 
+                <div id="story-nav">
+                    <nav class="navbar navbar-expand-lg   p-2  bg-white border" >
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <div class="nav-item mr-1">
+                                <div class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="textInsertDropDown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-font mr-2"></i> Insert Text
+                                    </button>
+                                    <div class="dropdown-menu shadow" aria-labelledby="dropdownMenuButton">
+                                        <div class=" textElementStory p-2 m-1" value="title">
+                                            <h1 class="text-left m-0 font-weight-bold">Title</h1>
+                                            <p class="m-0">Lorem ipsum dolor.. </p>
+                                        </div>
+                                        <div class="dropdown-divider text-center"></div>
 
-                <div class=" bg-white  py-3 px-5 border" id="storyMakerDiv">
+                                        <div class="textElementStory p-2  m-1" value="section">
+                                            <h4 class="text-left m-0 font-weight-bold">Section</h4>
+                                            <p class="m-0">Lorem ipsum dolor.. </p>
+                                        </div>  
+                                        <div class="dropdown-divider text-center"></div>
+
+                                        <div class="textElementStory p-2  m-1" value="description">
+                                            <h6 class="text-left m-0 font-weight-bold">Description</h6>
+                                            <p class="m-0">Lorem ipsum dolor..</p>
+                                        </div>
+
+                                    </div>
+                                  </div>
+                            </div>
+                            <div class="nav-item mx-1">
+                               
+                                    <button class="btn btn-primary " type="button" id="insertImageBtn" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-images mr-2"></i> Insert Image
+                                    </button>
+                            </div>
+                            <div class="nav-item mx-1">
+                               
+                                <button class="btn btn-primary " type="button" id="insertSpaceBtn" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-expand mr-2"></i>
+                                    Add Space
+                                </button>
+                        </div>
+                        <div class="nav-item ml-auto">
+                            <button class="btn btn-success " type="button" id="seeResultBtn" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-external-link-alt mr-2"></i>
+                                See Result
+                            </button>
+                    </div>
+                        </div>
+                    </nav>
+                </div>
+                <div class=" bg-white  p-5 border" id="storyMakerDiv">
 
                 </div>
             </div>
-            <div class="col-sm-2">
-                <div class="element-box bg-white py-1 px-2" style="margin-top:110px;" id="storyElementsToolBox">
-                    <div>
-                        <h6 class="mt-2 mb-0">Add Elements to story</h6>
-                    </div>
-                    <div class="border textElementStory p-2 m-1" value="title">
-                        <h2 class="text-left m-0">Title</h2>
-                        <p class="m-0">Lorem ipsum dolor sit amet.. </p>
-                    </div>
-                    <div class="border  textElementStory p-2  m-1" value="section">
-                        <h4 class="text-left m-0">Section</h4>
-                        <p class="m-0">Lorem ipsum dolor sit amet.. </p>
-                    </div>
-                    <div class="border  textElementStory p-2  m-1" value="description">
-                        <h4 class="text-left m-0">Description</h4>
-                        <p class="m-0">Lorem ipsum dolor sit amet..</p>
-                    </div>
-                    <div class="pt-2 px-2">
-                        <p class="text-left m-0">Available Images</p>
-                    </div>
-                    <div class="story-images">
-
-                    </div>
-                </div>
-            </div>
+    
         </div>
     </div>
+
 
     <script src="public/jqueryUI/jquery-ui.min.js"></script>
     <script src="public/html2canvas/jsPdf.js"></script>

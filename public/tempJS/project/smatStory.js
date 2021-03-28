@@ -1,8 +1,10 @@
+
+
+
 import { getMe } from "../home/helper.js";
 import { getCurrentDate } from "../utilitiesJS/smatDate.js";
 import { displayErrorMsg } from "../utilitiesJS/smatExtras.js";
 import { getStoryObjFromServer, getPlotsFromServer, uploadStoryToServer, getProjectName } from "./helper.js";
-
 
 
 const storyMakerDiv = "storyMakerDiv";
@@ -16,7 +18,6 @@ jQuery(async () => {
     setupStoryView();
     if (storyID !== 'null') {
         getStoryObjFromServer(projectID, storyID, UserId).then(res => {
-            console.log(res);
             $('#storyTitle').html('<h5>Modify your story ' + res.storyName + '</h5>')
             if (res.error) {
                 alert('Some error occured')
@@ -28,9 +29,8 @@ jQuery(async () => {
                 storyDescription = res.storyDescription;
                 let i = 0
                 $('#storyMakerDiv').html('');
-
                 storyElements.map(element => {
-                    renderElementsToStoryDiv(i, element.id, element.type, element.image, element.text,element.style);
+                    renderElementsToStoryDiv(i, element.id, element.type, element.image, element.text, element.style);
                     i += 1;
                 })
             }
@@ -49,15 +49,15 @@ const setupStoryView = () => {
     });
     getPlotsFromServer(projectID, UserId).then(res => {
         res.map(image => {
-            $(".story-images").append(
-                '<div class="p-2 text-center   textElementStory"  value="image" style="overflow:hidden;"  imgName="' + image + '" ><img src="storage/' +
-                7 + "/" + projectID + "/plots/" + image + '" / style="width:300px;"></div>'
+            $("#storyPictures").append(
+                '<div class="p-2 text-center project-images"  value="image" style="overflow:hidden;"  imgName="' + image + '" ><img src="storage/' +
+                UserId + "/" + projectID + "/plots/" + image + '" / ></div>'
             );
         });
     });
 }
 
-const AddItemToStoryEditor = (type, imgName = null) => {
+const AddItemToStoryEditor = (type, imgObj = null) => {
     offsetCounter = storyElements.length;
     const ID = offsetCounter + "-" + type + '-element';
     storyElements.push({
@@ -65,67 +65,133 @@ const AddItemToStoryEditor = (type, imgName = null) => {
         text: null,
         style: {
             align: 'left',
-            bold: false
+            bold: false,
+            height:null,
+            width:null
         },
         id: ID,
-        image: null
+        image: {
+            src: imgObj ? imgObj.src : null,
+            height: imgObj ? imgObj.height : null,
+            width: imgObj ? imgObj.width : null
+        }
     });
-    renderElementsToStoryDiv(offsetCounter, ID, type, imgName, null);
+    renderElementsToStoryDiv(offsetCounter, ID, type, imgObj, null);
 };
 
-const renderElementsToStoryDiv = (offset, ID, type, imgName = null, text = null,style=null) => {
-    style = style === null ? { 
-        align : 'left',
-        bold :false
+const renderElementsToStoryDiv = (offset, ID, type, imgObj = null, text = null, style = null) => {
+    style = style === null ? {
+        align: 'left',
+        bold: false
     } : style
-    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offset + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white deleteElement " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="left" title="Algin Left"><i class="fas fa-align-left"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="center" title="Algin Center"><i class="fas fa-align-center"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="right" title="Algin Right"><i class="fas fa-align-right"></i></div><div></div></div>';
+    const resizableDOM = type === 'image' ? '<div class="form-group m-2"><div class="row"><div class="col-md-3"><div><label class="m-0">Image Height</label></div><input class="imageSize"  type="number" placeholder="Enter height of the image"   value="' + imgObj.height + '" sizeType="height" /></div><div class="col-md-3"><div><label class="m-0">Image Width</label></div><input class="imageSize"  type="number" placeholder="Enter width of the image" value="' + imgObj.width + '" sizeType="width"/></div></div></div>' : '';
+
+    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offset + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white deleteElement " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="left" title="Algin Left"><i class="fas fa-align-left"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="center" title="Algin Center"><i class="fas fa-align-center"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="right" title="Algin Right"><i class="fas fa-align-right"></i></div><div></div> ' + resizableDOM + '</div>  ';
     if (text == null) {
         text = type.toUpperCase();
     }
     if (type === "title") {
         $("#" + storyMakerDiv).append(
-            '<div class="smat-story-element-main bg-white"   value="' + offset + '" id="' + ID + '"   type="' + type + '"  >' + storyBoradOptions + '<div class="text-center  smat-story-element" ><input class="from-control  story-input titleStory text-'+style.align+'" value="' + text + '"/></div></div>'
+            '<div class="smat-story-element-main bg-white"   value="' + offset + '" id="' + ID + '"   type="' + type + '"  style="margin-bottom:-8px">' + storyBoradOptions + '<div class="text-center  smat-story-element" ><input class="from-control  story-input titleStory text-' + style.align + '" value="' + text + '"/></div></div>'
         );
         $('#' + ID + ' .story-input').focus();
 
     }
     if (type === "section") {
         $("#storyMakerDiv").append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-'+style.align+'"  value="' + text + '"  /></div></div>'
+            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-' + style.align + '"  value="' + text + '"  /></div></div>'
         );
         $('#' + ID + ' .story-input').focus();
 
     }
     if (type === "description") {
         $("#storyMakerDiv").append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"   ><textarea class="   w-100  story-description-input  text-'+style.align+'" value="Description"  id="' +
-            projectID + "-" + type + "-" + offset + '-text"> ' + text + '</textarea></div></div>'
+            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  key="' + ID + '"  ><p class="m-0 story-description-view text-'+style.align+' "   id="' + ID + '-VIEW" key="' + ID + '">  ' + text + ' </p><textarea class="w-100  story-description-input  text-justify   " value="Description"  id="' + ID + '-EDIT" key="' + ID + '" style="display:none;min-height:30px;"  >' + text + '</textarea></div></div>'
         );
         $('#' + ID + ' .story-description-input').focus();
-        let innerHeight =  document.getElementById(ID).getElementsByClassName( 'story-description-input')[0].scrollHeight;
-        $('#' + ID).find('textarea').css('height',innerHeight+'px');
+        let innerHeight = $('#' + ID + '-VIEW').height();
+        console.log(innerHeight)
+        $('#' + ID + '-EDIT').css('height', innerHeight + 'px');
     }
+
     if (type === 'image') {
-        storyElements[offset]['image'] = imgName;
+
+        storyElements[offset]['image'] = imgObj;
         $("#storyMakerDiv").append(
-            '<div class="smat-story-element-main bg-white" id="' + ID + '" value="' + offset + '" > ' + storyBoradOptions + '<div  class= "smat-story-element   text-'+style.align+' " > <img  src="storage/' + UserId + "/" + projectID + "/plots/" + imgName + '" >  <textarea class="  text-'+style.align+'   w-100  story-description-input  " value="Description"  id="' +
-            projectID + "-" + type + "-" + offset + '-text"> ' + text + '</textarea></div></div></div > '
+            '<div class="smat-story-element-main bg-white" id="' + ID + '" value="' + offset + '" > ' + storyBoradOptions + '<div  class= "smat-story-element   text-' + style.align + ' " > <div><img class="story-image"  src="storage/' + UserId + "/" + projectID + "/plots/" + imgObj.src + '"  id="' + ID + '-VIEW"  style="height:' + imgObj.height + 'px;width:' + imgObj.width + 'px;"></div><textarea class="  text-' + style.align + ' w-100  story-description-input  " value="Description"  id="' +
+            projectID + "-" + type + "-" + offset + '-text">' + text + '</textarea></div></div></div > '
         );
+
+
+    }
+    if (type === "space") {
+        $("#" + storyMakerDiv).append(
+            '<div class="smat-story-element-main bg-white"   value="' + offset + '" id="' + ID + '"   type="' + type + '">' + storyBoradOptions + '<div class="space-element  smat-story-element" id="' + ID + '-SPACE"  style="height:'+style.height+'px"></div></div>'
+        );
+        $('.space-element').resizable({
+            resize:function(ev,ui){
+                        let offset = ui.element[0].parentElement.attributes[1].nodeValue
+                        storyElements[offset]['style']['height'] = ui.element[0].scrollHeight
+                    }
+        });
     }
 }
+$('body').on('click', '#insertSpaceBtn', function () {
+    AddItemToStoryEditor('space')
+})
+$('body').on('click', '.textElementStory', function () {
+    let type = $(this).attr('value');
+    AddItemToStoryEditor(type);
+})
+
+
 $('body').on('click', '.deleteElement', function () {
     let offset = $(this).parent().parent().attr("value");
     $(this).parent().parent().remove();
     storyElements = storyElements.filter(element => element !== storyElements[offset]);
 });
-
+var recentlySelected = null;
+$(document).on("click", function (event) {
+    if (!$(event.target).closest("#storyMakerDiv").length) {
+        $(".storyBoardOptions").css("display", "none");
+        $(".smat-story-element-main").removeClass("border-story-active");
+        if (recentlySelected !== null) {
+            $('#' + recentlySelected + '-VIEW').css('display', 'block');
+            $('#' + recentlySelected + '-EDIT').css('display', 'none');
+        }
+    }
+});
 
 $("body").on("click", ".smat-story-element", function (e) {
     $(".storyBoardOptions").css("display", "none");
     $('div').removeClass("border-story-active");
+    if (recentlySelected !== null) {
+        $('#' + recentlySelected + '-VIEW').css('display', 'block');
+        $('#' + recentlySelected + '-EDIT').css('display', 'none');
+    }
+    let key = $(this).attr('key');
+    recentlySelected = key;
+    $('#' + key + '-VIEW').css('display', 'none');
+    $('#' + key + '-EDIT').css('display', 'block');
+
+
     $(this).parent().addClass("border-story-active");
-    $(this).parent().find(".storyBoardOptions").css("display", "flex");
+    $(this).parent().find(".storyBoardOptions").css("display", "block");
 });
+$('body').on('input', '.imageSize', function () {
+    let offset = $(this).parent().parent().parent().parent().parent().attr("value");
+    let originalID = storyElements[offset]['id'];
+    let type = $(this).attr('sizeType');
+    if (type === 'width') {
+        storyElements[offset]['image']['width'] = $(this).val();
+        $('#' + originalID + '-VIEW').css('width', $(this).val());
+    }
+    else if (type === 'height') {
+        storyElements[offset]['image']['height'] = $(this).val();
+        $('#' + originalID + '-VIEW').css('height', $(this).val());
+    }
+});
+
 
 $('body').on('click', '.alignTextStory', function () {
     let alignType = $(this).attr('value');
@@ -133,40 +199,54 @@ $('body').on('click', '.alignTextStory', function () {
     let originalID = storyElements[offset]['id'];
     let elementType = storyElements[offset]['type'];
     storyElements[offset]['style']['align'] = alignType;
-    if(elementType==='title' || elementType==='section'){
-        $('#'+originalID).find('.story-input').removeClass('text-center text-left text-right');
-        $('#'+originalID).find('.story-input').addClass('text-'+alignType);
+    if (elementType === 'title' || elementType === 'section') {
+        $('#' + originalID).find('.story-input').removeClass('text-center text-left text-right');
+        $('#' + originalID).find('.story-input').addClass('text-' + alignType);
     }
-    else if(elementType==='description'){
-        $('#'+originalID).find('.story-description-input').removeClass('text-center text-left text-right');
-        $('#'+originalID).find('.story-description-input').addClass('text-'+alignType);
-    }else if(elementType==='image'){
-        $('#'+originalID).find('.smat-story-element').removeClass('text-center text-left text-right');
-        $('#'+originalID).find('.smat-story-element').addClass('text-'+alignType);
-        $('#'+originalID).find('.story-description-input').removeClass('text-center text-left text-right');
-        $('#'+originalID).find('.story-description-input').addClass('text-'+alignType);
+    else if (elementType === 'description') {
+        $('#' + originalID).find('.story-description-input').removeClass('text-center text-left text-right text-justify');
+        $('#' + originalID).find('.story-description-view').removeClass('text-center text-left text-right text-justify');
+        $('#' + originalID).find('.story-description-view').addClass('text-' + alignType);
+        $('#' + originalID).find('.story-description-input').addClass('text-' + alignType);
+    } else if (elementType === 'image') {
+        $('#' + originalID).find('.smat-story-element').removeClass('text-center text-left text-right');
+        $('#' + originalID).find('.smat-story-element').addClass('text-' + alignType);
+        $('#' + originalID).find('.story-description-input').removeClass('text-center text-left text-right');
+        $('#' + originalID).find('.story-description-input').addClass('text-' + alignType);
     }
-    
+
 });
 
 
 $("body").on('input', '#storyName', function () {
     storyNameInput = $(this).val().trim();
+
 });
 
-$(document).on("click", function (event) {
-    if (!$(event.target).closest("#storyMakerDiv").length) {
-        $(".storyBoardOptions").css("display", "none");
-        $(".smat-story-element-main").removeClass("border-story-active");
+
+const getMeta = (url, callback) => {
+    var img = new Image();
+    img.src = url;
+    img.onload = function () { callback(this.width, this.height); }
+}
+$("body").on("click", ".project-images", async function () {
+    let imgName = $(this).attr('imgName') ? $(this).attr('imgName') : null;
+    let height = 0;
+    let width = 0;
+    var img = new Image();
+    img.src = 'storage/' + UserId + "/" + projectID + "/plots/" + imgName;
+    img.onload = function () { return this.width }
+    let imgObj = {
+        src: imgName,
+        height: img.height,
+        width: img.width
     }
+    $('#storyImagesModal').modal('hide');
+    AddItemToStoryEditor($(this).attr("value"), imgObj);
 });
 
-$("body").on("click", ".textElementStory", function () {
-    let imgName = $(this).attr('imgName') ? $(this).attr('imgName') : null
-    AddItemToStoryEditor($(this).attr("value"), imgName);
-});
+$('body').on('input', '#storyDescription', function () {
 
-$('body').on('input','#storyDescription',function(){
     storyDescription = $(this).val().trim();
 })
 
@@ -177,10 +257,10 @@ $("body").on("click", "#saveStorybtnStory", function () {
             let storyObj = {
                 storyName: storyNameInput,
                 createdAt: storyCreatedAt,
-                storyDescription : storyDescription,
+                storyDescription: storyDescription,
                 elements: storyElements
             }
-            saveStoryToServer(projectID, storyNameInput, storyObj,storyDescription,storyID);
+            saveStoryToServer(projectID, storyNameInput, storyObj, storyDescription, storyID);
         } else {
             alert('Please enter some elements');
 
@@ -189,13 +269,13 @@ $("body").on("click", "#saveStorybtnStory", function () {
         alert('Please enter story name.');
     }
 });
-const saveStoryToServer = (projectID, storyNameInput, storyObj ,storyDescription ,key ) => {
+const saveStoryToServer = (projectID, storyNameInput, storyObj, storyDescription, key) => {
     getMe().then(id => {
-        uploadStoryToServer(projectID, storyNameInput,storyDescription, storyObj, id ,key).then(res => {
+        uploadStoryToServer(projectID, storyNameInput, storyDescription, storyObj, id, key).then(res => {
             if (res.error) {
                 displayErrorMsg('storyCreateErrorMsg', 'error', 'Some error occured!');
             } else {
-                storyID=res.key;
+                storyID = res.key;
                 displayErrorMsg('storyCreateErrorMsg', 'success', 'Saved successfully!');
 
             }
@@ -210,9 +290,12 @@ $("body").on("input", ".story-input", function () {
 $("body").on("input", ".story-description-input", function () {
     this.style.height = "";
     this.style.height = this.scrollHeight + "px";
+    let key = $(this).attr('key');
+    $('#' + key + '-VIEW').html($(this).val())
     let offset = $(this).parent().parent().attr("value");
     storyElements[offset]["text"] = $(this).val();
 });
+
 
 const swapStoryElements = (current = null, prevElement = null, nextElement = null) => {
     let tempArr = [];
@@ -286,3 +369,65 @@ $('body').on('click', '#download-pdf', function () {
         doc.save('f.pdf');
     });
 });
+
+
+$('body').on('click', '#insertImageBtn', function () {
+    $('#storyImagesModal').modal('show');
+});
+
+$('body').on('click', '#upload-image-btn', function () {
+    $('#image-upload').click();
+});
+
+$('#image-upload').on('change', function () {
+    if (this.files && this.files[0]) {
+        var img = document.querySelector('img');
+        img.onload = () => {
+            URL.revokeObjectURL(img.src);  // no longer needed, free memory
+        }
+        var reader = new FileReader();
+        reader.readAsDataURL(this.files[0]);
+        reader.onloadend = function () {
+            var base64data = reader.result;
+            _APICALLFORCAPTURE(projectID, base64data).then(res => {
+                if (res.error) {
+                    alert('Some error occured!');
+                } else {
+                    alert('Uploaded SuccessFully!');
+                    $("#storyPictures").html('');
+                    getPlotsFromServer(projectID, UserId).then(res => {
+                        res.map(image => {
+                            $("#storyPictures").append(
+                                '<div class="p-2 text-center project-images"  value="image" style="overflow:hidden;"  imgName="' + image + '" ><img src="storage/' +
+                                UserId + "/" + projectID + "/plots/" + image + '" / ></div>'
+                            );
+                        });
+                    });
+                }
+            });
+
+        }
+    }
+});
+
+const _APICALLFORCAPTURE = async (projectID, base64URL) => {
+    const userID = await getMe();
+    let response = await fetch('uploadStoryContent', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        body: JSON.stringify({
+            projectID, image: base64URL, userID
+        })
+    });
+    let data = await response.json();
+    return data;
+}
+
+
+$('#seeResultBtn').on('click',function(){
+    window.open('storyViewer?projectID='+projectID+'&storyID='+storyID);
+})

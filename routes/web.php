@@ -53,6 +53,16 @@ Route::get('/story', function (Request $request) {
     return view('modules.storyBuilder', compact('projectID','storyID'));
 });
 
+Route::get('/storyViewer', function (Request $request) {
+    $projectID = '';
+    $storyID = '';
+    $projectID = $request->input('projectID');
+    if ($request->input('storyID')) {
+        $storyID = $request->input('storyID');
+    }
+    return view('modules.storyViewer', compact('projectID','storyID'));
+});
+
 Route::get('/networkUserAnalysis', function (Request $request) {
     $query = '';
     $tweet_id = '';
@@ -269,7 +279,6 @@ Route::group(['prefix' => 'LM'], function () {
     Route::post('/tweet_info_for_tracking', 'LocationMap@tweet_info_for_tracking');
     Route::post('/tweet_info', 'LocationMap@tweet_info');
     Route::post('/generate_tweet_network', 'LocationMap@generate_tweet_network');
-    Route::post('/generate_tweet_network_', 'LocationMap@generate_tweet_network_');
     Route::post('/tweetid_userInfo', 'LocationMap@tweetid_userInfo');
     Route::post('/user_tweet_info', 'LocationMap@user_tweet_data');
 
@@ -299,6 +308,7 @@ Route::group(['prefix' => 'track'], function () {
     Route::post('/getTweetIDsForSource', 'TweetTracking@get_tweet_idlist_for_track_type_sourceid');
     ///getDatesDist
     Route::post('/getDatesDist', 'TweetTracking@getDatesDist');
+    Route::post('/generate_tweet_network_', 'TweetTracking@generate_tweet_network_');
 });
 
 Route::group(['prefix' => 'configure'], function () {
@@ -375,3 +385,14 @@ Route::post('readTokenCountProject', 'storyController@readTokenCountProject');
 
 
 Route::post('getTweetidListOrderByTweetTypeCount', 'ProjectActivityController@getTweetidListOrderByTweetTypeCount');
+
+
+
+Route::post('getProjectFrequencyDistributionData', 'ProjectActivityController@getProjectFrequencyDistributionData');
+Route::post('getProjectSentimentDistributionData', 'ProjectActivityController@getProjectSentimentDistributionData');
+Route::post('getTweetidListProject', 'ProjectActivityController@getTweetidListProject');
+
+
+
+
+Route::post('getTweetIDListHavingLocation', 'ProjectActivityController@getTweetIDListHavingLocation');

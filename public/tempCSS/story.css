@@ -3,31 +3,39 @@
 }
 
 .textElementStory:hover{
-    background-color: rgb(223, 223, 223);
     cursor: pointer;
+    background-color: rgba(216, 215, 215, 0.842);
 }
 
-.textElementStory img:hover {
-    opacity: .5;
+.project-images:hover {
+    opacity: .3;
+    cursor:pointer;
 }
 .plotsDivStory{
     overflow-x:hidden;
 }
 #storyMakerDiv{
     min-height: 1000px;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .story-input {
     border: 0px !important;
     outline: none;
 }
-.story-description-input{
+.story-description-input, .story-description-view{
     font-size: 16px;
     border: 0px !important;
     outline: none;
 }
+.boxsizingBorder {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
 .titleStory{
-    font-size: 3em;
+    font-size: 2.5em;
+    font-weight:bold;
     width:100%;
 }
 .sectionStory{
@@ -38,9 +46,7 @@ opacity: 50%;
 cursor: pointer;
 }
 .storyBtn:hover{
-    background-color: var(--color-active);
     cursor:pointer;
-    border-radius: 10px;
     color: white;
 }
 
@@ -59,20 +65,29 @@ cursor: pointer;
 
 .border-story-active{
     border: 1px solid;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
 }
 
 
 #storyPictures{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    grid-gap: 24px;
+    padding:20px;
+    display: grid;
+    grid-template-columns: 2fr 2fr 2fr;
+    grid-template-rows: 1fr 1fr 1fr;
 }
 #storyPictures img{
     min-height:120px;
     max-height:120px;
     overflow-x:hidden;
 }
-
-.smat-story-element img{
-    max-width:70%;
+.space-element{
+    min-height:30px;
+    cursor: pointer;
 }
+.space-element:hover{
+   background-color: rgb(230, 230, 230);
+}
+
+#story-nav { position: sticky; top: 0; z-index:1030;background-color: white;}

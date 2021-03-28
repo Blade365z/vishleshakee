@@ -7,9 +7,9 @@ var HeadersForApi = {
     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 };
 
-export const getTrendingDataFromController = async (from, to, option, limit) => {
+export const getTrendingDataFromController = async (from, to, option, limit, pname=null) => {
     let dataArgs = JSON.stringify({
-        from, to, option, limit
+        from, to, option, limit, pname
     });
     console.log(dataArgs);
     let response = await fetch('TA/getTopTrending', {

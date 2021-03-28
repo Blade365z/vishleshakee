@@ -143,9 +143,10 @@ export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysis
 
 	$('#' + div).html("");
 	tweetData.forEach(tweet => {
+		console.log(tweet)
 		let tweetTypeCountDOM ='';
 		
-		if(tweetCountMap){
+		if(tweetCountMap && tweetCountMap[tweet.tid]){
 				tweetTypeCountDOM = '<div><span>'+tweetTypeDict[tweetCountMap[tweet.tid]['type']]+'s</span> : <span class="font-weight-bold">'+tweetCountMap[tweet.tid]['count']+'</span></div>'
 		}
 		if (analysisBtnArg) {

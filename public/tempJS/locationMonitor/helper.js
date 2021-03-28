@@ -23,9 +23,9 @@ export const get_current_time = (time) =>{
 }
 
 
-export const tweetChunkInfo = async (tweetid_list_array) => {
+export const tweetChunkInfo = async (tweetid_list_array,pname) => {
     let dataArg;
-    dataArg = JSON.stringify({ tweetid_list_array });
+    dataArg = JSON.stringify({ tweetid_list_array,pname });
 
     let response = await fetch('LM/tweet_info', {
         method: 'post',

@@ -5,13 +5,35 @@ var HeadersForApi = {
     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
 };
 
+// for project
+import { checkIfAnyProjectActive, getProjectDetailsFromLocalStorage, madeFullQuery } from '../project/commonFunctionsProject.js';
+var projectDetails;//for project
+var pname=null, proj_id=null;
+
+
+// check if any project is active
+if (checkIfAnyProjectActive()){
+    // if yes
+    projectDetails = getProjectDetailsFromLocalStorage();
+    console.log(projectDetails);
+    pname = projectDetails.projectMetaData.project_name;
+    proj_id = projectDetails.projectMetaData.project_id;
+    console.log(pname, proj_id);
+}else{
+    pname=null;
+    proj_id=null;
+}
+
+
+
+
 
 export const getTweetInfo = async (id) => {
     let response = await fetch('track/getTweetInfo', {
         method: 'post',
         headers: HeadersForApi,
         body: JSON.stringify({
-            id
+            id, pname
         })
     });
     // console.log('ID',id);
@@ -22,7 +44,7 @@ export const getTweetInfo = async (id) => {
 
 export const getFreqDataForTweets = async (id, from, to, type) => {
     let dataArgs = JSON.stringify({
-        id, from, to, type
+        id, from, to, type, pname
     })
     // console.log(dataArgs);
     let response = await fetch('track/getFrequencyDistributionTweet', {
@@ -36,7 +58,7 @@ export const getFreqDataForTweets = async (id, from, to, type) => {
 
 export const getDatesDist = async (id, from, to, type) => {
     let dataArgs = JSON.stringify({
-        id, from, to, type:'all'
+        id, from, to, type:'all', pname
     })
     // console.log(dataArgs);
     let response = await fetch('track/getDatesDist', {
@@ -54,13 +76,15 @@ export const getTweetsForSource = async (id, to, from = null, type) => {
         dataArgs = JSON.stringify({
             sid: id,
             to, from,
-            tweet_id_list_type: type
+            tweet_id_list_type: type,
+            pname
         });
     } else {
         dataArgs = JSON.stringify({
             sid: id,
             to,
-            tweet_id_list_type: type
+            tweet_id_list_type: type,
+            pname
         });
     }
     // console.log(dataArgs)
@@ -84,11 +108,12 @@ export const getTweetsPlotDataForMap = async (arr) => {
     return data;
 }
 
+
 export const getNetworkForSource = async (userID,id,dateArr) => {
-    let response = await fetch('LM/generate_tweet_network_', {
+    let response = await fetch('track/generate_tweet_network_', {
         method: 'post',
         headers: HeadersForApi,
-        body: JSON.stringify({id,dateArr,userID})
+        body: JSON.stringify({id,dateArr,userID, pname})
     });
     let data = await response.text();
     //TODO :: check if success 
@@ -101,7 +126,3 @@ export const getNetworkForSource = async (userID,id,dateArr) => {
     return data;
     //TODO::hit another rote;
 }
-
-
-
-

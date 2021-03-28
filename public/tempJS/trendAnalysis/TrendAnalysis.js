@@ -6,10 +6,16 @@ import { makeSmatReady } from '../utilitiesJS/smatExtras.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { getTrendingDataFromController } from './helper.js';
 
+// for project
+import { checkIfAnyProjectActive, getProjectDetailsFromLocalStorage, madeFullQuery } from '../project/commonFunctionsProject.js';
+import { getAnalysisForAProjectAPI, removeFromProjectActivityTable, storeToProjectActivityTable } from '../project/helper.js';
+var projectDetails;//for project
+
+
 //Global variable definitions 
 var fromDate, toDate;
 const categoryColor = { 'normal': 'text-normal', 'com': 'text-com', 'sec': 'text-sec', 'com_sec': 'text-com_sec' }
-
+var pname=null, proj_id=null;
 
 jQuery(function () {
     /*
@@ -29,33 +35,35 @@ jQuery(function () {
     $('#nav-TA').addClass('smat-nav-active');
     toDate = getCurrentDate()
     fromDate = dateProcessor(toDate, '-', 0);
-    $("#fromDateTA").datepicker({
-        onSelect: function (dateCaptured) {
-            $("#toDateTA").val('');
-            let minDateTemp = dateCaptured;
-            let maxDateTemp = dateProcessor(dateCaptured, '+', 2);
-            $('#toDateTA').datepicker({
-                minDate: new Date(minDateTemp),
-                maxDate: new Date(maxDateTemp)
-            });
-        }
-    });
-    $("#toDateTA").datepicker({
-        onSelect: function (dateCaptured) {
-            $("#fromDateTA").val('');
-            let minDateTemp = dateCaptured;
-            let maxDateTemp = dateProcessor(dateCaptured, '-', 2);
-            $('#fromDateTA').datepicker({
-                minDate: new Date(maxDateTemp),
-                maxDate: new Date(minDateTemp)
-            });
-        }
-    });
-    $("#fromDateTA").val(fromDate);
-    $('#toDateTA').datepicker({
-        minDate: new Date(fromDate),
-        maxDate: new Date(dateProcessor(fromDate, '+', 2)),
-    }).val(fromDate);
+    if(!localStorage.getItem('projectMetaData')){
+        $("#fromDateTA").datepicker({
+            onSelect: function (dateCaptured) {
+                $("#toDateTA").val('');
+                let minDateTemp = dateCaptured;
+                let maxDateTemp = dateProcessor(dateCaptured, '+', 2);
+                $('#toDateTA').datepicker({
+                    minDate: new Date(minDateTemp),
+                    maxDate: new Date(maxDateTemp)
+                });
+            }
+        });
+        $("#toDateTA").datepicker({
+            onSelect: function (dateCaptured) {
+                $("#fromDateTA").val('');
+                let minDateTemp = dateCaptured;
+                let maxDateTemp = dateProcessor(dateCaptured, '-', 2);
+                $('#fromDateTA').datepicker({
+                    minDate: new Date(maxDateTemp),
+                    maxDate: new Date(minDateTemp)
+                });
+            }
+        });
+        $("#fromDateTA").val(fromDate);
+        $('#toDateTA').datepicker({
+            minDate: new Date(fromDate),
+            maxDate: new Date(dateProcessor(fromDate, '+', 2)),
+        }).val(fromDate);
+    }
 
     $('#resetDates').on('click', function () {
         var myDatepicker = $('#toDateTA').datepicker().data('datepicker');
@@ -70,12 +78,31 @@ jQuery(function () {
             minDate: null,
             maxDate: null
         });
-    })
-    $('#trendTweets').html('<div class="text-center smat-loader " ><i class="fa fa-circle-o-notch donutSpinner mt-5" aria-hidden="true"></i></div>');
-    generateTrendingTokensForTA(fromDate, toDate, 'top_hashtag', 'taResultsHashtags', 'all').then(queryTemp => {
-        getTrendTweets(queryTemp, fromDate, toDate, 'trendTweets');
     });
-    generateTrendingTokensForTA(fromDate, toDate, 'top_mention', 'taResultsMentions', 'all');
+
+
+    // check if any project is active
+    if (checkIfAnyProjectActive()){
+        // if yes
+        projectDetails = getProjectDetailsFromLocalStorage();
+        console.log(projectDetails);
+        pname = projectDetails.projectMetaData.project_name;
+        console.log(pname);
+        proj_id = projectDetails.projectMetaData.project_id;
+        console.log(proj_id);
+    }else{
+        pname=null;
+        proj_id=null;
+    }
+
+
+
+    $('#trendTweets').html('<div class="text-center smat-loader " ><i class="fa fa-circle-o-notch donutSpinner mt-5" aria-hidden="true"></i></div>');
+    generateTrendingTokensForTA(fromDate, toDate, 'top_hashtag', 'taResultsHashtags', 'all', pname).then(queryTemp => {
+        console.log(pname);
+        getTrendTweets(queryTemp, fromDate, toDate, 'trendTweets', pname);
+    });
+    generateTrendingTokensForTA(fromDate, toDate, 'top_mention', 'taResultsMentions', 'all', pname);
     // generateTrendingTokensForTA(fromDate, toDate, 'top_user', 'taResultsUsers', 'all');
 
 
@@ -84,25 +111,29 @@ jQuery(function () {
         e.preventDefault();
         fromDate = $('#fromDateTA').val();
         toDate = $('#toDateTA').val();
-        generateTrendingTokensForTA(fromDate, toDate, 'top_hashtag', 'taResultsHashtags', 'all').then(queryTemp => {
-            getTrendTweets(queryTemp, fromDate, toDate, 'trendTweets');
+        generateTrendingTokensForTA(fromDate, toDate, 'top_hashtag', 'taResultsHashtags', 'all', pname).then(queryTemp => {
+            console.log(pname);
+            getTrendTweets(queryTemp, fromDate, toDate, 'trendTweets', pname);
         });
-        generateTrendingTokensForTA(fromDate, toDate, 'top_mention', 'taResultsMentions', 'all');
+        generateTrendingTokensForTA(fromDate, toDate, 'top_mention', 'taResultsMentions', 'all', pname);
         // generateTrendingTokensForTA(fromDate, toDate, 'top_user', 'taResultsUsers', 'all');
     })
     $('body').on('click', 'div .username', function () {
         let queryCaptured = '$' + $(this).attr('value');
         forwardToUserAnalysis(queryCaptured, fromDate, toDate);
         console.log(queryCaptured);
+        console.log(pname);
     });
     $('body').on('click', 'div .query ', function () {
         let queryCaptured = $(this).text().trim();
+        console.log(pname);
         forwardToHistoricalAnalysis(queryCaptured, fromDate, toDate);
     });
     $('body').on('click', 'div .trendTweets', function () {
         let queryCaptured = $(this).attr('value');
-        getTrendTweets(queryCaptured, fromDate, toDate, 'trendTweets')
-    })
+        console.log(pname);
+        getTrendTweets(queryCaptured, fromDate, toDate, 'trendTweets', pname)
+    });
 
 
 });
@@ -111,14 +142,14 @@ jQuery(function () {
 
 
 
-const generateTrendingTokensForTA = async (from, to, option, div = null, filterArgument = null) => {
+const generateTrendingTokensForTA = async (from, to, option, div = null, filterArgument = null, pname=null) => {
     console.log('Trending data from : ', fromDate + ' to ' + toDate);
     $('#' + div).html('');
     $('#totalHashtags').html('<div class="text-center p-0 " ><i class="fa fa-circle-o-notch donutSpinner " aria-hidden="true"></i></div>')
     $('#totalMentions').html('<div class="text-center  p-0 " ><i class="fa fa-circle-o-notch donutSpinner " aria-hidden="true"></i></div>')
     $('#' + div).html('<div class="text-center pt-5  m-auto" ><i class="  m-auto fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
 
-    let first = await getTrendingDataFromController(from, to, option, 50).then(response => {
+    let first = await getTrendingDataFromController(from, to, option, 50, pname).then(response => {
 
         $('#' + div).html('');
         if (option === 'top_hashtag') {
@@ -151,12 +182,13 @@ const generateTrendingTokensForTA = async (from, to, option, div = null, filterA
 }
 
 
-const getTrendTweets = (query, fromDate, toDate, div) => {
+const getTrendTweets = (query, fromDate, toDate, div, pname=null) => {
+    console.log('TWEET', pname)
     $('#trendTweets').html('<div class="text-center smat-loader " ><i class="fa fa-circle-o-notch donutSpinner mt-5" aria-hidden="true"></i></div>')
-    getTweetIDsForHA(query, fromDate, toDate).then(response => {
+    getTweetIDsForHA(query, fromDate, toDate, null, null, 0, pname).then(response => {
         $('#trendTweets').html('');
         $('#trendTweetsQuery').text(query);
-        TweetsGenerator(response.data, 6, div, fromDate, toDate, false);
+        TweetsGenerator(response.data, 6, div, fromDate, toDate, false, null, pname);
     })
 }
 

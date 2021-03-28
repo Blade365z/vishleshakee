@@ -6,6 +6,10 @@ use App\Project;
 use App\ProjectActivity;
 use DateTime;
 use Illuminate\Http\Request;
+use App\DBModel\DBmodel;
+use App\DBModel\DBmodelAsync;
+use App\Library\QueryBuilder as QB;
+use App\Library\Utilities as Ut;
 
 date_default_timezone_set('Asia/Kolkata'); //enable to get datetime as local
 
@@ -395,5 +399,222 @@ class ProjectActivityController extends Controller
         } catch (Exception $e) {
             return response()->json(['error' => 'Some error occured!'], 404);
         }
+    }
+
+
+    public function getProjectFrequencyDistributionData(Request $request)
+    {   
+        $to = $request->input('to');
+        $from = $request->input('from');
+        $pname = null;
+        if ($request->input('pname')){
+            $pname = $request->input('pname');
+        }
+        $range_type = 'day';
+        $category_info_details = true;
+        $category_info_total = true;
+
+
+        $db_object = new DBmodelAsync;
+        $db_object_not_async = new DBmodel;
+        $qb_obj = new QB;
+        $ut_obj = new Ut;
+
+
+        $final_result = array();
+        $temp_arr = array();
+        $total = 0;
+        $total_com = 0;
+        $total_sec = 0;
+        $total_com_sec = 0;
+        $total_non_com_sec = 0;
+        $from_datetime = date('Y-m-d H:i:s', strtotime($from) + 0);
+        $to_datetime = date('Y-m-d H:i:s', strtotime($to) + 0);
+        if ($range_type == "day") {
+            // past days
+            $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, null, null, 'dataset_distribution');
+            $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0], $pname);
+
+            foreach ($result_async_from_db as $rows) {
+                $com = 0;
+                $sec = 0;
+                $com_sec = 0;
+                $non_com_sec = 0;
+                foreach ($rows as $row) {
+                    $t = $row['created_date'];                    
+                    $datetime1 = $ut_obj->get_date_time_from_cass_date_obj($t, "Y-m-d");
+                    $count_list = $row['count_list']->values();     
+                    $category_class_list = $row['category_class_list']->values();                    
+                    $ar_sum = array_sum($count_list);
+                    if ($category_info_details or $category_info_total) {
+                        $com += $count_list[$this->get_index_of_category(11, $category_class_list)] + $count_list[$this->get_index_of_category(12, $category_class_list)] + $count_list[$this->get_index_of_category(13, $category_class_list)];
+
+                        $sec += $count_list[$this->get_index_of_category(101, $category_class_list)] + $count_list[$this->get_index_of_category(102, $category_class_list)] + $count_list[$this->get_index_of_category(103, $category_class_list)];
+
+                        $com_sec += $count_list[$this->get_index_of_category(111, $category_class_list)] + $count_list[$this->get_index_of_category(112, $category_class_list)] + $count_list[$this->get_index_of_category(113, $category_class_list)];
+
+                        $non_com_sec += $count_list[$this->get_index_of_category(1, $category_class_list)] + $count_list[$this->get_index_of_category(2, $category_class_list)] + $count_list[$this->get_index_of_category(3, $category_class_list)];
+
+                        array_push($temp_arr, array($datetime1, $ar_sum, $com, $sec, $com_sec, $non_com_sec));
+                        $total_com += $com;
+                        $total_sec += $sec;
+                        $total_com_sec += $com_sec;
+                        $total_non_com_sec += $non_com_sec;
+                    } else {
+                        array_push($temp_arr, array($datetime1, $ar_sum));
+                    }
+                }
+            }            
+        }
+
+        $final_result["range_type"] = $range_type;
+        $final_result["chart_type"] = "freq_dist";
+        if ($category_info_details or $category_info_total) {
+            if ($category_info_details) {
+                $final_result["data"] = $temp_arr;
+            }
+            $final_result["com"] = $total_com;
+            $final_result["sec"] = $total_sec;
+            $final_result["com_sec"] = $total_com_sec;
+            $final_result["normal"] = $total_non_com_sec;
+            $final_result["total"] = $total_com + $total_sec + $total_com_sec + $total_non_com_sec;
+        } else {
+            $final_result["data"] = $temp_arr;
+        }
+        return ($final_result);
+    }
+
+
+    public function get_index_of_category($query, $cat_arr){
+        $index  =  array_search($query,$cat_arr);
+        return $index;
+    }
+
+    public function getProjectSentimentDistributionData(Request $request)
+    {   
+        $to = $request->input('to');
+        $from = $request->input('from');
+        $pname = null;
+        if ($request->input('pname')){
+            $pname = $request->input('pname');
+        }
+        $range_type = 'day';
+        $category_info_details = true;
+        $category_info_total = true;
+
+
+        $db_object = new DBmodelAsync;
+        $db_object_not_async = new DBmodel;
+        $qb_obj = new QB;
+        $ut_obj = new Ut;
+
+
+        $final_result = array();
+        $temp_arr = array();
+       
+        $from_datetime = date('Y-m-d H:i:s', strtotime($from) + 0);
+        $to_datetime = date('Y-m-d H:i:s', strtotime($to) + 0);
+        if ($range_type == "day") {
+            // past days
+            $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, null, null, 'dataset_distribution');
+            $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0], $pname);
+
+
+            foreach ($result_async_from_db as $rows) {
+                $datetime1 = null;
+                $pos = 0;
+                $neg = 0;
+                $neu = 0;
+                foreach ($rows as $row) {
+                    $t = $row['created_date'];
+                    $datetime1 = $ut_obj->get_date_time_from_cass_date_obj($t, "Y-m-d");
+                    $count_list = $row['count_list']->values();
+                    $category_class_list = $row['category_class_list']->values();               
+                    for($i=0; $i < sizeof($category_class_list); $i++){
+                        $cat = $category_class_list[$i];
+                        $count_sum = $count_list[$i];
+                        if($cat%10 == 1)
+                            $pos += $count_sum;
+                        else if($cat%10 == 2)
+                            $neg += $count_sum;
+                        else if($cat%10 == 3)
+                            $neu += $count_sum;
+                    }     
+                }
+                if ($datetime1) {
+                    array_push($temp_arr, array($datetime1, $pos, $neg, $neu));
+                }
+            }      
+        }
+
+        $final_result["range_type"] = $range_type;
+        $final_result["chart_type"] = "sent_dist";
+        $final_result["data"] = $temp_arr;
+        return ($final_result);       
+    }
+
+
+    // TODO
+    public function getTweetidListProject(Request $request)
+    {
+        // $to_datetime = null, $from_datetime = null, $token = null, $range_type = null, $filter_type=null, $ks=null
+        $to = $request->input('to');
+        $from = $request->input('from');
+        $filter_type = null;
+        $filter_type = $request->input('filter_type');
+        $ks = null;
+        if ($request->input('pname')){
+            $ks = $request->input('pname');
+        }
+        $range_type = 'day';
+        $db_object = new DBmodelAsync;
+        $db_object_not_async = new DBmodel;
+        $qb_obj = new QB;
+        $ut_obj = new Ut;
+
+
+        $final_result = array();
+        $temp_arr = array();
+       
+        $from_datetime = date('Y-m-d H:i:s', strtotime($from) + 0);
+        $to_datetime = date('Y-m-d H:i:s', strtotime($to) + 0);
+
+        $index_arr = array();
+        if($filter_type)
+            $index_arr = $this->get_index_arr_of_category($filter_type);      
+      
+        $feature_option = 'tweet';
+    }
+
+
+    public function get_index_arr_of_category($filter_type){
+        if($filter_type == 'com'){
+            $index_arr = [3, 4, 5];                            
+        }else if($filter_type == 'sec'){
+            $index_arr = [6, 7, 8];
+        }else if($filter_type == 'com_sec'){
+            $index_arr = [9, 10, 11];
+        }else if($filter_type == 'normal'){
+            $index_arr = [0, 1, 2];
+        }else if($filter_type == 'pos'){
+            $index_arr = [0, 3, 6, 9];
+        }else if($filter_type == 'neg'){
+            $index_arr = [1, 4, 7, 10];
+        }else if($filter_type == 'neu'){
+            $index_arr = [2, 5, 8, 11];
+        }else if($filter_type == 'all'){
+            $index_arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+        }
+        return $index_arr;
+    }
+
+
+
+    public function  getTweetIDListHavingLocation(Request $request){
+        $userID = $request->input('userID');
+        $projectID = $request->input('projectID');
+        $filePath = "storage/$userID/$projectID/statistics/loc_tweet.csv";
+        $file_data_array = array_slice(file($filePath), 1);
+        return array_map(function($str){ return str_replace("\n","",$str);}, $file_data_array);
     }
 }

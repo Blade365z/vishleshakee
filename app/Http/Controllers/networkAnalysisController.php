@@ -233,6 +233,7 @@ class networkAnalysisController extends Controller
         $final_result = array("nodes" => array(), "edges" => array());
         $unique_node_temp_arr = array();
         $final_node_arr = array();
+        $final_node_arr_normal = array();
         $edges_temp_arr = array();
         $coming_from_tweet_tracking = false;
         //  $GraphData_obj = new GraphData;
@@ -269,6 +270,7 @@ class networkAnalysisController extends Controller
                             if($flag_tweet_tracker_processor == false){
                                 $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
                                 array_push($final_node_arr, array("id" => $parsed_string[0], "label" => $parsed_string[1], "shape" => 'dot', "size" => 100, 'color' => "#CF6ED2"));
+                                array_push($final_node_arr_normal, array("id" => $parsed_string[0], "label" => $parsed_string[1], "shape" => 'dot', "size" => 100, 'color' => $this->getSentimentColor($connection[3])));                                
                                 $flag_tweet_tracker_processor = true;
                             }else{
                                 try{
@@ -276,17 +278,20 @@ class networkAnalysisController extends Controller
                                         if($i == 1){
                                             $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
                                             array_push($final_node_arr, array("id" => $parsed_string[0], "label" =>$parsed_string[1], "shape" => 'dot', "size" => 50, 'color' => "#ff704d"));
+                                            array_push($final_node_arr_normal, array("id" => $parsed_string[0], "label" =>$parsed_string[1], "shape" => 'dot', "size" => 50, 'color' => $this->getSentimentColor($connection[4])));
                                         }
 
                                     }elseif($connection[2]=="retweet"){
                                         if($i == 1){
                                             $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
                                             array_push($final_node_arr, array("id" => $parsed_string[0], "label" => $parsed_string[1] , "shape" => 'dot', "size" => 50, 'color' => "#0099cc"));
+                                            array_push($final_node_arr_normal, array("id" => $parsed_string[0], "label" =>$parsed_string[1], "shape" => 'dot', "size" => 50, 'color' => $this->getSentimentColor($connection[4])));
                                         }
                                     }elseif($connection[2]=="Reply"){
                                         if($i == 1){
                                             $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
                                             array_push($final_node_arr, array("id" => $parsed_string[0], "label" => $parsed_string[1], "shape" => 'dot', "size" => 50, 'color' => "#00e600"));
+                                            array_push($final_node_arr_normal, array("id" => $parsed_string[0], "label" =>$parsed_string[1], "shape" => 'dot', "size" => 50, 'color' => $this->getSentimentColor($connection[4])));
                                         }
                                     }else{
                                         $parsed_string = explode("*$#*##||____||##*#$*",$connection[$i]);
@@ -310,15 +315,17 @@ class networkAnalysisController extends Controller
                             }
                             array_push($final_node_arr, array("id" => $connection[$i], "label" => $user_name, "shape" => 'circularImage', "image" => $profile_image_link, "size" => 50, "borderwidth" => 7, "border" => "#EA9999"));
                         } else {
-                            if ((sizeof($connection) - 1) > 2) {
-                                if ($i == 1) {
-                                    if ($connection[3] != null) {
-                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => $connection[3], "size" => 50, "borderwidth" => 7, "border" => "#EA9999"));
+                            if (!($coming_from_tweet_tracking)) {
+                                if ((sizeof($connection) - 1) > 2) {
+                                    if ($i == 1) {
+                                        if ($connection[3] != null) {
+                                            array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => $connection[3], "size" => 50, "borderwidth" => 7, "border" => "#EA9999"));
+                                        } else {
+                                            array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => 'public/icons/keyword.svg', "size" => 50, "borderwidth" => 7, "border" => "#EA9999"));
+                                        }
                                     } else {
-                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => 'public/icons/keyword.svg', "size" => 50, "borderwidth" => 7, "border" => "#EA9999"));
+                                        array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => 'app/Http/Controllers/graph/roshanuser.svg', "size" => 50, "borderwidth" => 7, "border" => "#EA9999"));
                                     }
-                                } else {
-                                    array_push($final_node_arr, array("id" => $connection[$i], "label" => $connection[$i], "shape" => 'circularImage', "image" => 'app/Http/Controllers/graph/roshanuser.svg', "size" => 50, "borderwidth" => 7, "border" => "#EA9999"));
                                 }
                             }
 
@@ -349,9 +356,28 @@ class networkAnalysisController extends Controller
                 continue;
             }
         }
-        $final_result["nodes"] = $final_node_arr;
+
+
+        if ($coming_from_tweet_tracking) {
+            $final_result["nodes"] = array($final_node_arr, $final_node_arr_normal);
+        }else{
+            $final_result["nodes"] = $final_node_arr;
+        }
+
+
         $final_result["edges"] = $edges_temp_arr;
         return json_encode($final_result);
+    }
+
+
+
+    public function getSentimentColor($sent){
+        if($sent == 0)
+            return "#33CCCC"; //pos
+        else if($sent == 1)
+            return "#FC5F4F";  //neg
+        else if($sent == 2)
+            return "#FFC060";    //neu
     }
 
     public function isfileexist(Request $request, $filename)

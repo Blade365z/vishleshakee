@@ -12,5 +12,6 @@ const mix = require('laravel-mix');
  */
 
 mix.js('resources/js/app.js', 'public/js/app.js')
+.js('node_modules/@editorjs/editorjs/dist/editor.js','public/js/editor.js')
 .js('node_modules/popper.js/dist/popper.js', 'public/js').sourceMaps()
         .sass('resources/sass/app.scss', 'public/css');

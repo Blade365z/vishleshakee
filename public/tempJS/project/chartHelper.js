@@ -1,4 +1,5 @@
 import { getUserDetails } from "../userAnalysis/helper.js";
+import { getDateInFormat } from '../utilitiesJS/smatDate.js';
 
 export const generateBarChartForCooccur = (query, data = null, div, option, from, to) => {
     var chart = am4core.create(div, am4charts.XYChart);
@@ -127,12 +128,50 @@ export const createUserStatsForProject = (data, div) => {
     getUserDetails(userIDs).then(response => {
         let i = 0;
         response.map(user => {
-            $('#userStats').append('<div class="border p-2 m-2 text-center" style="width:200px;height:100px;"><div class="profilePictureDiv p-1 text-center mr-2"> <img src=' + user.profile_image_url_https + ' / style="height:33px;border-radius:50%;"></div><div class="font-weight-bold text-truncate">' + user.author + '</div> <div>Tweets: <b>' + counts[i] + '</b></div></div>');
+            $('#userStats').append('<div class="border p-2 m-2 text-center userCard" style="width:200px;height:100px;cursor:pointer"   value="$'+user.author_id+'"><div class="profilePictureDiv p-1 text-center mr-2"> <img src=' + user.profile_image_url_https + ' / style="height:33px;border-radius:50%;"></div><div class="font-weight-bold text-truncate">' + user.author + '</div> <div>Tweets: <b>' + counts[i] + '</b></div></div>');
             i += 1;
         })
 
     })
 }
+
+export const plotDonutForStats_old = (data, div) => {
+    var chart = am4core.create(div, am4charts.PieChart);
+
+    let temp = [];
+    const colorDict = {1:'#33CCCC',2:'#FC5F4F',3:'#FFC060'}
+    const categoryDict = {1:'Positive' , 2 :'Negative' , 3 :'Neutral' , 11 : 'Communal & Positive' , 12 :'Communal & Negative' , 13 : 'Communal & Neutral' , 101 : 'Security & Positive', 102:'Security & Negative' , 103 :'Security & Neutral' , 111 : 'Communal & Security & Positive' , 112 :'Communal & Security & Negative' , 113:'Communal & Security & Neutral'}
+    for( let key in data){
+        if(key==='1' || key === '2'|| key ==='3')
+        temp.push({
+            category : categoryDict[key],
+            count : data[key],
+            "color": am4core.color(colorDict[key])
+        });
+    }
+    chart.data = temp;
+    // Add data
+  
+    // Set inner radius
+    chart.innerRadius = am4core.percent(50);
+
+    // Add and configure Series
+    var pieSeries = chart.series.push(new am4charts.PieSeries());
+    pieSeries.dataFields.value = "count";
+    pieSeries.dataFields.category = "type";
+    pieSeries.slices.template.stroke = am4core.color("#fff");
+    pieSeries.slices.template.strokeWidth = 2;
+    pieSeries.slices.template.strokeOpacity = 1;
+    pieSeries.slices.template.propertyFields.fill = "color";
+
+    // This creates initial animation
+    pieSeries.hiddenState.properties.opacity = 1;
+    pieSeries.hiddenState.properties.endAngle = -90;
+    pieSeries.hiddenState.properties.startAngle = -90;
+}
+
+
+
 
 export const plotDonutForStats = (data, div) => {
     var chart = am4core.create(div, am4charts.PieChart);
@@ -168,3 +207,191 @@ export const plotDonutForStats = (data, div) => {
     pieSeries.hiddenState.properties.endAngle = -90;
     pieSeries.hiddenState.properties.startAngle = -90;
 }
+
+
+
+export const generateFreqDistBarChart = (query, data = null, rangeType, div) => {
+    // Create chart instance
+    am4core.useTheme(am4themes_animated);
+    var chart = am4core.create(div, am4charts.XYChart);
+    // Add data
+    var dataTemp = [];
+    for (const [key, freq] of Object.entries(data['data'])) {
+      
+        dataTemp.push({
+            date: new Date(freq[0]),
+            count: freq[1]
+        });
+    }
+    chart.data = dataTemp;
+
+
+    // Create axes
+    var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+    dateAxis.renderer.minGridDistance = 50;
+    dateAxis.title.fontSize = 10;
+
+    var title = chart.titles.create();
+    title.fontSize = 12;
+    title.marginBottom = 10;
+    if (rangeType == 'day')
+        title.text = "Per day distribution" + '  (Click on the bars for more)';
+    else if (rangeType == 'hour'){
+        console.log(data['data']);
+        title.text = "Per hour distribution for " + data['data'][0][0] + ' (Click on the bars for more)';
+    }
+
+    if (rangeType == 'hour') {
+        dateAxis.title.text = "DateTime";
+        dateAxis.tooltipDateFormat = "HH:mm:ss, d MMMM";
+        dateAxis.baseInterval = {
+            "timeUnit": "hour",
+            "count": 1
+        }
+    } else if (rangeType == 'day') {
+        dateAxis.title.text = "Date";
+        dateAxis.tooltipDateFormat = "d MMMM yyyy";
+    }
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis.title.text = "No. of tweets";
+    valueAxis.title.fontSize = 10;
+    var series = chart.series.push(new am4charts.ColumnSeries());
+    series.dataFields.valueY = "count";
+    series.dataFields.dateX = "date";
+    series.columns.template.fill = am4core.color("#4280B7");
+    series.columns.template.strokeOpacity = 0;
+    series.tooltipText = `[bold]{dateX}: {valueY} Tweets[/] 
+      (click on bar to Know more)`;
+    series.strokeWidth = 2;
+    series.tooltip.autoTextColor = false;
+    series.tooltip.label.fill = am4core.color("#141313");
+    series.tooltip.pointerOrientation = "vertical";
+    series.tooltip.background.cornerRadius = 20;
+    series.tooltip.background.fillOpacity = 0.5;
+    series.tooltip.label.padding(12, 12, 12, 12);
+    series.columns.template.width = am4core.percent(50);
+    series.columns.template.column.cornerRadiusTopLeft = 10;
+    series.columns.template.column.cornerRadiusTopRight = 10;
+    // Create scrollbars
+    chart.cursor = new am4charts.XYCursor();
+    chart.scrollbarX = new am4core.Scrollbar();
+    chart.scrollbarX.background.fill = am4core.color("#4280B7");
+
+    series.columns.template.events.on("hit", function (ev) {
+        $('#'+div).css('width','70%');
+        $('#'+div+'-tweets').css('display','block');
+        $('#'+div+'-tweets').css('width','30%');
+        let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
+        var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
+        var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
+
+        console.log(date)
+        
+    });
+    //Handling Click Events 
+  
+}
+
+
+
+export const generateSentiDistBarChart = (data, query, rangeType, div) => {
+    am4core.useTheme(am4themes_animated);
+    var chart = am4core.create(div, am4charts.XYChart);
+    chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+    var dataTemp = [];
+    for (const [key, senti] of Object.entries(data['data'])) {
+        dataTemp.push({
+            date: new Date(senti[0]),
+            pos: parseInt(senti[1]),
+            neg: parseInt(senti[2]),
+            neu: parseInt(senti[3])
+        });
+    }
+    chart.data = dataTemp;
+
+    // chart.colors.step = 2;
+
+    chart.legend = new am4charts.Legend();
+    chart.colors.list = [
+        am4core.color("#33CCCC"), //pos
+        am4core.color("#FC5F4F"), //neg
+        am4core.color("#FFC060") //neu
+    ];
+    chart.responsive.enabled = true;
+
+
+    var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+    dateAxis.renderer.minGridDistance = 50;
+    // dateAxis.renderer.grid.template.location = 0;
+    var title = chart.titles.create();
+    title.fontSize = 12;
+    title.marginBottom = 10;
+    if (rangeType == 'day')
+        title.text = "Per day distribution" + '  (Click on the bars for more)';
+    else if (rangeType == 'hour')
+        title.text = "Per hour distribution for " + data['data'][0][0] + ' (Click on the bars for more)';
+
+    if (rangeType == 'hour') {
+        dateAxis.title.text = "DateTime";
+        dateAxis.tooltipDateFormat = "HH:mm:ss, d MMMM";
+        dateAxis.baseInterval = {
+            "timeUnit": "hour",
+            "count": 1
+        }
+    } else if (rangeType == 'day') {
+        dateAxis.title.text = "Date";
+        dateAxis.tooltipDateFormat = "d MMMM yyyy";
+    }
+
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    // if (option == 0)
+    valueAxis.title.text = "% of tweets";
+    valueAxis.min = 0;
+    valueAxis.max = 100;
+    valueAxis.strictMinMax = true;
+    valueAxis.calculateTotals = true;
+    valueAxis.renderer.minWidth = 50;
+
+    // Create series
+    function createAxisAndSeries(field, name, option) {
+        var series1 = chart.series.push(new am4charts.ColumnSeries());
+        series1.columns.template.width = am4core.percent(20);
+        series1.columns.template.tooltipText =
+            `[bold]{dateX}: {valueY} Tweets ({valueY.totalPercent.formatNumber('#.00')}%)[/]
+              (click on bar to Know more)`;
+        series1.name = name;
+        series1.dataFields.dateX = "date";
+        series1.dataFields.valueY = field;
+        series1.dataFields.valueYShow = "totalPercent";
+        series1.dataItems.template.locations.dateX = 0.5;
+        series1.stacked = true;
+        series1.yAxis = valueAxis;
+        series1.name = name;
+        series1.tooltip.pointerOrientation = "down";
+        series1.tooltip.label.fill = am4core.color("#141313");
+        series1.tensionX = 0.2;
+        series1.columns.template.width = am4core.percent(80);
+        series1.strokeWidth = 2;
+        // do not show tooltip for zero-value column
+        series1.tooltip.label.adapter.add("text", function (text, target) {
+            if (target.dataItem && target.dataItem.valueY == 0) {
+                return "";
+            } else {
+                return text;
+            }
+        });
+
+        }
+
+    createAxisAndSeries("pos", "Positive", 0);
+    createAxisAndSeries("neg", "Negative", 1);
+    createAxisAndSeries("neu", "Neutral", 2);
+
+    // Add cursor
+    chart.cursor = new am4charts.XYCursor();
+    chart.scrollbarX = new am4core.Scrollbar();
+};
+

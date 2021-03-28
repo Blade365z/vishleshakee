@@ -45,7 +45,7 @@ export const getFreqDistDataForHA = async (query, from, to, toTime = null, range
 
 
 
-export const getTweetIDsForHA = async (query, from = null, to = null, rangeType, filter = null, isDateTimeAlready = 0, pname=null) => {
+export const getTweetIDsForHA = async (query, from = null, to = null, rangeType=null, filter = null, isDateTimeAlready = 0, pname=null) => {
     let dataArgs;
     if (from != null && to != null && isDateTimeAlready == 0) {
         dataArgs = JSON.stringify({ from, to, query, rangeType, filter, isDateTimeAlready, pname});

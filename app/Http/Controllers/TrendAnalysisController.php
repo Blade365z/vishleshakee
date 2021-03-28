@@ -18,8 +18,12 @@ class TrendAnalysisController extends Controller
         $option = $request->input('option');
         $fromTime = date('Y-m-d H:i:s', strtotime($from) + 0);
         $toTime = date('Y-m-d H:i:s', strtotime($to) + 0);
+        $pname = null;
+        if ($request->input('pname')){
+            $pname = $request->input('pname');
+        }
         $commonObj = new CommonController;
-        $data=$commonObj->get_top_data($toTime, $fromTime,  $option, $limit = 50, null,null);
+        $data=$commonObj->get_top_data($toTime, $fromTime,  $option, $limit = 50, null, null, $pname);
         return $data;  
     }
 }

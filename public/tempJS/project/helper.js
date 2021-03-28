@@ -25,6 +25,9 @@ export const createProjectAPI = async (projectName, option, user_id, query, from
 };
 
 
+
+
+
 //Fetch Api calls
 export const insertToNewKeyspace = async (projectName, query, from_date, to_date, module_name, user_id, project_id) => {
     console.log('Insertion started : ', projectName);
@@ -381,6 +384,43 @@ export const getTweetsForProject = async (projectID,userID,tweetType) =>{
         headers: HeadersForApi,
         body: JSON.stringify({
             projectID,userID,tweetType
+        })
+    });
+    let data = await response.json();
+    return data;
+}
+
+
+export const getTweetFrequencyData =  async (pname,from,to) =>{
+    let response = await fetch('getProjectFrequencyDistributionData',{
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            pname,from,to
+        })
+    });
+    let data = await response.json();
+    return data;
+}
+
+export const getTweetSentimentData =  async (pname,from,to) =>{
+    let response = await fetch('getProjectSentimentDistributionData',{
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            pname,from,to
+        })
+    });
+    let data = await response.json();
+    return data;
+}
+
+export const getLocationForProject =  async (projectID,userID) =>{
+    let response = await fetch('getTweetIDListHavingLocation',{
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            projectID,userID
         })
     });
     let data = await response.json();

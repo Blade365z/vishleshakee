@@ -1,5 +1,11 @@
 @extends('parent.app')
 @section('content')
+
+    <link rel="stylesheet" href="public/leaflet/markerCluster/MarkerCluster.css">
+    <link rel="stylesheet" href="public/leaflet/markerCluster/MarkerCluster.Default.css">
+    <link rel="stylesheet" href="public/leaflet/leaflet.css">
+    <link rel="stylesheet" href="public/leaflet/leaflet_modal.css">
+
     <link href="public/tempCSS/project.css" rel="stylesheet" />
 
     <div id="project-main">
@@ -7,7 +13,8 @@
         <div>
             <p class="m-0"><span id="project-description"></span></p>
             <p class="m-0">Created on: <span id="project-created-date"></span></p>
-            <p><i class="far fa-calendar-alt mr-1 text-dark " ></i>  Data from <span class="font-weight-bold" id="fromDate"> </span> to <span  class="font-weight-bold" id="toDate"></span></p>
+            <p><i class="far fa-calendar-alt mr-1 text-dark "></i> Data from <span class="font-weight-bold" id="fromDate">
+                </span> to <span class="font-weight-bold" id="toDate"></span></p>
         </div>
 
     </div>
@@ -21,11 +28,15 @@
                 </li>
                 <li><a class="btn  btn-light mx-2 smat-rounded" data-toggle="tab" href="#project-stat-users-tab">Users</a>
                 </li>
-                <li><a class="btn  btn-light mx-2 smat-rounded" data-toggle="tab"
+                <li><a class="btn  btn-light mx-2 smat-rounded" id="locationProjectTab" data-toggle="tab"
                         href="#project-stat-locations-tab">Locations</a>
                 </li>
-                <li><a class="btn  btn-light mx-2 smat-rounded" data-toggle="tab" href="#project-stat-tweetStats">Tweet
+                <li><a class="btn  btn-light mx-2 smat-rounded" data-toggle="tab" href="#project-stat-tweetStats"
+                        id="tweet-stats-tab-btn">Tweet
                         Statistics</a>
+                </li>
+                <li><a class="btn  btn-light mx-2 smat-rounded" data-toggle="tab" href="#project-stories"
+                        id="project-stories-btn">Stories</a>
                 </li>
             </ul>
 
@@ -91,13 +102,13 @@
                             </div>
                         </div>
                     </div>
-                    <div id="project-stat-locations" style="height:300px;">
+                    <div id="project-stat-locations" style="height:500px;">
                         //Map Comes Here
                     </div>
                 </div>
                 <div id="project-stat-tweetStats" style="min-height:300px" class="tab-pane ">
                     <div class="row">
-                        <div class="col-sm-8" id="tweetStatsChart" style="min-height:300px" >
+                        <div class="col-sm-8" id="tweetStatsChart" style="min-height:300px">
                             <div></div>
 
                         </div>
@@ -171,6 +182,60 @@
 
                             </div>
 
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-sm-12">
+                            <div>
+                                <ul class="nav ">
+                                    <li class="active"><a class="btn btn-light active smat-rounded " data-toggle="tab"
+                                            href="#project-stat-tweet-frequency-tab">Tweet Frequency Distributon</a></li>
+                                    <li><a class="btn  btn-light mx-2 smat-rounded " data-toggle="tab"
+                                            href="#project-stat-tweet-sentiment-tab"
+                                            id="tweet-stats-sentiment-tab-btn">Tweet Sentiment Distribution</a>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content mt-2">
+                                    <div class="tab-pane  active" id="project-stat-tweet-frequency-tab">
+                                        <div class="d-flex">
+                                            <div id="project-stat-tweet-frequency-chart"
+                                                style="min-height:500px;width:100%;"></div>
+                                            <div class="border" id="project-stat-tweet-frequency-chart-tweets"
+                                                style="min-height:500px;display:none;">
+
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div id="project-stat-tweet-sentiment-tab" class="tab-pane" style="min-height:500px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div id="project-stories" style="min-height:300px" class="tab-pane ">
+                    <div class="mt-3">
+                        <h2 class="m-0">Stories</h2>
+                        <div class="row">
+                            {{-- <div class="col-sm-5 my-1 p-0">
+                                <div class="input-group mt-1 mx-3">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text"><i class="fa fa-search " aria-hidden="true"></i></div>
+                                    </div>
+                                    <input type="text" class="form-control border" id="searchStoryInput" placeholder="Search Story">
+                                </div>
+                            </div> --}}
+                            <div class="col-sm-3 ">
+                                <div class="mx-0 ">
+                                    <button class="btn ml-auto btn-primary my-2 createStoryBtn">+ Create Story</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2 py-2 px-3" id="storyCards">
                         </div>
                     </div>
                 </div>
@@ -320,56 +385,38 @@
 
     </div> --}}
     <div class="row">
-        <div class="col-sm-6">
-            <div class="mt-3">
-                <h2 class="m-0">Stories</h2>
-                <div class="row">
-                    <div class="col-sm-5 my-1 p-0">
-                        <div class="input-group mt-1 mx-3">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text"><i class="fa fa-search " aria-hidden="true"></i></div>
-                            </div>
-                            <input type="text" class="form-control border" id="searchStoryInput" placeholder="Search Story">
-                        </div>
-                    </div>
-                    <div class="col-sm-3 ">
-                        <div class="mx-3 ">
-                            <button class="btn ml-auto btn-primary my-2 createStoryBtn">+ Create Story</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-2 py-2 px-3" id="storyCards">
-                </div>
-            </div>
-        </div>
+        
         <div class="col-sm-6">
             <div class="d-flex  my-2">
                 <div class="mt-3">
                     <h2 class="m-0">Tweet Information</h2>
-                </div> 
+                </div>
                 <div class="d-flex ml-auto pt-3">
-                <div class="pt-1 ml-auto ">
-                   <h5> Order tweets by </h5>
-                </div>
-                <div class="mx-1">
-                    <select class="p-2" name="choice" id="tweets-project-select">
-                        <option value="retweet" selected>Re-Tweets</option>
-                        <option value="QuotedTweet" >Quoted Tweets</option>
-                        <option value="Reply">Reply Tweets</option>
-                      </select>
+                    <div class="pt-1 ml-auto ">
+                        <h5> Order tweets by </h5>
+                    </div>
+                    <div class="mx-1">
+                        <select class="p-2" name="choice" id="tweets-project-select">
+                            <option value="retweet" selected>Re-Tweets</option>
+                            <option value="QuotedTweet">Quoted Tweets</option>
+                            <option value="Reply">Reply Tweets</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            </div>
-          
+
             <div class="card card-body">
-                        <div>
-                                <h3  class="m-0" id="tweet-count-project-title">0</h3>
-                                <h5 id="tweet-type-project-title"></h5>
-                        </div>
+                <div>
+                    <h3 class="m-0" id="tweet-count-project-title">0</h3>
+                    <h5 id="tweet-type-project-title"></h5>
+                </div>
                 <div id="tweets-project" style="height:400px">
 
                 </div>
             </div>
+        </div>
+        <div class="col-sm-6">
+        
         </div>
     </div>
     <script>
@@ -382,6 +429,11 @@
     <script type="module" src="public/amcharts4/plugins/wordCloud.js"></script>
 
     <script type="module" src="public/tempJS/project/manageProject.js"></script>
+
+    <script src="public/leaflet/leaflet.js"></script>
+    <script src="public/leaflet/TileLayer.Grayscale.js"></script>
+    <script src="public/leaflet/markerCluster/leaflet.markercluster-src.js"></script>
+    <script src="public/leaflet/subgroup/leaflet.featuregroup.subgroup.js"></script>
 
 
 @endsection

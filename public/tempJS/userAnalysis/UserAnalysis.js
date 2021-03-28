@@ -8,7 +8,7 @@
 //Imports
 
 import { formulateUserSearch } from '../utilitiesJS/userSearch.js';
-import { get_tweet_location, getCompleteMap } from '../utilitiesJS/getMap.js';
+import { get_tweet_location } from '../utilitiesJS/getMap.js';
 import { getSuggestionsForUA, getUserDetails, getFreqDistDataForUA, getTweetIDsForUA, getSentiDistDataForUA, getCooccurDataForUA, addNormalSearchToDB, populateRecentSearches, getUsersFromCrawlerList } from './helper.js';
 import { getCurrentDate, getRangeType, dateProcessor, getDateInFormat, getDateRange } from '../utilitiesJS/smatDate.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
@@ -242,12 +242,10 @@ jQuery(function () {
         args = args.split(/[|]/).filter(Boolean);
 
         if (args[4] === 'hour' || args[4] === 'day') {
-            console.log("parammmmmmmmmm",SearchID, args[1], args[2], args[4], args[0]);
             getTweetIDsForUA(SearchID, args[1], args[2], args[4], args[0]).then(response => {
                 TweetsGenerator(response.data, 6, args[3], args[1], args[2], true, args[4]);
             });
         } else if (args[4] === '10sec') {
-            console.log("parammmmmmmmmm",SearchID, args[1], args[2], args[4], args[0]);
             getTweetIDsForUA(SearchID, args[1], args[2], args[4], args[0], 1).then(response => {
                 TweetsGenerator(response.data, 6, args[3], args[1], args[2], true, args[4]);
             });
@@ -323,7 +321,7 @@ const generateSuggestions = (userIDArray, div, type = null) => {
         counter++;
         if (counter === 12)
             index = 2
-        $('#' + div + '-' + index).append('<div class="suggHandles" title="' + element[1] + '"  value="' + element[0] + '"> <img src="' + element[3] + '" class="profilePicSmall UAProfilePicture" /> </div>');
+        $('#' + div + '-' + index).append('<div class="suggHandles" title="' + element.author+ '"  value="$' + element.author_id+ '"> <img src="' + element.profile_image_url_https + '" class="profilePicSmall UAProfilePicture" /> </div>');
     });
 
 }
