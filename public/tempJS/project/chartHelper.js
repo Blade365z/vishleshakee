@@ -1,4 +1,5 @@
 import { getUserDetails } from "../userAnalysis/helper.js";
+import { forwardToHistoricalAnalysis } from "../utilitiesJS/redirectionScripts.js";
 import { getDateInFormat } from '../utilitiesJS/smatDate.js';
 
 export const generateBarChartForCooccur = (query, data = null, div, option, from, to) => {
@@ -98,7 +99,7 @@ export const generateBarChartForCooccur = (query, data = null, div, option, from
 
 
 
-export const renderProjectWordCloud = (data, div) => {
+export const renderProjectWordCloud = (data, div,from,to, projectName) => {
     var chart = am4core.create(div, am4plugins_wordCloud.WordCloud);
     chart.fontFamily = "Courier New";
     var series = chart.series.push(new am4plugins_wordCloud.WordCloudSeries());
@@ -109,16 +110,27 @@ export const renderProjectWordCloud = (data, div) => {
     data.map(element => {
         tempData.push({
             tag: element[0],
-            count: Math.log(element[1]),
+            value: Math.log(element[1]),
+            count: element[1]
         })
+    });
+    series.heatRules.push({
+        "target": series.labels.template,
+        "property": "fill",
+        "min": am4core.color("#0000CC"),
+        "max": am4core.color("#CC00CC"),
+        "dataField": "value"
     });
     series.data = tempData;
     series.dataFields.word = "tag";
-    series.dataFields.value = "count";
+    series.dataFields.value = "value";
+    series.dataFields.count = "count";
     // series.maxCount = 100;
     // series.minWordLength = 2;
-    series.labels.template.tooltipText = "{word}: {value}";
-
+    series.labels.template.tooltipText = "{word}: {count}";
+    series.events.on("hit", function(ev) {
+        forwardToHistoricalAnalysis(ev.target.tooltip.dataItem.dataContext.tag,from,to,projectName)
+    });
 }
 
 export const createUserStatsForProject = (data, div) => {
@@ -128,7 +140,7 @@ export const createUserStatsForProject = (data, div) => {
     getUserDetails(userIDs).then(response => {
         let i = 0;
         response.map(user => {
-            $('#userStats').append('<div class="border p-2 m-2 text-center userCard" style="width:200px;height:100px;cursor:pointer"   value="$'+user.author_id+'"><div class="profilePictureDiv p-1 text-center mr-2"> <img src=' + user.profile_image_url_https + ' / style="height:33px;border-radius:50%;"></div><div class="font-weight-bold text-truncate">' + user.author + '</div> <div>Tweets: <b>' + counts[i] + '</b></div></div>');
+            $('#userStats').append('<div class="border p-2 m-2 text-center userCard" style="width:200px;height:100px;cursor:pointer"   value="$' + user.author_id + '"><div class="profilePictureDiv p-1 text-center mr-2"> <img src=' + user.profile_image_url_https + ' / style="height:33px;border-radius:50%;"></div><div class="font-weight-bold text-truncate">' + user.author + '</div> <div>Tweets: <b>' + counts[i] + '</b></div></div>');
             i += 1;
         })
 
@@ -139,19 +151,19 @@ export const plotDonutForStats_old = (data, div) => {
     var chart = am4core.create(div, am4charts.PieChart);
 
     let temp = [];
-    const colorDict = {1:'#33CCCC',2:'#FC5F4F',3:'#FFC060'}
-    const categoryDict = {1:'Positive' , 2 :'Negative' , 3 :'Neutral' , 11 : 'Communal & Positive' , 12 :'Communal & Negative' , 13 : 'Communal & Neutral' , 101 : 'Security & Positive', 102:'Security & Negative' , 103 :'Security & Neutral' , 111 : 'Communal & Security & Positive' , 112 :'Communal & Security & Negative' , 113:'Communal & Security & Neutral'}
-    for( let key in data){
-        if(key==='1' || key === '2'|| key ==='3')
-        temp.push({
-            category : categoryDict[key],
-            count : data[key],
-            "color": am4core.color(colorDict[key])
-        });
+    const colorDict = { 1: '#33CCCC', 2: '#FC5F4F', 3: '#FFC060' }
+    const categoryDict = { 1: 'Positive', 2: 'Negative', 3: 'Neutral', 11: 'Communal & Positive', 12: 'Communal & Negative', 13: 'Communal & Neutral', 101: 'Security & Positive', 102: 'Security & Negative', 103: 'Security & Neutral', 111: 'Communal & Security & Positive', 112: 'Communal & Security & Negative', 113: 'Communal & Security & Neutral' }
+    for (let key in data) {
+        if (key === '1' || key === '2' || key === '3')
+            temp.push({
+                category: categoryDict[key],
+                count: data[key],
+                "color": am4core.color(colorDict[key])
+            });
     }
     chart.data = temp;
     // Add data
-  
+
     // Set inner radius
     chart.innerRadius = am4core.percent(50);
 
@@ -177,19 +189,19 @@ export const plotDonutForStats = (data, div) => {
     var chart = am4core.create(div, am4charts.PieChart);
 
     let temp = [];
-    const colorDict = {1:'#33CCCC',2:'#FC5F4F',3:'#FFC060'}
-    const categoryDict = {1:'Positive' , 2 :'Negative' , 3 :'Neutral' , 11 : 'Communal & Positive' , 12 :'Communal & Negative' , 13 : 'Communal & Neutral' , 101 : 'Security & Positive', 102:'Security & Negative' , 103 :'Security & Neutral' , 111 : 'Communal & Security & Positive' , 112 :'Communal & Security & Negative' , 113:'Communal & Security & Neutral'}
-    for( let key in data){
-        if(key==='1' || key === '2'|| key ==='3')
-        temp.push({
-            category : categoryDict[key],
-            count : data[key],
-            "color": am4core.color(colorDict[key])
-        });
+    const colorDict = { 1: '#33CCCC', 2: '#FC5F4F', 3: '#FFC060' }
+    const categoryDict = { 1: 'Positive', 2: 'Negative', 3: 'Neutral', 11: 'Communal & Positive', 12: 'Communal & Negative', 13: 'Communal & Neutral', 101: 'Security & Positive', 102: 'Security & Negative', 103: 'Security & Neutral', 111: 'Communal & Security & Positive', 112: 'Communal & Security & Negative', 113: 'Communal & Security & Neutral' }
+    for (let key in data) {
+        if (key === '1' || key === '2' || key === '3')
+            temp.push({
+                category: categoryDict[key],
+                count: data[key],
+                "color": am4core.color(colorDict[key])
+            });
     }
     chart.data = temp;
     // Add data
-  
+
     // Set inner radius
     chart.innerRadius = am4core.percent(50);
 
@@ -217,7 +229,7 @@ export const generateFreqDistBarChart = (query, data = null, rangeType, div) => 
     // Add data
     var dataTemp = [];
     for (const [key, freq] of Object.entries(data['data'])) {
-      
+
         dataTemp.push({
             date: new Date(freq[0]),
             count: freq[1]
@@ -236,7 +248,7 @@ export const generateFreqDistBarChart = (query, data = null, rangeType, div) => 
     title.marginBottom = 10;
     if (rangeType == 'day')
         title.text = "Per day distribution" + '  (Click on the bars for more)';
-    else if (rangeType == 'hour'){
+    else if (rangeType == 'hour') {
         console.log(data['data']);
         title.text = "Per hour distribution for " + data['data'][0][0] + ' (Click on the bars for more)';
     }
@@ -279,18 +291,18 @@ export const generateFreqDistBarChart = (query, data = null, rangeType, div) => 
     chart.scrollbarX.background.fill = am4core.color("#4280B7");
 
     series.columns.template.events.on("hit", function (ev) {
-        $('#'+div).css('width','70%');
-        $('#'+div+'-tweets').css('display','block');
-        $('#'+div+'-tweets').css('width','30%');
+        $('#' + div).css('width', '70%');
+        $('#' + div + '-tweets').css('display', 'block');
+        $('#' + div + '-tweets').css('width', '30%');
         let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
         var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
         var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
 
         console.log(date)
-        
+
     });
     //Handling Click Events 
-  
+
 }
 
 
@@ -384,7 +396,7 @@ export const generateSentiDistBarChart = (data, query, rangeType, div) => {
             }
         });
 
-        }
+    }
 
     createAxisAndSeries("pos", "Positive", 0);
     createAxisAndSeries("neg", "Negative", 1);

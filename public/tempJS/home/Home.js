@@ -14,14 +14,14 @@ MODE LIST:
 import { getFreqDistData, getTopCooccurData, getMe, getSentiDistData, getTopData, getTweetIDsFromController } from './helper.js';
 import { generateFrequencyChart, generateSentimentChart, generateBarChart } from './chartHelper.js';
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
-import { get_tweet_location_home,getCompleteMap } from '../utilitiesJS/getMap.js';
+import { get_tweet_location_home } from '../utilitiesJS/getMap.js';
 import { makeSuggestionsReady, makeSmatReady, getRelationType } from '../utilitiesJS/smatExtras.js'
 import { getCurrentDate } from '../utilitiesJS/smatDate.js';
 import {forwardToHistoricalAnalysis, forwardToNetworkAnalysis, forwardToUserAnalysis} from '../utilitiesJS/redirectionScripts.js';
 import { checkIfAnyProjectActive} from '../project/commonFunctionsProject.js';
 
 //Global variables 
-var MODE = '000', interval = 900, query = '';
+var interval = 900, query = '';
 const publicAnalysisResultDiv = 'result-div';
 const publicAnalysisResultDivTitle = 'result-div-title';
 const publicAnalysisResultDivSubTitle = 'result-div-subtitle';
@@ -32,10 +32,10 @@ const categoryColor = { 'normal': 'text-normal', 'com': 'text-com', 'sec': 'text
 var date = getCurrentDate();
 var TopTrendingData;
 var userID=null;
-_MODE='HOME';
+
 jQuery(function () {
 
-  //   
+//   
 
 
   $('[data-toggle="popover"]').popover(); //Initalizing popovers

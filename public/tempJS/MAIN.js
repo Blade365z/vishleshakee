@@ -4,13 +4,13 @@ import { getCurrentDate } from "./utilitiesJS/smatDate.js";
 import { displayErrorMsg } from "./utilitiesJS/smatExtras.js";
 var _PROJECTID = null;
 
-getMe().then(id=>{
+getMe().then(id => {
     populateProjectsForUser(id)
 });
 
 if (localStorage.getItem('sideBarState')) {
     let state = localStorage.getItem('sideBarState');
-    if(state === 'show')
+    if (state === 'show')
         $('#wrapper').toggleClass('toggled');
 } else {
     localStorage.setItem('sideBarState', 'show')
@@ -47,9 +47,8 @@ const checkIfNotificationSeen = () => {
 };
 checkIfNotificationSeen();
 
-if (_MODE !== 'HOME' && _MODE !== 'PROJECT') {
+if (!window.location.pathname.includes('home') && !window.location.pathname.includes('story')) {
     if (localStorage.getItem('projectMetaData')) {
-
         let metaData = JSON.parse(localStorage.getItem('projectMetaData'));
         $('#projNav').fadeIn('slow')
         _PROJECTID = metaData['projectMetaData']['project_id'];
@@ -282,7 +281,7 @@ function populateProjectsForUser(userID) {
     }
     let createStoryBtnDOM = ''
     getAllProject(userID).then(res => {
-        $('#numOfProjects').text(res.length )
+        $('#numOfProjects').text(res.length)
         if (!res) {
             $('#projectsDiv').css('display', 'none');
             $("#projects-created").html('<div class="mx-3">No projects created</div>')
@@ -299,5 +298,5 @@ function populateProjectsForUser(userID) {
 
 $('body').on('click', '.project-list-item', function () {
     let id = $(this).attr('value');
-    window.location.href=`project?projectID=${id}`;
+    window.location.href = `project?projectID=${id}`;
 })

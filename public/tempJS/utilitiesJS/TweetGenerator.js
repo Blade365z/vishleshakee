@@ -143,7 +143,6 @@ export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysis
 
 	$('#' + div).html("");
 	tweetData.forEach(tweet => {
-		console.log(tweet)
 		let tweetTypeCountDOM ='';
 		
 		if(tweetCountMap && tweetCountMap[tweet.tid]){
@@ -176,7 +175,7 @@ export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysis
 		confidenceScore = confidenceScore.toFixed(2) * 100;
 
 
-		category = (tweet.category == 'normal') ? 'Normal' : ((tweet.category == 'sec') ? 'Security' : ((tweet.category == 'com') ? 'Communal' : 'Communal & Security'));
+		category = (tweet.category == 'normal') ? '' : ((tweet.category == 'sec') ? 'Security' : ((tweet.category == 'com') ? 'Communal' : 'Communal & Security'));
 		if (tweet.sentiment === 0) {
 			sentiment = 'Postive';
 			senticlass = 'pos'
@@ -194,7 +193,7 @@ export const generate_tweets_div = (tweetData, div, dropDownArg = true, analysis
 
 
 
-		$('#' + div).append('<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '"   tweet_id="' + tweet.tid + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> ' + feedback + '</div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet_text + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details"> <span>  ' + tweet.datetime + '  &nbsp </span> <span>' + location + '</span> &nbsp ' + analysisBtn + '    </div>  <div class="d-flex"> <div class="mt-2  ml-auto"> '+tweetTypeCountDOM+'  <div >Category: <b>' + category + '</b> </div>  <div> Sentiment:  <b>' + sentiment + '</b> (' + confidenceScore + '% )   </div>  </div> </div> </div>');
+		$('#' + div).append('<div class="border  p-2 "><div class="d-flex"><div class="profilePictureDiv p-1 text-center mr-2"><img src="' + tweet.author_profile_image + '" style="height:33px;border-radius:50%" /></div><div> <p class="pt-1 m-0 font-weight-bold username"   value="' + tweet.author_id + '"   tweet_id="' + tweet.tid + '" >' + tweet.author + ' </p><p class="smat-dash-title pull-text-top m-0 "> @' + tweet.author_screen_name + ' </p></div> ' + feedback + '</div>  <div style="width:80%;"><p class="smat-tweet-body-text mb-1 filter_text">' + tweet.tweet_text + '</p></div><div id="" class="row d-flex justify-content-center tweet_media_body_' + tweet['tid'] + '" ></div><div class="d-flex"><p class="m-0 tweet-details"> <span>  ' + tweet.datetime + '  &nbsp </span> <span>' + location + '</span> &nbsp ' + analysisBtn + '    </div>  <div class="d-flex"> <div class="mt-2  ml-auto"> '+tweetTypeCountDOM+'  <div > <b>' + category + '</b> </div>  <div> Sentiment:  <b>' + sentiment + '</b> with ' + confidenceScore + '% confidence</div>  </div> </div> </div>');
 
 
 

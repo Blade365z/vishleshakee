@@ -85,6 +85,8 @@ cursor: pointer;
 .space-element{
     min-height:30px;
     cursor: pointer;
+    border:1px dotted;
+    opacity: 0.1;
 }
 .space-element:hover{
    background-color: rgb(230, 230, 230);

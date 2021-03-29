@@ -12,7 +12,7 @@ let storyDescription = '';
 jQuery(async () => {
     UserId = await getMe().then(id => id);
     // setupStoryView();
-    if (storyID !== 'null') {
+    if (storyID !== 'null') { 
         getStoryObjFromServer(projectID, storyID, UserId).then(res => {
             $('#storyTitle').html('<h5>Modify your story ' + res.storyName + '</h5>')
             if (res.error) {
@@ -57,14 +57,14 @@ const renderElementsToStoryDiv = (offset, ID, type, imgObj = null, text = null, 
     }
     if (type === "section") {
         $("#" + storyMakerDiv).append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   ><div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-' + style.align + '"  value="' + text + '" readonly  /></div></div>'
+            '<div  class="smat-story-element-main bg-white  col-sm-10 p-0 offset-md-1 "  value="' + offset + '"  id="' + ID + '" type="' + type + '"   ><div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-' + style.align + '"  value="' + text + '" readonly  /></div></div>'
         );
         $('#' + ID + ' .story-input').focus();
 
     }
     if (type === "description") {
         $("#" + storyMakerDiv).append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   ><div  class="smat-story-element"  key="' + ID + '"  ><p class="m-0 story-description-view text-justify "   id="' + ID + '-VIEW" key="' + ID + '">  ' + text + ' </p></div></div>'
+            '<div  class="smat-story-element-main bg-white  col-sm-10 p-0 offset-md-1"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   ><div  class="smat-story-element"  key="' + ID + '"  ><p class="m-0 story-description-view text-' + style.align + '"   id="' + ID + '-VIEW" key="' + ID + '">  ' + text + ' </p></div></div>'
         );
         $('#' + ID + ' .story-description-input').focus();
         let innerHeight = $('#' + ID + '-VIEW').height();

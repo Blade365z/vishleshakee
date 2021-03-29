@@ -26,6 +26,9 @@
                 <li><a class="btn  btn-light mx-2 smat-rounded " data-toggle="tab"
                         href="#project-stat-mentions-tab">Mentions</a>
                 </li>
+                <li><a class="btn  btn-light mx-2 smat-rounded " data-toggle="tab"
+                        href="#project-tweets-tab">Tweets</a>
+                </li>
                 <li><a class="btn  btn-light mx-2 smat-rounded" data-toggle="tab" href="#project-stat-users-tab">Users</a>
                 </li>
                 <li><a class="btn  btn-light mx-2 smat-rounded" id="locationProjectTab" data-toggle="tab"
@@ -38,6 +41,8 @@
                 <li><a class="btn  btn-light mx-2 smat-rounded" data-toggle="tab" href="#project-stories"
                         id="project-stories-btn">Stories</a>
                 </li>
+
+
             </ul>
 
             <div class="tab-content mt-2">
@@ -49,12 +54,12 @@
                         </div>
                         <div class="col-sm-2">
                             <div class="ml-auto">
-                                <h1 class="m-0 " style="font-size:2.8em;" id="hashtag-count">0</h1>
+                                <h1 class="m-0 hashtag-count" style="font-size:2.8em;" id="">0</h1>
                                 <h5 class="text-dark m-0">Hashtags</h5>
                             </div>
                         </div>
                     </div>
-                    <div id="project-stat-hashtags" style="height:300px;">
+                    <div id="project-stat-hashtags" style="height:400px;">
                     </div>
                 </div>
                 <div id="project-stat-mentions-tab" class="tab-pane ">
@@ -65,12 +70,43 @@
                         </div>
                         <div class="col-sm-2">
                             <div class="ml-auto">
-                                <h1 class="m-0 " style="font-size:2.8em;" id="mention-count">0</h1>
+                                <h1 class="m-0 mention-count" style="font-size:2.8em;" id="">0</h1>
                                 <h5 class="text-dark m-0">Mentions</h5>
                             </div>
                         </div>
                     </div>
-                    <div id="project-stat-mentions" style="height:300px;">
+                    <div id="project-stat-mentions" style="height:400px;">
+                    </div>
+                </div>
+                <div id="project-tweets-tab" class="tab-pane ">
+                    <div class="col-sm-6 border offset-md-3 my-3">
+                        <div class="d-flex  my-2">
+                            <div class="mt-3">
+                                <h2 class="m-0">Tweet Information</h2>
+                            </div>
+                            <div class="d-flex ml-auto pt-3">
+                                <div class="pt-1 ml-auto ">
+                                    <h5> Order tweets by </h5>
+                                </div>
+                                <div class="mx-1">
+                                    <select class="p-2" name="choice" id="tweets-project-select">
+                                        <option value="retweet" selected>Re-Tweets</option>
+                                        <option value="QuotedTweet">Quoted Tweets</option>
+                                        <option value="Reply">Reply Tweets</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <div class="card card-body">
+                            <div>
+                                <h3 class="m-0" id="tweet-count-project-title">0</h3>
+                                <h5 id="tweet-type-project-title"></h5>
+                            </div>
+                            <div id="tweets-project" style="height:400px">
+            
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div id="project-stat-users-tab" style="height:400px;" class="tab-pane ">
@@ -81,12 +117,12 @@
                         </div>
                         <div class="col-sm-2">
                             <div class="ml-auto">
-                                <h1 class="m-0 " style="font-size:2.8em;" id="user-count">0</h1>
+                                <h1 class="m-0 user-count" style="font-size:2.8em;" id="">0</h1>
                                 <h5 class="text-dark m-0">Users</h5>
                             </div>
                         </div>
                     </div>
-                    <div id="project-stat-users" style="height:300px;">
+                    <div id="project-stat-users" style="height:400px;">
                     </div>
                 </div>
                 <div id="project-stat-locations-tab" class="tab-pane ">
@@ -97,7 +133,7 @@
                         </div>
                         <div class="col-sm-2">
                             <div class="ml-auto">
-                                <h1 class="m-0 " style="font-size:2.8em;" id="location-count">0</h1>
+                                <h1 class="m-0 location-count" style="font-size:2.8em;" id="">0</h1>
                                 <h5 class="text-dark m-0">Locations</h5>
                             </div>
                         </div>
@@ -108,82 +144,157 @@
                 </div>
                 <div id="project-stat-tweetStats" style="min-height:300px" class="tab-pane ">
                     <div class="row">
-                        <div class="col-sm-8" id="tweetStatsChart" style="min-height:300px">
-                            <div></div>
+                        <div class="col-sm-9" style="">
+                                <div id="tweetStatsChart" style="min-height:300px">
+
+                                </div>
+                              
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="m-2">
+                                <h3 class="m-0  " style="font-size:2em;" id="totalTweets">0</h3>
+                                <h6 class="text-dark m-0">Number Of Tweets</h6>
+                            </div>
+                            <div class="m-2">
+                                <h3 class="m-0   hashtag-count" style="font-size:2em;" id="">0</h3>
+                                <h6 class="text-dark m-0">Number Of Hashtags</h6>
+                            </div>
+                            <div class="m-2">
+                                <h1 class="m-0 mention-count" style="font-size:2em;" id="">0</h1>
+                                <h6 class="text-dark m-0">Number Of Mentions</h6>
+                            </div>
+                            <div class="m-2">
+                                <h1 class="m-0   user-count" style="font-size:2em;" id="">0</h1>
+                                <h6 class="text-dark m-0">Number Of Users</h6>
+                            </div>
+                            <div class="m-2">
+                                <h1 class="m-0   location-count" style="font-size:2em;" id="">0</h1>
+                                <h6 class="text-dark m-0">Number Of Locations</h6>
+                            </div>
 
                         </div>
-                        <div class="col-sm-4">
+                       
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
                             <div>
-                                <h1 class="m-0 " style="font-size:3.5em;" id="totalTweets">0</h1>
-                            </div>
-                            <div>
-                                <h5>Tweets</h5>
-                            </div>
-                            <div>
-                                <table class="table table-borderless">
+                                <table class="table border ">
                                     <thead>
                                         <tr>
-                                            <th class="p-0" scope="col">Category/Sentiment</th>
-                                            <th class="p-0" scope="col">Count</th>
+                                            <th  scope="col">Tweets</th>
+                                            <th  scope="col">Count</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="p-0">Positive</td>
-                                            <td class="p-0" id="pos">0</td>
+                                            <td>Positive</td>
+                                            <td  id="pos">0</td>
                                         </tr>
                                         <tr>
-                                            <td class="p-0">Negative</td>
-                                            <td class="p-0" id="neg">0</td>
+                                            <td >Negative</td>
+                                            <td  id="neg">0</td>
                                         </tr>
                                         <tr>
-                                            <td class="p-0">Neutral</td>
-                                            <td class="p-0" id="neu">0</td>
+                                            <td >Neutral</td>
+                                            <td  id="neu">0</td>
                                         </tr>
-                                        {{-- <tr>
-                                            <td class="p-0">Communal & Positive</td>
-                                            <td class="p-0" id="com-pos">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Communal & Negative</td>
-                                            <td class="p-0" id="com-neg">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Communal & Neutral</td>
-                                            <td class="p-0" id="com-neu">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Security & Positive</td>
-                                            <td class="p-0" id="sec-pos">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Security & Negative</td>
-                                            <td class="p-0" id="sec-neg">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Security & Neutral</td>
-                                            <td class="p-0" id="sec-neu">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Communal & Security & Positive</td>
-                                            <td class="p-0" id="comSecCount-pos">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Communal & Security & Negative</td>
-                                            <td class="p-0" id="comSecCount-neg">0</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="p-0">Communal & Security & Neutral</td>
-                                            <td class="p-0" id="comSecCount-neu">0</td>
-                                        </tr> --}}
-
+                                                      
                                     </tbody>
                                 </table>
 
                             </div>
 
                         </div>
-                    </div>
+                        <div class="col-sm-3">
+                            <div>
+                                <table class="table border ">
+                                    <thead>
+                                        <tr>
+                                            <th  scope="col">Communal Tweets</th>
+                                            <th  scope="col">Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                            <td >Communal & Positive</td>
+                                            <td id="com-pos">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td >Communal & Negative</td>
+                                            <td  id="com-neg">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Communal & Neutral</td>
+                                            <td id="com-neu">0</td>
+                                        </tr>
+                                   
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div>
+                                <table class="table border ">
+                                    <thead>
+                                        <tr>
+                                            <th  scope="col">Security Tweets</th>
+                                            <th  scope="col">Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                                                                           
+                                        <tr>
+                                            <td>Security & Positive</td>
+                                            <td  id="sec-pos">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td >Security & Negative</td>
+                                            <td  id="sec-neg">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td >Security & Neutral</td>
+                                            <td  id="sec-neu">0</td>
+                                        </tr>
+                                    
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+
+                        </div>
+                        <div class="col-sm-3">
+
+                            <div>
+                                <table class="table border ">
+                                    <thead>
+                                        <tr>
+                                            <th  scope="col">Communal & Security Tweets</th>
+                                            <th  scope="col">Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                  <tr>
+                                            <td >Communal & Security & Positive</td>
+                                            <td  id="comSecCount-pos">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Communal & Security & Negative</td>
+                                            <td  id="comSecCount-neg">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td >Communal & Security & Neutral</td>
+                                            <td  id="comSecCount-neu">0</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                </div>
                     <div class="row mt-2">
                         <div class="col-sm-12">
                             <div>
@@ -386,35 +497,7 @@
     </div> --}}
     <div class="row">
         
-        <div class="col-sm-6">
-            <div class="d-flex  my-2">
-                <div class="mt-3">
-                    <h2 class="m-0">Tweet Information</h2>
-                </div>
-                <div class="d-flex ml-auto pt-3">
-                    <div class="pt-1 ml-auto ">
-                        <h5> Order tweets by </h5>
-                    </div>
-                    <div class="mx-1">
-                        <select class="p-2" name="choice" id="tweets-project-select">
-                            <option value="retweet" selected>Re-Tweets</option>
-                            <option value="QuotedTweet">Quoted Tweets</option>
-                            <option value="Reply">Reply Tweets</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card card-body">
-                <div>
-                    <h3 class="m-0" id="tweet-count-project-title">0</h3>
-                    <h5 id="tweet-type-project-title"></h5>
-                </div>
-                <div id="tweets-project" style="height:400px">
-
-                </div>
-            </div>
-        </div>
+      
         <div class="col-sm-6">
         
         </div>

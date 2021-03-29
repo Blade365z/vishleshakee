@@ -38,11 +38,11 @@ if (!projectID) {
             fetchStoriesOfProject(projectID, 'storyCards', userID);
             getAllTagsForSHOW(projectID, userID, 'hashtag').then(response => {
                 response = response.slice(0, 150);
-                renderProjectWordCloud(response, 'project-stat-hashtags')
+                renderProjectWordCloud(response, 'project-stat-hashtags',from,to,projectName)
             });
             getAllTagsForSHOW(projectID, userID, 'mention').then(response => {
                 response = response.slice(0, 150);
-                renderProjectWordCloud(response, 'project-stat-mentions')
+                renderProjectWordCloud(response, 'project-stat-mentions',from,to,projectName)
             });
             getAllTagsForSHOW(projectID, userID, 'user').then(response => {
                 response = response.slice(0, 150);
@@ -52,11 +52,11 @@ if (!projectID) {
              
             });
             getTokenCountForProject(projectID, userID, 'token').then(res => {
-                $('#hashtag-count').text(res.hashtag);
-                $('#user-count').text(res.user);
-                $('#mention-count').text(res.mentions);
-                $('#location-count').text(res.location);
-                $('#keyword-count').text(res.keyword);
+                $('.hashtag-count').text(res.hashtag);
+                $('.user-count').text(res.user);
+                $('.mention-count').text(res.mentions);
+                $('.location-count').text(res.location);
+                $('.keyword-count').text(res.keyword);
             });
             getTokenCountForProject(projectID, userID, 'tweet').then(res => {
                 // mala

@@ -1,0 +1,41 @@
+
+.story-input {
+    border: 0px !important;
+    outline: none;
+}
+.story-description-input, .story-description-view{
+    font-size: 16px;
+    border: 0px !important;
+    outline: none;
+}
+.boxsizingBorder {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+.titleStory{
+    margin-top: 10%;
+    font-size: 2em;
+    font-weight:bold;
+    width:100%;
+}
+.sectionStory{
+    font-size: 1.5em;
+}
+
+#storyMakerDiv textarea {
+    resize: none;
+    overflow: hidden;
+    height:30px;
+}
+
+.description{
+    font-size:1em;
+    margin-top:-3px;
+    width:100%;
+}
+
+.space-element{
+    min-height:30px;
+    cursor: pointer;
+}

@@ -8,7 +8,7 @@
             </div>
         </div>
         <div class="col-md-4 text-right">
-            <button class="btn btn-primary smat-rounded" id="deactivateProject" > Deactive project</button>
+            <button class="btn btn-primary smat-rounded" id="deactivateProject" ><i class="fas fa-times mr-2"></i>Exit project</button>
         </div>
     </div>
 </div>

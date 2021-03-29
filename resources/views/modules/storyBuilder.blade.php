@@ -14,11 +14,13 @@
 
     </div>
     <div class="confirmPanelCollapse storyDiv">
-        <div>
-           <h3> Project: <span id="projectName"> </span> </h3>
-        </div>
+        
         <div class="row mt-3   " id="">
-            <div class="col-sm-10 ">
+            
+            <div class="col-sm-10 offset-md-1 ">
+                <div>
+                    <h3> Project: <span class="font-weight-bold" id="projectName"> </span> </h3>
+                 </div>
                 <div class=" text-dark" id="storyTitle">
                     <h5>Create a new story</h5>
                 </div>
@@ -33,13 +35,11 @@
                         </div>
                     </div>
                     <div class="col-sm-5">
-                        <div class="d-flex mt-3" id="saveDownloadOptionStory">
+                        {{-- <div class="d-flex mt-3" id="saveDownloadOptionStory">
                             <button class="btn btn-primary smat-rounded mr-2" id="download-pdf"><i
                                     class="fa fa-download mr-1" aria-hidden="true"></i> Export story as pdf</button>
-                            <button class="btn btn-primary smat-rounded" id="saveStorybtnStory"><i
-                                    class="fas fa-save mr-1"></i>
-                                Save Story</button>
-                        </div>
+                      
+                        </div> --}}
                     </div>
                 </div>
 
@@ -73,7 +73,6 @@
                                   </div>
                             </div>
                             <div class="nav-item mx-1">
-                               
                                     <button class="btn btn-primary " type="button" id="insertImageBtn" aria-haspopup="true" aria-expanded="false">
                                         <i class="fas fa-images mr-2"></i> Insert Image
                                     </button>
@@ -90,6 +89,11 @@
                                 <i class="fas fa-external-link-alt mr-2"></i>
                                 See Result
                             </button>
+                    </div>
+                    <div class="nav-item ml-2">
+                        <button class="btn btn-success " id="saveStorybtnStory"><i
+                            class="fas fa-save mr-1"></i>
+                        Save Story</button>
                     </div>
                         </div>
                     </nav>

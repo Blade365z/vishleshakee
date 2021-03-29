@@ -25,7 +25,7 @@ jQuery(async () => {
                 $('#storyName').val(res.storyName);
                 $('#storyDescription').val(res.storyDescription);
                 storyNameInput = res.storyName;
-                storyElements = res.elements;
+                storyElements = res.elements;   
                 storyDescription = res.storyDescription;
                 let i = 0
                 $('#storyMakerDiv').html('');
@@ -86,27 +86,27 @@ const renderElementsToStoryDiv = (offset, ID, type, imgObj = null, text = null, 
     } : style
     const resizableDOM = type === 'image' ? '<div class="form-group m-2"><div class="row"><div class="col-md-3"><div><label class="m-0">Image Height</label></div><input class="imageSize"  type="number" placeholder="Enter height of the image"   value="' + imgObj.height + '" sizeType="height" /></div><div class="col-md-3"><div><label class="m-0">Image Width</label></div><input class="imageSize"  type="number" placeholder="Enter width of the image" value="' + imgObj.width + '" sizeType="width"/></div></div></div>' : '';
 
-    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offset + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white deleteElement " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="left" title="Algin Left"><i class="fas fa-align-left"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="center" title="Algin Center"><i class="fas fa-align-center"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="right" title="Algin Right"><i class="fas fa-align-right"></i></div><div></div> ' + resizableDOM + '</div>  ';
+    const storyBoradOptions = '<div class=" p-1 my-2 storyBoardOptions" id="' + offset + "-" + type + '-options" style="display:none; "><div class="py-1 px-2 storyOptions btn bg-danger  mx-1 text-white deleteElement " title="Delete Element"><i class="fas fa-trash-alt"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="left" title="Algin Left"><i class="fas fa-align-left"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="center" title="Algin Center"><i class="fas fa-align-center"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="right" title="Algin Right"><i class="fas fa-align-right"></i></div><div class="py-1 px-2 storyOptions btn bg-dark  mx-1 text-white alignTextStory" value="justify" title="Align Justify"><i class="fas fa-align-justify"></i></div><div></div> ' + resizableDOM + '</div>  ';
     if (text == null) {
         text = type.toUpperCase();
     }
     if (type === "title") {
         $("#" + storyMakerDiv).append(
-            '<div class="smat-story-element-main bg-white"   value="' + offset + '" id="' + ID + '"   type="' + type + '"  style="margin-bottom:-8px">' + storyBoradOptions + '<div class="text-center  smat-story-element" ><input class="from-control  story-input titleStory text-' + style.align + '" value="' + text + '"/></div></div>'
+            '<div class="smat-story-element-main bg-white "   value="' + offset + '" id="' + ID + '"   type="' + type + '"  style="margin-bottom:-8px">' + storyBoradOptions + '<div class="text-center  smat-story-element" ><input class="from-control  story-input titleStory text-' + style.align + '" value="' + text + '"/></div></div>'
         );
         $('#' + ID + ' .story-input').focus();
 
     }
     if (type === "section") {
         $("#storyMakerDiv").append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-' + style.align + '"  value="' + text + '"  /></div></div>'
+            '<div  class="smat-story-element-main bg-white col-sm-10 p-0 offset-md-1"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  ><input class=" sectionStory  w-100  story-input  text-' + style.align + '"  value="' + text + '"  /></div></div>'
         );
         $('#' + ID + ' .story-input').focus();
 
     }
     if (type === "description") {
         $("#storyMakerDiv").append(
-            '<div  class="smat-story-element-main bg-white"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  key="' + ID + '"  ><p class="m-0 story-description-view text-'+style.align+' "   id="' + ID + '-VIEW" key="' + ID + '">  ' + text + ' </p><textarea class="w-100  story-description-input  text-justify   " value="Description"  id="' + ID + '-EDIT" key="' + ID + '" style="display:none;min-height:30px;"  >' + text + '</textarea></div></div>'
+            '<div  class="smat-story-element-main bg-white col-sm-10 p-0 offset-md-1"  value="' + offset + '"  id="' + ID + '" type="' + type + '"   >' + storyBoradOptions + '<div  class="smat-story-element"  key="' + ID + '"  ><p class="m-0 story-description-view  text-' + style.align + '"   id="' + ID + '-VIEW" key="' + ID + '">  ' + text + ' </p><textarea class="w-100  story-description-input  text-justify   " value="Description"  id="' + ID + '-EDIT" key="' + ID + '" style="display:none;min-height:30px;"  >' + text + '</textarea></div></div>'
         );
         $('#' + ID + ' .story-description-input').focus();
         let innerHeight = $('#' + ID + '-VIEW').height();

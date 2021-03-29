@@ -1,6 +1,6 @@
 <link href="public/css/app.css" rel="stylesheet">
 <link href="public/font-awesome/css/all.css" rel="stylesheet">
-<link href="public/tempCSS/story.css" rel="stylesheet" />
+<link href="public/tempCSS/storyViewer.css" rel="stylesheet" />
 
 <script src="public/js/app.js"></script>
 <style>
@@ -18,7 +18,7 @@ body {
     var projectID = @json($projectID ?? '');
     var storyID = @json($storyID ?? '');
 </script>
-    <div class="story-container">
+    <div class="container">
         <div id="storyViewer">
 
         </div>
