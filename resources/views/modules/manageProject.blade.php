@@ -312,10 +312,13 @@
                                         <div class="d-flex">
                                             <div id="project-stat-tweet-frequency-chart"
                                                 style="min-height:500px;width:100%;"></div>
-                                            <div class="border" id="project-stat-tweet-frequency-chart-tweets"
-                                                style="min-height:500px;display:none;">
+                                            <div class="border"
+                                               style="display:none;">
+                                                <div class="ml-auto closeTweets" title="close">close <i class="fas fa-times"></i> </div>
 
+                                                    <div  id="project-stat-tweet-frequency-chart-tweets"  style="min-height:500px">
 
+                                                    </div>
                                             </div>
                                         </div>
 

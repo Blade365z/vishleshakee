@@ -1,7 +1,7 @@
 import { tweetResults} from '../utilitiesJS/getMap.js';
 import { getMe } from "../home/helper.js";
 import { TweetsGenerator } from "../utilitiesJS/TweetGenerator.js";
-import { generateBarChartForCooccur, renderProjectWordCloud, createUserStatsForProject, plotDonutForStats, generateFreqDistBarChart, generateSentiDistBarChart } from "./chartHelper.js";
+import { generateBarChartForCooccur, renderProjectWordCloud, createUserStatsForProject, plotDonutForStats, generateFreqDistBarChart, generateSentiDistBarChart, generateSentiDistLineChart } from "./chartHelper.js";
 import { getLocationForProject,getAllTagsForSHOW, getProjectName, getStoriesOfUserFromServer, getTokenCountForProject, getTweetFrequencyData, getTweetSentimentData, getTweetsForProject } from "./helper.js"
 import { getProjectDetailsFromLocalStorage} from '../project/commonFunctionsProject.js';
 import { forwardToUserAnalysis } from '../utilitiesJS/redirectionScripts.js';
@@ -137,14 +137,30 @@ $('#locationProjectTab').on('click',function(){
 $('#tweet-stats-tab-btn').on('click',function(){
     $('#project-stat-tweet-frequency-chart').html('<div class="text-center  smat-loader"  id="alertBoxLoader"><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     getTweetFrequencyData(projectName,from,to).then(res=>{
-        generateFreqDistBarChart(null,res,'day','project-stat-tweet-frequency-chart')
+        generateFreqDistBarChart(null,res,'day','project-stat-tweet-frequency-chart',projectName)
     });
 });
+$('body').on('click','.closeTweets',function(){
+    $("#project-stat-tweet-frequency-chart-tweets").parent().toggle();
+    $('#project-stat-tweet-frequency-chart').css('width', '100%');
+})
+var SENTIMENTDATA =null
 $('#tweet-stats-sentiment-tab-btn').on('click',function(){
     $('#project-stat-tweet-sentiment-tab').html('<div class="text-center  smat-loader"  id="alertBoxLoader"><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     getTweetSentimentData(projectName,from,to).then(res=>{
-        generateSentiDistBarChart(res,null,'day','project-stat-tweet-sentiment-tab');
+        SENTIMENTDATA = res;
+        $('#project-stat-tweet-sentiment-tab').html('<div class="d-flex"><div class="ml-auto">Chart Type: <select class="p-1 mb-1 sentiment-chart-select" ><option class="dropdown-item" value="bar">Bar Chart</option><option class="dropdown-item" value="line">Line Chart</option></select></div></div><div id="sentimentChart" style="height:500px"></div>')
+        generateSentiDistBarChart(res,null,'day','sentimentChart');
     })
+})
+
+$('body').on('change','.sentiment-chart-select',function(e){
+    let type=e.target.value;
+    if(type==='line'){
+        generateSentiDistLineChart(SENTIMENTDATA,null,'day','sentimentChart');
+    }else{
+        generateSentiDistBarChart(SENTIMENTDATA,null,'day','sentimentChart')
+    }
 })
 var STORIES = null;
 function fetchStoriesOfProject(projectID, div, userID) {

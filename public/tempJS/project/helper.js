@@ -426,3 +426,16 @@ export const getLocationForProject =  async (projectID,userID) =>{
     let data = await response.json();
     return data;
 }
+
+
+export const getTweetsForFreq =  async (from,to,pname,filter_type) => {
+    let response = await fetch('getTweetidListProject',{
+        method: 'post', //http method
+        headers: HeadersForApi,
+        body: JSON.stringify({
+            from,to,pname,filter_type
+        })
+    });
+    let data = await response.json();
+    return data;
+}

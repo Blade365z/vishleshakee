@@ -22,7 +22,6 @@ export const TweetsGenerator = (data_list, max_per_page, chart_draw_div_id, from
 	}else{
 		tweetCountMap=null;
 	}
-	console.log("tweet_info1", pname);
 	var tweetDiv = chart_draw_div_id + '_tweets';
 	let parentHeight = $('#' + chart_draw_div_id).height();
 
@@ -33,8 +32,7 @@ export const TweetsGenerator = (data_list, max_per_page, chart_draw_div_id, from
 		title = '<small class="  d-flex">Tweets from: ' + fromDate + ' to ' + toDate + ' &nbsp ' + '   </small>';
 		heightOffset = 60;
 	}
-
-	if (filterOptions) {
+	if (filterOptions===true) {
 		filterOptions = '<div class="btn-group pull-text-top ml-auto"><button type="button"\
 				class="btn btn-white smat-rounded dropdown-toggle text-normal" data-toggle="dropdown"\
 				aria-haspopup="true" aria-expanded="false">Filter Tweets</button>\

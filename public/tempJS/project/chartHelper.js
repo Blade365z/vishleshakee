@@ -1,6 +1,8 @@
 import { getUserDetails } from "../userAnalysis/helper.js";
 import { forwardToHistoricalAnalysis } from "../utilitiesJS/redirectionScripts.js";
 import { getDateInFormat } from '../utilitiesJS/smatDate.js';
+import { TweetsGenerator } from "../utilitiesJS/TweetGenerator.js";
+import { getTweetsForFreq } from "./helper.js";
 
 export const generateBarChartForCooccur = (query, data = null, div, option, from, to) => {
     var chart = am4core.create(div, am4charts.XYChart);
@@ -34,9 +36,6 @@ export const generateBarChartForCooccur = (query, data = null, div, option, from
 
         return chartData;
     }
-
-
-
 
 
     //create category axis for names
@@ -99,40 +98,153 @@ export const generateBarChartForCooccur = (query, data = null, div, option, from
 
 
 
-export const renderProjectWordCloud = (data, div,from,to, projectName) => {
+const colorMap = { com: '#ff0055', sec: '#3D3D3D', com_sec: '#FF00FF', normal: '#297EB4' };
+export const renderProjectWordCloud = (data, div, from, to, projectName) => {
     var chart = am4core.create(div, am4plugins_wordCloud.WordCloud);
     chart.fontFamily = "Courier New";
     var series = chart.series.push(new am4plugins_wordCloud.WordCloudSeries());
     series.randomness = 0.1;
     series.rotationThreshold = 0.5;
     let tempData = [];
-
     data.map(element => {
         tempData.push({
             tag: element[0],
             value: Math.log(element[1]),
-            count: element[1]
+            count: element[1],
+            color: colorMap[element[2]],
+            category: (element[2] == 'normal') ? '' : ((element[2] == 'sec') ? ', Security' : ((element[2] == 'com') ? ', Communal' : ', Communal & Security'))
         })
     });
-    series.heatRules.push({
-        "target": series.labels.template,
-        "property": "fill",
-        "min": am4core.color("#0000CC"),
-        "max": am4core.color("#CC00CC"),
-        "dataField": "value"
-    });
+    series.labels.template.propertyFields.fill = "color";
     series.data = tempData;
     series.dataFields.word = "tag";
     series.dataFields.value = "value";
+    series.dataFields.category = "category";
     series.dataFields.count = "count";
     // series.maxCount = 100;
     // series.minWordLength = 2;
-    series.labels.template.tooltipText = "{word}: {count}";
-    series.events.on("hit", function(ev) {
-        forwardToHistoricalAnalysis(ev.target.tooltip.dataItem.dataContext.tag,from,to,projectName)
+    series.labels.template.tooltipText = "{word}: {count} {category}";
+    series.events.on("hit", function (ev) {
+        forwardToHistoricalAnalysis(ev.target.tooltip.dataItem.dataContext.tag, from, to, projectName)
     });
 }
 
+export const generateSentiDistLineChart = (data = null, query, rangeType, div) => {
+    am4core.ready(function () {
+        am4core.useTheme(am4themes_animated);
+        var chart = am4core.create(div, am4charts.XYChart);
+        // Increase contrast by taking evey second color
+        chart.colors.list = [
+            am4core.color("#33CCCC"), //pos
+            am4core.color("#FC5F4F"), //neg
+            am4core.color("#FFC060") //neu
+        ];
+
+        // Add dataclearInterval(interval_for_freq_dis_trend_analysis);
+        var dataTemp = [];
+        for (const [key, senti] of Object.entries(data['data'])) {
+            dataTemp.push({
+                date: new Date(senti[0]),
+                pos: parseInt(senti[1]),
+                neg: parseInt(senti[2]),
+                neu: parseInt(senti[3])
+            });
+        }
+        chart.data = dataTemp;
+
+        chart.responsive.enabled = true;
+
+        // Create axes
+        var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        dateAxis.renderer.minGridDistance = 50;
+        if (rangeType == 'day') {
+            dateAxis.title.text = "Date";
+            dateAxis.tooltipDateFormat = "d MMMM yyyy";
+        }
+        var title = chart.titles.create();
+        title.fontSize = 12;
+        title.marginBottom = 10;
+        if (rangeType == 'day')
+            title.text = "Per day distribution";
+
+        if (rangeType == 'day') {
+            dateAxis.title.text = "Date";
+            dateAxis.tooltipDateFormat = "d MMMM yyyy";
+        }
+
+
+
+        // after adding data chart should validated to update........
+        chart.events.on("datavalidated", function () {
+            dateAxis.zoom({
+                start: 1 / 15,
+                end: 1.2
+            }, false, true);
+        });
+        dateAxis.interpolationDuration = 100;
+        dateAxis.rangeChangeDuration = 500;
+        // .........................................................
+
+
+        // Create series
+        function createAxisAndSeries(field, name, opposite, option, color) {
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            if (option == 0)
+                valueAxis.title.text = "No. of tweets";
+            var series = chart.series.push(new am4charts.LineSeries());
+            var circleBullet = series.bullets.push(new am4charts.CircleBullet());
+            circleBullet.circle.fill = am4core.color(color);
+            circleBullet.circle.strokeWidth = 0;
+
+            var hoverState = circleBullet.states.create("hover");
+            hoverState.properties.scale = 2;
+
+            series.dataFields.valueY = field;
+            series.dataFields.dateX = "date";
+            series.strokeWidth = 2;
+            series.yAxis = valueAxis;
+            series.name = name;
+            // series.tooltipText = "{name}: [bold]{valueY}[/]";
+            series.tooltipText = `[bold]{dateX.formatDate('yyyy-MMM-dd HH:mm:ss')}: {valueY} Tweets [\]
+                (click on circle to Know more)`;
+            series.tooltip.autoTextColor = false;
+            series.tooltip.label.fill = am4core.color("#141313");
+            // series.tensionX = 0.8;
+
+            // all the below is optional, makes some fancy effects.......
+            // gradient fill of the series
+            series.fillOpacity = 1;
+            var gradient = new am4core.LinearGradient();
+            gradient.addColor(chart.colors.getIndex(option), 0.2);
+            gradient.addColor(chart.colors.getIndex(option), 0);
+            series.fill = gradient;
+            //............................................................
+
+            var interfaceColors = new am4core.InterfaceColorSet();
+            valueAxis.renderer.line.strokeOpacity = 1;
+            valueAxis.renderer.line.strokeWidth = 2;
+            valueAxis.renderer.line.stroke = series.stroke;
+            valueAxis.renderer.labels.template.fill = series.stroke;
+            valueAxis.renderer.opposite = opposite;
+            valueAxis.renderer.grid.template.disabled = true;
+
+            // image.href = "https://www.amcharts.com/lib/images/star.svg";
+        }
+
+        createAxisAndSeries("pos", "Positive", false, 0, "#33CCCC");
+        createAxisAndSeries("neg", "Negative", true, 1, "#FC5F4F");
+        createAxisAndSeries("neu", "Neutral", true, 2, "#FFC060");
+
+        chart.legend = new am4charts.Legend();
+
+        // Add cursor
+        chart.cursor = new am4charts.XYCursor();
+        chart.scrollbarX = new am4core.Scrollbar();
+
+
+    });
+
+};
 export const createUserStatsForProject = (data, div) => {
     $('#' + div).html('<div class="row mt-1 pt-1" id="userStats" style="height:330px;overflow-y:auto"> </div>')
     const userIDs = data.map(element => element[0]);
@@ -222,7 +334,7 @@ export const plotDonutForStats = (data, div) => {
 
 
 
-export const generateFreqDistBarChart = (query, data = null, rangeType, div) => {
+export const generateFreqDistBarChart = (query, data = null, rangeType, div, pname) => {
     // Create chart instance
     am4core.useTheme(am4themes_animated);
     var chart = am4core.create(div, am4charts.XYChart);
@@ -292,14 +404,14 @@ export const generateFreqDistBarChart = (query, data = null, rangeType, div) => 
 
     series.columns.template.events.on("hit", function (ev) {
         $('#' + div).css('width', '70%');
-        $('#' + div + '-tweets').css('display', 'block');
-        $('#' + div + '-tweets').css('width', '30%');
+        $('#' + div + '-tweets').parent().css('display', 'block');
+        $('#' + div + '-tweets').parent().css('width', '30%');
         let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
         var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
         var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
-
-        console.log(date)
-
+        getTweetsForFreq(date, date, pname, 'all').then(res => {
+                TweetsGenerator(res.data,6,div + '-tweets',date,date,false,rangeType,pname)
+        })
     });
     //Handling Click Events 
 

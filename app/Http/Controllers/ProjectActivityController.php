@@ -575,15 +575,57 @@ class ProjectActivityController extends Controller
 
         $final_result = array();
         $temp_arr = array();
+        $tweet_id_list = array();
        
         $from_datetime = date('Y-m-d H:i:s', strtotime($from) + 0);
         $to_datetime = date('Y-m-d H:i:s', strtotime($to) + 0);
 
         $index_arr = array();
         if($filter_type)
-            $index_arr = $this->get_index_arr_of_category($filter_type);      
+            $index_arr = $this->get_index_arr_of_category($filter_type);       
+        
       
-        $feature_option = 'tweet';
+        $feature_option = 'dataset_distribution';
+
+        if ($range_type == "day") {
+            // past days
+            $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token='tweet', null, $feature_option);
+            $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0], $ks);
+
+            $i = 0;       
+            foreach ($result_async_from_db as $rows) {
+                foreach ($rows as $row) {        
+                    $tweet_list = $row['tweetidlist']->values();   
+                    $i = 0;
+                    foreach ($tweet_list as $t) {   
+                        if($filter_type){   
+                            if(in_array($i, $index_arr)){
+                                $tweet_l = $t->values();
+                                foreach ($tweet_l as $t1) {
+                                    if ($t1 != "0") {
+                                        array_push($tweet_id_list, $t1);
+                                    }
+                                }
+                            }
+                        }else{
+                            $tweet_l = $t->values();
+                            foreach ($tweet_l as $t1) {
+                                if ($t1 != "0") {
+                                    array_push($tweet_id_list, $t1);
+                                }
+                            }
+                        }
+                        $i++;
+                    }
+                }
+            }         
+        }
+
+
+        $final_result["range_type"] = $range_type;
+        $final_result["chart_type"] = "tweet";
+        $final_result["data"] = $tweet_id_list;
+        return ($final_result);
     }
 
 

@@ -18,16 +18,16 @@
 
 
         <div class="row mt-3">
-            <div class="col-sm-6 ttContent">
+            {{-- <div class="col-sm-6 ttContent">
                 <div class="text-dark font-weight-bold mb-1"> <span class="badge badge-danger  p-1">Source tweet
                         information: </span></div>
                 <div id="sourceInfo" style="display: none;">
 
                 </div>
-            </div>
+            </div> --}}
             <div class="col-sm-6">
-                <div class="text-dark font-weight-bold mb-1"> <span class="badge badge-primary  p-1">Current query: </span>
-                </div>
+                {{-- <div class="text-dark font-weight-bold mb-1"> <span class="badge badge-primary  p-1">Current query: </span>
+                </div> --}}
                 <div id="mainQuery" style="display: none"></div>
             </div>
         </div>

@@ -14,10 +14,10 @@ import { getCurrentDate, getRangeType, dateProcessor, getDateInFormat, getDateRa
 import { TweetsGenerator } from '../utilitiesJS/TweetGenerator.js';
 import { generateUniqueID } from '../utilitiesJS/uniqueIDGenerator.js';
 import { generateFreqDistBarChart, generateFrequencyLineChart, generateSentiDistBarChart, generateSentiDistLineChart, generateBarChartForCooccur } from './chartHelper.js';
-import { displayErrorMsg, getRelationType, makeDropDownReady, makeSmatReady, makeSuggestionsReady ,makeAddToStoryDiv} from '../utilitiesJS/smatExtras.js'
+import { displayErrorMsg, getRelationType, makeDropDownReady, makeSmatReady, makeSuggestionsReady, makeAddToStoryDiv } from '../utilitiesJS/smatExtras.js'
 import { forwardToNetworkAnalysis, forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.js';
 import { requestToSpark, checkStatus, storeToMySqlAdvanceSearchData, getOuputFromSparkAndStoreAsJSON, getFreqDistDataForAdvanceHA, getSentiDistDataForAdvanceHA, getTweetIDsForAdvanceHA, getCooccurDataForAdvanceHA } from './AdvanceHelper.js'
-import {  removeFromStatusTable, removeFromStatusTableNormal } from '../historicalAnalysis/helper.js';
+import { removeFromStatusTable, removeFromStatusTableNormal } from '../historicalAnalysis/helper.js';
 import { addTrackToDb } from '../config/helper.js';
 
 
@@ -44,7 +44,7 @@ var suggestionsGlobal, suggInputBoxBuffer = [];
 
 var projectDetails; //for project
 _MODE = 'UA'
-
+var proj_name = null, proj_id=null;
 //Logic Implementation 
 jQuery(function () {
 
@@ -54,7 +54,7 @@ jQuery(function () {
     $('[data-toggle="popover"]').popover();
     $('#tableInitialTitle,#tableInitialTitleAdv').html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
 
-    
+
 
     makeSmatReady();
     if (localStorage.getItem('smat.me')) {
@@ -66,15 +66,15 @@ jQuery(function () {
     // readSearchFromLocalDB('smatSearchHistory','UAsearches',userID);
 
     // check if any project is active....todo
-    if (checkIfAnyProjectActive()){
+    if (checkIfAnyProjectActive()) {
         // if yes
         projectDetails = getProjectDetailsFromLocalStorage();
         console.log(projectDetails);
-        let proj_name = projectDetails.projectMetaData.project_name;
-        let proj_id = projectDetails.projectMetaData.project_id;
-        $("#recent_searches_word_id").html('Recent Searches for <b class="projName">'+ proj_name +'</b>');
-        getDataForProjectTable(userID, proj_name, proj_id, _MODE);  
-    }else{
+        proj_name = projectDetails.projectMetaData.project_name;
+        proj_id = projectDetails.projectMetaData.project_id;
+        $("#recent_searches_word_id").html('Recent Searches for <b class="projName">' + proj_name + '</b>');
+        getDataForProjectTable(userID, proj_name, proj_id, _MODE);
+    } else {
         getDataFromMySqlTablesFor_normal_advance();
     }
 
@@ -87,8 +87,8 @@ jQuery(function () {
         }
         SearchID = incoming;
         initateUserSearch(SearchID);
-    }    
-   
+    }
+
 
 
     // project queries
@@ -321,7 +321,7 @@ const generateSuggestions = (userIDArray, div, type = null) => {
         counter++;
         if (counter === 12)
             index = 2
-        $('#' + div + '-' + index).append('<div class="suggHandles" title="' + element.author+ '"  value="$' + element.author_id+ '"> <img src="' + element.profile_image_url_https + '" class="profilePicSmall UAProfilePicture" /> </div>');
+        $('#' + div + '-' + index).append('<div class="suggHandles" title="' + element.author + '"  value="$' + element.author_id + '"> <img src="' + element.profile_image_url_https + '" class="profilePicSmall UAProfilePicture" /> </div>');
     });
 
 }
@@ -357,10 +357,10 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
     }
 
     // for project
-    let pname=null; 
+    let pname = null;
     let project_id = null;
     let full_query = null;
-    if (checkIfAnyProjectActive()){
+    if (checkIfAnyProjectActive()) {
         console.log(projectDetails);
         pname = projectDetails.projectMetaData.project_name;
         project_id = projectDetails.projectMetaData.project_id;
@@ -370,22 +370,22 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
     let unique_name_timestamp = new Date().getTime()  //mala
     let rangeType = getRangeType(fromDate, toDate); //mala
     if (addToStatusTable) {
-        if (searchType == 0) {  
-            if(pname){
+        if (searchType == 0) {
+            if (pname) {
                 console.log(pname);
-                storeToProjectActivityTable(userID, project_id, query,  fromDate, toDate, _MODE, full_query);  
-            }        
+                storeToProjectActivityTable(userID, project_id, query, fromDate, toDate, _MODE, full_query);
+            }
             else
-                addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);        
+                addNormalSearchToDB(unique_name_timestamp, userID, query, fromDate, toDate, 'Success', 'ua', hashtagsUniqueID, mentionUniqueID);
         } else {
             //TODO::add to sparkstarsTable
-        
-            addQueryToStatusTable('uaAdvStatusTable',searchType, null, query, fromDate, toDate, unique_name_timestamp, false, mentionUniqueID, hashtagsUniqueID, true); //mala
+
+            addQueryToStatusTable('uaAdvStatusTable', searchType, null, query, fromDate, toDate, unique_name_timestamp, false, mentionUniqueID, hashtagsUniqueID, true); //mala
         }
     }
 
-   
-      
+
+
 
 
     if (searchType === 0) {
@@ -393,7 +393,7 @@ const initateUserSearch = (query, filename = null, fromDateArg = null, toDateArg
         // if (localStorage.getItem('projectName')) {
         //     checkAnalysisExistorNotFunction(userID, SearchID, fromDate, toDate, 'ua');
         // }
-       
+
 
         getUserDetails(SearchID).then(data => makePageReady(data));
         // window.history.pushState("", "", 'userAnalysis?query=' + encodeURIComponent(SearchID) + '&from=' + fromDate + '&to=' + toDate);
@@ -542,8 +542,8 @@ Please NOTE :
 2.Set append Args to True when append is requeired
 */
 let freqParentDiv = 'freqContentUA';
-export const frequencyDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname=null) => {
-       
+export const frequencyDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname = null) => {
+
     let chartType = 'freq-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
@@ -564,9 +564,9 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
     //Loader...
     $('#' + chartDivID).html('<div class="text-center pt-5  " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
 
-    localStorage.getItem('projectMetaData') &&  makeAddToStoryDiv(chartDivID) 
+    localStorage.getItem('projectMetaData') && makeAddToStoryDiv(chartDivID)
 
-    
+
     $('#' + chartTweetDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
     if (rangeType == 'day') {
         if (filename) {
@@ -585,7 +585,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
                 } else {
                     generateFreqDistBarChart(query, response, rangeType, chartDivID, pname);
                     freqSummaryGenerator(response, summaryDivID, rangeType);
-                    console.log("parammmmmmmmmm",query, fromDate, toDate, rangeType);
+                    console.log("parammmmmmmmmm", query, fromDate, toDate, rangeType);
                     getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
@@ -610,7 +610,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
                 } else {
                     generateFreqDistBarChart(query, response, rangeType, chartDivID, pname);
                     freqSummaryGenerator(response, summaryDivID, rangeType);
-                    console.log("parammmmmmmmmm",query, fromDate, toDate, rangeType);
+                    console.log("parammmmmmmmmm", query, fromDate, toDate, rangeType);
                     getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
@@ -636,7 +636,7 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
                 } else {
                     generateFrequencyLineChart(query, response, rangeType, chartDivID);
                     freqSummaryGenerator(response, summaryDivID, rangeType);
-                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    console.log("paraaaaammm", query, fromDate, toDate, rangeType);
                     getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1, pname).then(response => {
                         let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType, pname);
@@ -650,23 +650,26 @@ export const frequencyDistributionUA = (query = null, rangeType, fromDate = null
 
 
 let sentiParentDiv = 'sentiContentUA';
-export const sentimentDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname=null) => {
+var SENTIMENTDATA = {};
+export const sentimentDistributionUA = (query = null, rangeType, fromDate = null, toDate = null, toTime = null, div, appendArg = false, filename = null, pname = null) => {
     let chartType = 'senti-chart';
     let appendedChartParentID = rangeType + '-' + chartType;
     $('.' + appendedChartParentID).remove();
     let chartDivID = div + '-' + rangeType + '-chart';
+    let chartNav = div + '-' + rangeType + '-nav';
     let summaryDivID = div + '-' + rangeType + '-summary';
     let chartTweetDivID = div + rangeType + '-tweets';
+    const chartChoice = '<div class="ml-auto">Chart Type: <select class="p-1 mb-1 sentiment-chart-select" rangeType=' + rangeType + '><option class="dropdown-item" value="bar">Bar Chart</option><option class="dropdown-item" value="line">Line Chart</option></select></div>'
     if (rangeType == 'hour') {
         $('.hour-' + chartType).remove();
         $('.10sec-' + chartType).remove();
     }
     if (appendArg) {
-        $('#' + sentiParentDiv).append('<div class=" mt-2 ' + appendedChartParentID + '"><div class="d-flex"> <div class="mr-auto closeGraph"    value="' + rangeType + '-senti-chart" title="close" > close <i class="fas fa-times"></i> </div> </div> <div class="row"><div class="col-sm-8"><div class="uaTab sentiDistChart chartDiv resultDiv-' + rangeType + '  border" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv-' + rangeType + ' border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary border  resultDiv-' + rangeType + ' d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
+        $('#' + sentiParentDiv).append('<div class=" mt-2 ' + appendedChartParentID + '"><div class="d-flex"> <div class="mr-auto closeGraph"    value="' + rangeType + '-senti-chart" title="close" > close <i class="fas fa-times"></i> </div> </div> <div class="row"><div class="col-sm-8"><div class="d-flex" id="' + chartNav + '">' + chartChoice + ' </div><div class="uaTab sentiDistChart chartDiv resultDiv-' + rangeType + '  border" id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv-' + rangeType + ' border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary border  resultDiv-' + rangeType + ' d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
     } else {
-        $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="uaTab resultDiv-' + rangeType + '  sentiDistChart  chartDiv border"  id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv-' + rangeType + ' border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary resultDiv-' + rangeType + '  border d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
+        $('#' + div).html('<div><div class="row"><div class="col-sm-8"><div class="d-flex" id="' + chartNav + '">' + chartChoice + ' </div><div class="uaTab resultDiv-' + rangeType + '  sentiDistChart  chartDiv border"  id="' + chartDivID + '" ></div></div><div class="col-sm-4"><div class="sentiDistTweets  resultDiv-' + rangeType + ' border" id="' + chartTweetDivID + '"></div><div class="sentiDistSummary resultDiv-' + rangeType + '  border d-flex pt-2"  id="' + summaryDivID + '" ></div></div></div></div>');
     }
-    localStorage.getItem('projectMetaData') &&  makeAddToStoryDiv(chartDivID) 
+    localStorage.getItem('projectMetaData') && makeAddToStoryDiv(chartDivID)
 
     //Loader...
     $('#' + chartDivID).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
@@ -687,9 +690,10 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
+                    SENTIMENTDATA.day = { data: response, div: chartDivID }
                     generateSentiDistBarChart(response, query, rangeType, chartDivID, pname);
                     generateSentimentSummary(response, summaryDivID, rangeType);
-                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    console.log("paraaaaammm", query, fromDate, toDate, rangeType);
                     getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
@@ -714,9 +718,10 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
+                    SENTIMENTDATA.hour = { data: response, div: chartDivID }
                     generateSentiDistBarChart(response, query, rangeType, chartDivID, pname);
                     generateSentimentSummary(response, summaryDivID, rangeType);
-                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    console.log("paraaaaammm", query, fromDate, toDate, rangeType);
                     getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 0, pname).then(response => {
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, toDate, true, rangeType, pname);
                     });
@@ -726,7 +731,7 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
     } else {
         if (filename) {
             getSentiDistDataForAdvanceHA(query, fromDate, toDate, rangeType, filename, userID).then(data => {
-                generateSentiDistLineChart(query, data, rangeType, chartDivID, filename);
+                generateSentiDistBarChart(response, query, rangeType, chartDivID, filename);
                 generateSentimentSummary(data, summaryDivID, rangeType);
             });
 
@@ -739,9 +744,10 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
                 if (response.data.length < 1) {
                     $('.resultDiv-' + rangeType).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
                 } else {
-                    generateSentiDistLineChart(query, response, rangeType, chartDivID);
+                    SENTIMENTDATA.TENsec = { data: response, div: chartDivID } //for 10 sec gran. plots
+                    generateSentiDistBarChart(response, query, rangeType, chartDivID);
                     generateSentimentSummary(response, summaryDivID, rangeType);
-                    console.log("paraaaaammm",query, fromDate, toDate, rangeType);
+                    console.log("paraaaaammm", query, fromDate, toDate, rangeType);
                     getTweetIDsForUA(query, fromDate, toDate, rangeType, null, 1, pname).then(response => {
                         let fromDateTemp = fromDate.split(/[ ,]+/).filter(Boolean);
                         TweetsGenerator(response.data, 6, chartTweetDivID, fromDate, fromDate, true, rangeType, pname);
@@ -752,10 +758,23 @@ export const sentimentDistributionUA = (query = null, rangeType, fromDate = null
     }
 
 
-
 }
+$('body').on('change', '.sentiment-chart-select', function (e) {
+    let chartType = e.target.value;
+    let rangeType = $(this).attr('rangeType');
+    let data = null;
+    if (rangeType === '10sec')
+        data = SENTIMENTDATA.TENsec;
+    else
+        data = SENTIMENTDATA[rangeType];
+    if (chartType === 'line') {
+        generateSentiDistLineChart(data.data, SearchID, rangeType, data.div, null, proj_name)
+    } else {
+        generateSentiDistBarChart(data.data, SearchID, rangeType, data.div, null, proj_name);
+    }
 
-const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null, pname=null) => {
+});
+const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, userID, div, filename = null, pname = null) => {
     //Loader...
     let chartDivID = option + '-chart';
     $('#' + div).html('<div class="text-center pt-5 " ><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>');
@@ -769,7 +788,7 @@ const plotDistributionGraphUA = (query, fromDate, toDate, option, uniqueID, user
             $('#' + option + '-total').text(response[0]['nodes']);
         });
     } else {
-        console.log("infoooo",query, fromDate, toDate, option, uniqueID, userID);
+        console.log("infoooo", query, fromDate, toDate, option, uniqueID, userID);
         getCooccurDataForUA(query, fromDate, toDate, option, uniqueID, userID, pname).then(response => {
             if (response[0]['data'].length < 1) {
                 $('#' + div).html('<div class="alert-danger text-center m-3 p-2 smat-rounded"> No Data Found </div>')
@@ -808,6 +827,7 @@ const freqSummaryGenerator = (data = null, div, rangeType) => {
 
 
 }
+
 const generateSentimentSummary = (data = null, div, range) => {
     let arrTemp = [];
     let posSumTemp = 0, negSumTemp = 0, neuSumTemp = 0;
@@ -818,11 +838,12 @@ const generateSentimentSummary = (data = null, div, range) => {
             neuSumTemp += parseInt(element[3]);
         });
     }
-    $('#' + div).html('<div class="sentiSummaryDiv" id="sentiSummary' + range + '" ><div class="removeMarginMediaQuery"  > <div  id="sentiSummaryBar-' + range + '" ></div> </div><div> <div class="d-flex "><div><p class=" smat-box-title-large m-0 font-weight-bold text-dark ">' + posSumTemp + '</p><p class="pull-text-top m-0 smat-dash-title ">Positive</p></div><div class="mx-2"><p class=" smat-box-title-large m-0 font-weight-bold text-dark ">' + neuSumTemp + '</p><p class="pull-text-top m-0 smat-dash-title ">Neutral</p></div><div class="mx-2"><p class=" smat-box-title-large m-0 font-weight-bold text-dark ">' + negSumTemp + '</p><p class="pull-text-top m-0 smat-dash-title ">Negative</p></div></div></div></div>');
+    $('#' + div).html('<div class="sentiSummaryDiv" id="sentiSummary' + range + '" ><div> <div class="d-flex "><div class="mx-2"><p class=" smat-box-title-large m-0 font-weight-bold text-pos ">' + posSumTemp + '</p><p class="pull-text-top m-0 smat-dash-title ">Positive</p></div><div class="mx-3"><p class=" smat-box-title-large m-0 font-weight-bold text-neu ">' + neuSumTemp + '</p><p class="pull-text-top m-0 smat-dash-title ">Neutral</p></div><div class="mx-3"><p class=" smat-box-title-large m-0 font-weight-bold text-neg ">' + negSumTemp + '</p><p class="pull-text-top m-0 smat-dash-title ">Negative</p></div></div></div></div>');
 
     arrTemp = [posSumTemp, negSumTemp, neuSumTemp];
-    generateSentimentSummaryBar(arrTemp, "sentiSummaryBar-" + range, 'hour')
+    // generateSentimentSummaryBar(arrTemp, "sentiSummaryBar-" + range, 'hour')
 }
+
 const generateSentimentSummaryBar = (sentiTotalArray, div, range_type) => {
 
     let total_pos = sentiTotalArray[0];
@@ -876,7 +897,7 @@ const suggestionToggle = () => {
 // });
 
 
-const addQueryToStatusTable = (tableID,searchType, sparkID = null, query, fromDate, toDate, unique_name_timestamp = null, fromStatusTable = false, mentionUniqueID = null, hashtagsUniqueID = null, highlight = false, query_status = null) => {
+const addQueryToStatusTable = (tableID, searchType, sparkID = null, query, fromDate, toDate, unique_name_timestamp = null, fromStatusTable = false, mentionUniqueID = null, hashtagsUniqueID = null, highlight = false, query_status = null) => {
 
     unique_name_timestamp != null ? unique_name_timestamp : unique_name_timestamp = new Date().getTime()
     let recordTemp = [{ 'query': query, 'from': fromDate, 'to': toDate, 'mentionUniqueID': mentionUniqueID, 'hashtagUniqueID': hashtagsUniqueID, 'searchType': searchType, "filename": unique_name_timestamp.toString() }];
@@ -893,7 +914,7 @@ const addQueryToStatusTable = (tableID,searchType, sparkID = null, query, fromDa
     }
     $('#tableInitialTitle').html('');
     if (searchType == 1) {
-   
+
         // tableDiv = "uaAdvStatusTable";
         queryElement = decodeQuery(query);
         sparkID = unique_name_timestamp;
@@ -902,7 +923,7 @@ const addQueryToStatusTable = (tableID,searchType, sparkID = null, query, fromDa
         let queries = queryTemp.split(/[|&]+/g).filter(Boolean);
         queryTemp = queries[0];
 
-    }else {
+    } else {
 
         // tableDiv = "uaStatusTable";
         sparkID = unique_name_timestamp;
@@ -911,7 +932,7 @@ const addQueryToStatusTable = (tableID,searchType, sparkID = null, query, fromDa
         queryElement = '';
         queryTemp = query;
     }
-    
+
 
     let hightlightArg = '';
     if (highlight) {
@@ -1029,12 +1050,12 @@ const updateProjStatsTable = (type) => {
     projectName = localStorage.getItem("projectName");
     let project_id = localStorage.getItem("project_id");
     getAnalysisForAProjectAPI(userID, project_id, type).then(response => {
-      
+
         if (response.length < 1) {
             displayErrorMsg('tableInitialTitleProject', 'normal', 'No analysis found in records.', false);
         }
         response.forEach(element => {
-            addQueryToStatusTable('ProjectStatusTable',0,null,element.analysis_name,element.from_date,element.to_date,null,true,null,null,false,'Success');
+            addQueryToStatusTable('ProjectStatusTable', 0, null, element.analysis_name, element.from_date, element.to_date, null, true, null, null, false, 'Success');
         });
     });
 }
@@ -1047,7 +1068,7 @@ const getDataFromMySqlTablesFor_normal_advance = () => {
             displayErrorMsg('tableInitialTitle', 'normal', 'No recent normal searches found in records.', false);
         }
         response.forEach(element => {
-            addQueryToStatusTable('uaStatusTable',0, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, false, element.hashtagID, element.mentionID);
+            addQueryToStatusTable('uaStatusTable', 0, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, false, element.hashtagID, element.mentionID);
         });
     });
     populateRecentSearches(userID, 1, 'ua').then(response => {
@@ -1055,7 +1076,7 @@ const getDataFromMySqlTablesFor_normal_advance = () => {
             displayErrorMsg('tableInitialTitleAdv', 'normal', 'No recent advance searches found in records.', false);
         }
         response.forEach(element => {
-            addQueryToStatusTable('uaAdvStatusTable',1, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.hashtagID, element.mentionID, false, element.status);
+            addQueryToStatusTable('uaAdvStatusTable', 1, element.queryID, element.query, element.fromDate, element.toDate, element.queryID, true, element.hashtagID, element.mentionID, false, element.status);
         });
     });
 }
@@ -1074,7 +1095,7 @@ const getDataForProjectTable = (userID, projectName, projectID, module_name) => 
         response.forEach(element => {
             // updateStatusTable(element.analysis_name, element.from_date, element.to_date, 0, true, element.full_query, false, projectName);
 
-            addQueryToStatusTable('uaStatusTable',0,null,element.analysis_name,element.from_date,element.to_date,null,true,mentionUniqueID,hashtagsUniqueID,false,'success');
+            addQueryToStatusTable('uaStatusTable', 0, null, element.analysis_name, element.from_date, element.to_date, null, true, mentionUniqueID, hashtagsUniqueID, false, 'success');
         });
     });
 }

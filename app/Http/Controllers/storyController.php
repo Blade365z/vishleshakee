@@ -192,6 +192,16 @@ class storyController extends Controller
     }
     public function readStoryStatsForShow(Request $request)
     {
+        //lambda function
+        $mapping = function ($str){
+            $arr = str_getcsv($str);    
+            if($arr[0] != 'token_name' and $arr[0]){
+                $cat_list = json_decode($arr[1]);
+                $cat_count_list = json_decode($arr[2]);
+                $max_index=array_keys($cat_count_list, max($cat_count_list))[0];
+                return array($arr[0], $arr[3], $this->get_category_tag($cat_list[$max_index]));
+            }
+        };
         $request->validate([
             'projectID' => 'required',
             'userID' => 'required',
@@ -211,14 +221,31 @@ class storyController extends Controller
             }
 
             $str = file_get_contents($filePath);
-            $array = array_map("str_getcsv", explode("\n", $str));
-            $array = array_slice($array, 1);
+            // $array = array_map("str_getcsv", explode("\n", $str));
+            $array = array_map($mapping, explode("\n", $str));
+            $array = array_slice($array, 1, sizeof($array)-2);
             $json = json_encode($array);
             return $json;
         } catch (Exception $e) {
             return response()->json(['error' => 'Some error occured!'], 404);
         }
     }
+
+    public function get_category_tag($cat){
+        $str_cat = strval($cat);
+        $slen = strlen($str_cat);
+        if($slen == 1)
+            return 'normal';
+        else if($slen == 2)
+            return 'com';
+        else if($slen == 3){
+            if($str_cat[1] == 0)
+                return 'sec';
+            else
+                return 'com_sec';
+        }
+    }
+
     public function readTokenCountProject(Request $request)
     {
         $request->validate([

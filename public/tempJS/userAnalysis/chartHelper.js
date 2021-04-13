@@ -27,7 +27,7 @@ import { forwardToHistoricalAnalysis } from '../utilitiesJS/redirectionScripts.j
 
 
 //Functions for Freqeuncy Distribution chart :: contains --->  1. Bar chart , 2. Line chart
-export const generateFreqDistBarChart = (query, data = null, rangeType, div, pname=null) => {
+export const generateFreqDistBarChart = (query, data = null, rangeType, div, pname = null) => {
     // Create chart instance
     am4core.useTheme(am4themes_animated);
     var chart = am4core.create(div, am4charts.XYChart);
@@ -131,7 +131,7 @@ export const generateFrequencyLineChart = (query, data = null, rangeType, div) =
     title.fontSize = 12;
     title.marginBottom = 10;
     var hour_for_title = String(parseInt(getDateInFormat(dataTemp[0]['date'], 'HH')) + 1);
-    title.text = " Per 10sec Distribution For " + getDateInFormat(dataTemp[0]['date'], 'Y-m-d') + ' ' + hour_for_title + ':00:00' ;
+    title.text = " Per 10sec Distribution For " + getDateInFormat(dataTemp[0]['date'], 'Y-m-d') + ' ' + hour_for_title + ':00:00';
 
     chart.data = dataTemp;
     console.log(chart.data);
@@ -181,7 +181,7 @@ export const generateFrequencyLineChart = (query, data = null, rangeType, div) =
 }
 
 
-export const generateSentiDistBarChart = (data, query, rangeType, div, pname=null) => {
+export const generateSentiDistBarChart = (data, query, rangeType, div, pname = null) => {
     am4core.useTheme(am4themes_animated);
     var chart = am4core.create(div, am4charts.XYChart);
     chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
@@ -218,7 +218,9 @@ export const generateSentiDistBarChart = (data, query, rangeType, div, pname=nul
         title.text = "Per day distribution" + '  (Click on the bars for more)';
     else if (rangeType == 'hour')
         title.text = "Per hour distribution for " + data['data'][0][0] + ' (Click on the bars for more)';
-
+    else if (rangeType == '10sec')
+        title.text = "10 second distribution for " + data['data'][0][0];
+        
     if (rangeType == 'hour') {
         dateAxis.title.text = "DateTime";
         dateAxis.tooltipDateFormat = "HH:mm:ss, d MMMM";
@@ -302,7 +304,7 @@ export const generateSentiDistBarChart = (data, query, rangeType, div, pname=nul
 
 
 
-export const generateSentiDistLineChart = (query, data = null, rangeType, div) => {
+export const generateSentiDistLineChart = (data = null, query, rangeType, div, filename = null, pname = null) => {
 
     am4core.ready(function () {
         am4core.useTheme(am4themes_animated);
@@ -349,6 +351,27 @@ export const generateSentiDistLineChart = (query, data = null, rangeType, div) =
             }
         }
 
+        var title = chart.titles.create();
+        title.fontSize = 12;
+        title.marginBottom = 10;
+        if (rangeType == 'day')
+            title.text = "Per day distribution" + '  (Click on the bullets for more)';
+        else if (rangeType == 'hour')
+            title.text = "Per hour distribution for " + data['data'][0][0] + ' (Click on the bullets for more)';
+        else if (rangeType == '10sec')
+            title.text = "10 second distribution for " + data['data'][0][0];
+
+        if (rangeType == 'hour') {
+            dateAxis.title.text = "DateTime";
+            dateAxis.tooltipDateFormat = "HH:mm:ss, d MMMM";
+            dateAxis.baseInterval = {
+                "timeUnit": "hour",
+                "count": 1
+            }
+        } else if (rangeType == 'day') {
+            dateAxis.title.text = "Date";
+            dateAxis.tooltipDateFormat = "d MMMM yyyy";
+        }
 
         // after adding data chart should validated to update........
         chart.events.on("datavalidated", function () {
@@ -363,11 +386,37 @@ export const generateSentiDistLineChart = (query, data = null, rangeType, div) =
 
 
         // Create series
-        function createAxisAndSeries(field, name, opposite, option) {
+        function createAxisAndSeries(field, name, opposite, option, color) {
             var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
             if (option == 0)
                 valueAxis.title.text = "No. of tweets";
             var series = chart.series.push(new am4charts.LineSeries());
+            var circleBullet = series.bullets.push(new am4charts.CircleBullet());
+            circleBullet.circle.fill = am4core.color(color);
+            circleBullet.circle.strokeWidth = 0;
+            circleBullet.events.on("hit", function (ev) {
+                if (rangeType == 'hour') {
+                    let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
+                    var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
+                    var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
+                    let dateTimeTemp = date + ' ' + startTime;
+                    if (filename)
+                        sentimentDistributionUA(query, '10sec', dateTimeTemp, dateTimeTemp, null, div, true, filename);
+                    else
+                        sentimentDistributionUA(query, '10sec', dateTimeTemp, dateTimeTemp, null, div, true, null, pname);
+                } else if (rangeType == 'day') {
+                    let datetime_obj = ev.target.dataItem.component.tooltipDataItem.dataContext;
+                    var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
+                    var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
+                    if (filename)
+                        sentimentDistributionUA(query, 'hour', date, date, null, div, true, filename);
+                    else
+                        sentimentDistributionUA(query, 'hour', date, date, null, div, true, null, pname);
+                }
+            });
+            var hoverState = circleBullet.states.create("hover");
+            hoverState.properties.scale = 2;
+
             series.dataFields.valueY = field;
             series.dataFields.dateX = "date";
             series.strokeWidth = 2;
@@ -397,20 +446,10 @@ export const generateSentiDistLineChart = (query, data = null, rangeType, div) =
             valueAxis.renderer.opposite = opposite;
             valueAxis.renderer.grid.template.disabled = true;
 
-            // Add simple bullet
-            var bullet = series.bullets.push(new am4charts.Bullet());
-            var image = bullet.createChild(am4core.Circle);
-            // image.href = "https://www.amcharts.com/lib/images/star.svg";
-            image.width = 6;
-            image.height = 6;
-            image.horizontalCenter = "middle";
-            image.verticalCenter = "middle";
-            var hoverState = bullet.states.create("hover");
-            hoverState.properties.scale = 3;
         }
-        createAxisAndSeries("pos", "Positive", false, 0);
-        createAxisAndSeries("neg", "Negative", true, 1);
-        createAxisAndSeries("neu", "Neutral", true, 2);
+        createAxisAndSeries("pos", "Positive", false, 0, "#33CCCC");
+        createAxisAndSeries("neg", "Negative", true, 1, "#FC5F4F");
+        createAxisAndSeries("neu", "Neutral", true, 2, "#FFC060");
 
         chart.legend = new am4charts.Legend();
 
