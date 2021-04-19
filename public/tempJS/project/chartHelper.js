@@ -410,7 +410,7 @@ export const generateFreqDistBarChart = (query, data = null, rangeType, div, pna
         var date = getDateInFormat(datetime_obj['date'], 'Y-m-d');
         var startTime = getDateInFormat(datetime_obj['date'], 'HH:MM:SS');
         getTweetsForFreq(date, date, pname, 'all').then(res => {
-                TweetsGenerator(res.data,6,div + '-tweets',date,date,false,rangeType,pname)
+                TweetsGenerator(res.data,6,div + '-tweets',date,date,true,rangeType,pname)   
         })
     });
     //Handling Click Events 

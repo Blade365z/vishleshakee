@@ -77,7 +77,7 @@ export const updateTrackWordInDb = async (id, trackWord, handle) => {
         option: 'trackWord'
     });
     let response = await fetch('configure/updateTrackWordStatus', {
-        method: 'put',
+        method: 'post',
         headers: HeadersForApi,
         body: dataArgs
     })
@@ -89,7 +89,7 @@ export const deletefromCrawlList = async (id) => {
         id
     });
     let response = await fetch('configure/deletefromCrawlList', {
-        method: 'delete',
+        method: 'post',
         headers: HeadersForApi,
         body: dataArgs
     })

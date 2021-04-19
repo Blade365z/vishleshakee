@@ -1346,12 +1346,7 @@ const centralityTweetTrackingDiv = (nodes, networkTrackTweetDiv) => {
 
 const createDiv = (track_net, networkDiv, networkTrackTweetDiv, ttNodesCountNetwork, ttEdgesCountNetwork, tweetHeirarchy, sub_div_option = null) => {
     let divString = `
-            <div  class="text-center text-truncate mb-3" id=`+ tweetHeirarchy + ` style="
-            height: 150px;
-        " >
-
-            </div>
-            <div class="row px-3 "  id=`+ networkDiv + `>
+           <div class="row px-3 "  id=`+ networkDiv + `>
                 <div class="col-md-8 p-0 border">
                     <div class="px-3">
                         <div class="row">
@@ -1406,7 +1401,7 @@ const createDiv = (track_net, networkDiv, networkTrackTweetDiv, ttNodesCountNetw
                             </div>
                         </div>
                     </div>
-                    <div id=`+ track_net + ` style="height:650px;">
+                    <div id=`+ track_net + ` style="height:850px;">
                     
                     </div>
                 </div>
@@ -1420,13 +1415,15 @@ const createDiv = (track_net, networkDiv, networkTrackTweetDiv, ttNodesCountNetw
                             id=`+ networkTrackTweetDiv + `>
                         </div>
                     </div>
-                    <div class="card mt-0" style=" margin-top:10px !important;">
-                        <div class="card-body" id="infoDiv" >
-                            <h4 class="m-0 text-center font-weight-bold text-dark subject">Centrality Score</h4>
-                            <div id=`+networkTrackTweetDiv+`Centrality style="overflow-x:auto; overflow-y: scroll; height: 500px;">
-                            </div>
-                        </div>
-                    </div>                    
+                   <div class="p-3">
+                   <div class="card mt-0" style=" margin-top:10px !important;">
+                   <div class="card-body" id="infoDiv" >
+                       <h4 class="m-0 text-center font-weight-bold text-dark subject">Centrality Score</h4>
+                       <div id=`+networkTrackTweetDiv+`Centrality style="overflow-x:auto; overflow-y: scroll; height: 500px;">
+                       </div>
+                   </div>
+               </div>   
+                   </div>                 
                 </div>
             </div>`;
     networkDivID = networkDivID + 1;

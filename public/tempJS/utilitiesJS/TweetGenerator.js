@@ -45,10 +45,6 @@ export const TweetsGenerator = (data_list, max_per_page, chart_draw_div_id, from
 				<li class="dropdown-item clickable filter-com-tweets filterTweets " value="com|'+ fromDate + '|' + toDate + '|' + chart_draw_div_id + '|' + rangeType + '"  id="' + chart_draw_div_id + rangeType + ' " > Communal Tweets</li>\
 				<li class="dropdown-item clickable filter-sec-tweets filterTweets " value="sec|'+ fromDate + '|' + toDate + '|' + chart_draw_div_id + '|' + rangeType + '"   id="' + chart_draw_div_id + rangeType + '">  Security Tweets</li>\
 				<li class="dropdown-item clickable filter-seccom-tweets filterTweets"  value="com_sec|'+ fromDate + '|' + toDate + '|' + chart_draw_div_id + '|' + rangeType + '"   id="' + chart_draw_div_id + rangeType + '"> Communal and Security\
-					Tweets</li>\
-					<li class="dropdown-item clickable filter-seccom-tweets filterTweets"  value="retweet|'+ fromDate + '|' + toDate + '|' + chart_draw_div_id + '|' + rangeType + '"   id="' + chart_draw_div_id + rangeType + '"> Re-Tweets</li>\
-					<li class="dropdown-item clickable filter-seccom-tweets filterTweets"  value="quoted|'+ fromDate + '|' + toDate + '|' + chart_draw_div_id + '|' + rangeType + '"   id="' + chart_draw_div_id + rangeType + '"> Quoted-Tweets</li>\
-					<li class="dropdown-item clickable filter-seccom-tweets filterTweets"  value="reply|'+ fromDate + '|' + toDate + '|' + chart_draw_div_id + '|' + rangeType + '"   id="' + chart_draw_div_id + rangeType + '"> Reply-Tweets</li>\
 				</div>\
 				</div>\
 				';

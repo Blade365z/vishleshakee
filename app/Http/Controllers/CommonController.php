@@ -862,6 +862,55 @@ class CommonController extends Controller
 
 
    
+    /**
+     * sort tweet_ids by time given by tweet_id_list
+     *
+     * @return json
+     */
+    public function getFilteredTweetidList($tweet_id_list, $async=true, $ks=null, $filter_type=null, $range_type=null)
+    {
+        //1 chunk by 100 to $tweet_id_list
+        $chunk_tweetid_list_array = array_chunk($tweet_id_list, 5);
+        $finalTweetidList = array();
+
+        foreach ($chunk_tweetid_list_array as $tweet_id_list) {
+            $temp_tweet_info_list = json_decode($this->get_tweets_info($tweet_id_list, $async, $ks));
+            foreach ($temp_tweet_info_list as $k => $tweetinfo) {                
+                $type = $tweetinfo->type;
+                $tweetid = $tweetinfo->tid;
+                if($filter_type){
+                    if($filter_type == 'Reply'){
+                        if($type == 'Reply')
+                            $finalTweetidList[$tweetid] = $tweetinfo->datetime;
+                    } else if($filter_type == 'retweet'){
+                        if($type == 'retweet')
+                            $finalTweetidList[$tweetid] = $tweetinfo->datetime;
+                    }  else if($filter_type == 'QuotedTweet'){
+                        if($type == 'QuotedTweet')
+                            $finalTweetidList[$tweetid] = $tweetinfo->datetime;
+                    }  else if($filter_type == 'Tweet'){
+                        if($type == 'Tweet')
+                            $finalTweetidList[$tweetid] = $tweetinfo->datetime;
+                    } 
+                }else{
+                    $finalTweetidList[$tweetid] = $tweetinfo->datetime;
+                } 
+            }                       
+        }
+
+
+        asort($finalTweetidList);
+        
+
+        $final_result["range_type"] = $range_type;
+        $final_result["chart_type"] = "tweet";
+        // $final_result["data"] = $finalTweetidList;
+        $final_result["data"] = array_keys($finalTweetidList);
+        return $final_result;
+    }
+
+
+
 
     /**
      * get tweet info given by tweet_id_list

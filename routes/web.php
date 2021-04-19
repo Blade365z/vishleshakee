@@ -316,8 +316,8 @@ Route::group(['prefix' => 'configure'], function () {
     Route::post('/save', 'ConfigureSmat@insertConfig');
     Route::post('/saveCrawlerInfo', 'ConfigureSmat@AddTrackToken');
     Route::post('/GetAllTrackToken', 'ConfigureSmat@GetAllTrackToken');
-    Route::put('/updateTrackWordStatus', 'ConfigureSmat@updateTrackWordStatus');
-    Route::delete('/deletefromCrawlList', 'ConfigureSmat@DeleteTrackToken');
+    Route::post('/updateTrackWordStatus', 'ConfigureSmat@updateTrackWordStatus');
+    Route::post('/deletefromCrawlList', 'ConfigureSmat@DeleteTrackToken');
 });
 
 // project - feature
@@ -391,6 +391,7 @@ Route::post('getTweetidListOrderByTweetTypeCount', 'ProjectActivityController@ge
 Route::post('getProjectFrequencyDistributionData', 'ProjectActivityController@getProjectFrequencyDistributionData');
 Route::post('getProjectSentimentDistributionData', 'ProjectActivityController@getProjectSentimentDistributionData');
 Route::post('getTweetidListProject', 'ProjectActivityController@getTweetidListProject');
+Route::post('getTweetidListFiltered', 'ProjectActivityController@getTweetidListFiltered');
 
 
 

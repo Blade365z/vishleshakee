@@ -580,9 +580,7 @@ class ProjectActivityController extends Controller
         $from_datetime = date('Y-m-d H:i:s', strtotime($from) + 0);
         $to_datetime = date('Y-m-d H:i:s', strtotime($to) + 0);
 
-        $index_arr = array();
-        if($filter_type)
-            $index_arr = $this->get_index_arr_of_category($filter_type);       
+        $index_arr = array();  
         
       
         $feature_option = 'dataset_distribution';
@@ -591,11 +589,14 @@ class ProjectActivityController extends Controller
             // past days
             $stm_list = $qb_obj->get_statement($to_datetime, $from_datetime, $token='tweet', null, $feature_option);
             $result_async_from_db = $db_object->executeAsync_query($stm_list[1], $stm_list[0], $ks);
-
+           
             $i = 0;       
             foreach ($result_async_from_db as $rows) {
                 foreach ($rows as $row) {        
                     $tweet_list = $row['tweetidlist']->values();   
+                    $category_class_list = $row['category_class_list']->values(); 
+                    if($filter_type)
+                        $index_arr = $this->get_index_arr_of_category($filter_type, $category_class_list);    
                     $i = 0;
                     foreach ($tweet_list as $t) {   
                         if($filter_type){   
@@ -624,26 +625,27 @@ class ProjectActivityController extends Controller
 
         $final_result["range_type"] = $range_type;
         $final_result["chart_type"] = "tweet";
-        $final_result["data"] = $tweet_id_list;
+        $final_result["data"] = array_values(array_unique($tweet_id_list));
         return ($final_result);
     }
 
 
-    public function get_index_arr_of_category($filter_type){
+    public function get_index_arr_of_category($filter_type, $category_class_list){
         if($filter_type == 'com'){
-            $index_arr = [3, 4, 5];                            
+            // $index_arr = [3, 4, 5];   
+            $index_arr = [$this->get_index_of_category(11, $category_class_list), $this->get_index_of_category(12, $category_class_list), $this->get_index_of_category(13, $category_class_list)];                         
         }else if($filter_type == 'sec'){
-            $index_arr = [6, 7, 8];
+            $index_arr = [$this->get_index_of_category(101, $category_class_list), $this->get_index_of_category(102, $category_class_list), $this->get_index_of_category(103, $category_class_list)];
         }else if($filter_type == 'com_sec'){
-            $index_arr = [9, 10, 11];
+            $index_arr = [$this->get_index_of_category(111, $category_class_list), $this->get_index_of_category(112, $category_class_list), $this->get_index_of_category(113, $category_class_list)];
         }else if($filter_type == 'normal'){
-            $index_arr = [0, 1, 2];
+            $index_arr = [$this->get_index_of_category(1, $category_class_list), $this->get_index_of_category(2, $category_class_list), $this->get_index_of_category(3, $category_class_list)];
         }else if($filter_type == 'pos'){
-            $index_arr = [0, 3, 6, 9];
+            $index_arr = [$this->get_index_of_category(1, $category_class_list),$this->get_index_of_category(11, $category_class_list), $this->get_index_of_category(101, $category_class_list), $this->get_index_of_category(111, $category_class_list)];
         }else if($filter_type == 'neg'){
-            $index_arr = [1, 4, 7, 10];
+            $index_arr = [$this->get_index_of_category(2, $category_class_list),$this->get_index_of_category(12, $category_class_list), $this->get_index_of_category(102, $category_class_list), $this->get_index_of_category(112, $category_class_list)];
         }else if($filter_type == 'neu'){
-            $index_arr = [2, 5, 8, 11];
+            $index_arr = [$this->get_index_of_category(3, $category_class_list),$this->get_index_of_category(13, $category_class_list), $this->get_index_of_category(103, $category_class_list), $this->get_index_of_category(113, $category_class_list)];
         }else if($filter_type == 'all'){
             $index_arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         }
@@ -658,5 +660,24 @@ class ProjectActivityController extends Controller
         $filePath = "storage/$userID/$projectID/statistics/loc_tweet.csv";
         $file_data_array = array_slice(file($filePath), 1);
         return array_map(function($str){ return str_replace("\n","",$str);}, $file_data_array);
+    }
+
+
+
+    public function getTweetidListFiltered(Request $request)
+    {
+        $ks = null;
+        $filter_type = null;
+        if ($request->input('pname')){
+            $ks = $request->input('pname');
+        }
+        $tweetid_list_array = $request->input('tweet_id_list');        
+        $filter_type = $request->input('filter_type');
+        $range_type = 'day';        
+        $commonObj = new CommonController;
+
+        $tweet_id_list = array();
+        $res = $commonObj->getFilteredTweetidList($tweetid_list_array, $async=true, $ks, $filter_type, $range_type);       
+        return ($res);
     }
 }

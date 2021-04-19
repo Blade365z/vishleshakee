@@ -2,7 +2,7 @@ import { tweetResults} from '../utilitiesJS/getMap.js';
 import { getMe } from "../home/helper.js";
 import { TweetsGenerator } from "../utilitiesJS/TweetGenerator.js";
 import { generateBarChartForCooccur, renderProjectWordCloud, createUserStatsForProject, plotDonutForStats, generateFreqDistBarChart, generateSentiDistBarChart, generateSentiDistLineChart } from "./chartHelper.js";
-import { getLocationForProject,getAllTagsForSHOW, getProjectName, getStoriesOfUserFromServer, getTokenCountForProject, getTweetFrequencyData, getTweetSentimentData, getTweetsForProject } from "./helper.js"
+import { getLocationForProject,getAllTagsForSHOW, getProjectName, getStoriesOfUserFromServer, getTokenCountForProject, getTweetFrequencyData, getTweetSentimentData, getTweetsForProject, getTweetsForFreq } from "./helper.js"
 import { getProjectDetailsFromLocalStorage} from '../project/commonFunctionsProject.js';
 import { forwardToUserAnalysis } from '../utilitiesJS/redirectionScripts.js';
 
@@ -128,12 +128,21 @@ $('#locationProjectTab').on('click',function(){
                                                 <ul id="markersList"></ul>
                                             </div>
                                         </div>`);
-        
-        console.log(pname);
-        console.log(projectDetails.projectMetaData.project_id);
         tweetResults(response,"result-div-map",pname);
-    });
+    }); 
 });
+ //TweetFiter
+ $('body').on('click', 'div .filterTweets', function () {
+    let args = $(this).attr('value');
+    args = args.split(/[|]/).filter(Boolean);
+
+    if (args[4] === 'day') {
+        getTweetsForFreq(args[1],args[2],projectName,args[0]).then(response => {
+            TweetsGenerator(response.data, 6,args[3],args[1],args[2],true,args[4],projectName);
+        });
+    }
+});
+
 $('#tweet-stats-tab-btn').on('click',function(){
     $('#project-stat-tweet-frequency-chart').html('<div class="text-center  smat-loader"  id="alertBoxLoader"><i class="fa fa-circle-o-notch donutSpinner" aria-hidden="true"></i></div>')
     getTweetFrequencyData(projectName,from,to).then(res=>{
