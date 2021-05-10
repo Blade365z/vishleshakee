@@ -239,22 +239,22 @@ jQuery(function () {
         }
         // console.log(searchType);
         // check if any project is active
-        let proj_name = null; 
+        let proj_name = null;
         if (checkIfAnyProjectActive()) {
             console.log('project');
             proj_name = projectDetails.projectMetaData.project_name;
             let proj_id = projectDetails.projectMetaData.project_id;
             let full_query = madeFullQuery(projectDetails, q, _MODE, fromDate, toDate);
-            if(!q.includes(')') && !q.includes('(')){
+            if (!q.includes(')') && !q.includes('(')) {
                 initiateHistoricalAnalysis(q, fromDate, toDate, mentionUniqueID, hashtagUniqueID, userUniqueID, 0, proj_name);
-                } 
+            }
             updateStatusTable(q, fromDate, toDate, 0, false, full_query, false, proj_name, proj_id);
         }
         else {
             // console.log('no project');
-            if(!q.includes(')') && !q.includes('(')){
-            initiateHistoricalAnalysis(q, fromDate, toDate, mentionUniqueID, hashtagUniqueID, userUniqueID, 0, proj_name);
-            } 
+            if (!q.includes(')') && !q.includes('(')) {
+                initiateHistoricalAnalysis(q, fromDate, toDate, mentionUniqueID, hashtagUniqueID, userUniqueID, 0, proj_name);
+            }
             updateStatusTable(q, fromDate, toDate, searchType);
         }
         resetQueryPanel(mainInputCounter);
@@ -436,7 +436,7 @@ const getDataForProjectTable = (userID, projectName, projectID, module_name) => 
 
         // pass redirect queries only after having the past advance searches from mysql
         if (incoming) {
-           
+
             if (incoming.includes('&') || incoming.includes('|')) {
                 searchType = 1;
                 setTimeout(() => {
@@ -450,9 +450,9 @@ const getDataForProjectTable = (userID, projectName, projectID, module_name) => 
                 }, 200);
 
             }
-            if(!incoming.includes(')') && !incoming.includes('(')){
+            if (!incoming.includes(')') && !incoming.includes('(')) {
                 initiateHistoricalAnalysis(incoming, fromDateReceived, toDateReceived, mentionUniqueID, hashtagUniqueID, userUniqueID, 0, proj_name);
-                } 
+            }
             updateStatusTable(incoming, fromDateReceived, toDateReceived, searchType, false, null, true, projectName, projectID);
         }
     });
@@ -772,6 +772,9 @@ const initiateHistoricalAnalysis = (queryTemp, fromTemp, toTemp, mentionID, hash
     statusTableFlag = 0;
 
     $('#currentlySearchedQuery').text(query);
+    if (proj_name) {
+        $('#currentlySearchedQuery').after('<div><p>Showing from <span class="font-weight-bold">' + proj_name + '</span></p></div>');
+    }
     $('#analysisPanelHA').css('display', 'block');
     let rangeType = getRangeType(fromDate, toDate);
 

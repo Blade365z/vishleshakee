@@ -77,7 +77,9 @@ Route::get('/networkUserAnalysis', function (Request $request) {
     return view('modules.networkUserAnalysis', compact('query', 'tweet_id', 'from', 'to'));
 
 })->middleware('auth');
-
+Route::get('/change-password', function (Request $request) {
+    return view('modules.change-password');
+})->middleware('auth');
 Route::get('/userAnalysis', function (Request $request) {
     $query = '';
     $from = '';
@@ -397,3 +399,4 @@ Route::post('getTweetidListFiltered', 'ProjectActivityController@getTweetidListF
 
 
 Route::post('getTweetIDListHavingLocation', 'ProjectActivityController@getTweetIDListHavingLocation');
+Route::post('updatePasswordSmat','Auth\ChangePassword@updatePassword');
